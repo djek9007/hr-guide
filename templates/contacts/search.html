@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+
+{% block title %}{% trans "Поиск контактов" %} - {% trans "Телефонный справочник" %}{% endblock %}
+
+{% block extra_js %}
+<!-- jQuery (требуется для Select2) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    // Инициализация Select2 после загрузки страницы
+    $(document).ready(function() {
+        // Инициализируем Select2 для должностей
+        $('#position').select2({
+            placeholder: '{% trans "Все должности" %}',
+            allowClear: true,
+            width: '100%',
+            language: {
+                noResults: function() {
+                    return "{% trans 'Ничего не найдено' %}";
+                },
+                searching: function() {
+                    return "{% trans 'Поиск...' %}";
+                }
+            }
+        });
+        
+        // Инициализируем Select2 для отделов
+        $('#department').select2({
+            placeholder: '{% trans "Все отделы" %}',
+            allowClear: true,
+            width: '100%',
+            language: {
+                noResults: function() {
+                    return "{% trans 'Ничего не найдено' %}";
+                },
+                searching: function() {
+                    return "{% trans 'Поиск...' %}";
+                }
+            }
+        });
+    });
+    
+    // Переинициализация Select2 после HTMX обновления
+    document.body.addEventListener('htmx:afterSwap', function() {
+        $('#position').select2('destroy').select2({
+            placeholder: '{% trans "Все должности" %}',
+            allowClear: true,
+            width: '100%',
+            language: {
+                noResults: function() {
+                    return "{% trans 'Ничего не найдено' %}";
+                },
+                searching: function() {
+                    return "{% trans 'Поиск...' %}";
+                }
+            }
+        });
+        
+        $('#department').select2('destroy').select2({
+            placeholder: '{% trans "Все отделы" %}',
+            allowClear: true,
+            width: '100%',
+            language: {
+                noResults: function() {
+                    return "{% trans 'Ничего не найдено' %}";
+                },
+                searching: function() {
+                    return "{% trans 'Поиск...' %}";
+                }
+            }
+        });
+    });
+    
+    // Функция сброса фильтров
+    function resetFilters(event) {
+        if (event) {
+            event.preventDefault();
+        }
+        
+        // Получаем URL без параметров
+        const baseUrl = '{% url "contacts:search" %}';
+        
+        // Просто перезагружаем страницу без параметров
+        window.location.href = baseUrl;
+        
+        return false;
+    }
+</script>
+
+<style>
+    /* Стили для Select2 */
+    .select2-container {
+        width: 100% !important;
+    }
+    
+    .select2-container--default .select2-selection--single {
+        height: 48px;
+        border: 1px solid #d1d5db !important;
+        border-radius: 0.75rem !important;
+        transition: all 0.2s;
+        background-color: white;
+    }
+    
+    .select2-container--default.select2-container--focus .select2-selection--single,
+    .select2-container--default.select2-container--open .select2-selection--single {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .select2-container--default .select2-selection--single:hover {
+        border-color: #93c5fd;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 48px;
+        padding-left: 16px;
+        color: #374151;
+        font-size: 0.875rem;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 46px;
+        right: 12px;
+    }
+    
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #3b82f6;
+    }
+    
+    .select2-dropdown {
+        border: 1px solid #d1d5db;
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        margin-top: 4px;
+    }
+    
+    .select2-results__option {
+        padding: 10px 16px;
+        transition: background-color 0.15s;
+    }
+    
+    .select2-results__option:hover {
+        background-color: #f3f4f6;
+    }
+    
+    /* Стили для таблицы */
+    table {
+        font-size: 0.875rem;
+    }
+    
+    th {
+        font-weight: 600;
+        background-color: #f9fafb;
+    }
+    
+    /* Улучшенные стили для полей ввода */
+    input:focus, select:focus {
+        outline: none;
+    }
+    
+    /* Скрытие стандартной стрелки select */
+    select {
+        background-image: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <!-- Заголовок страницы -->
+    <div class="mb-8">
+        <h2 class="text-3xl font-bold text-gray-800 mb-2">
+            <i class="fas fa-search mr-2 text-blue-600"></i>
+            {% trans "Поиск контактов" %}
+        </h2>
+        <p class="text-gray-600">{% trans "Используйте фильтры для поиска нужных контактов" %}</p>
+    </div>
+
+    <!-- Форма поиска с фильтрами -->
+    <div class="bg-gradient-to-br from-white to-blue-50 rounded-xl shadow-lg border border-blue-100 p-6 mb-6">
+        <form 
+            hx-get="{% url 'contacts:search' %}"
+            hx-target="#search-results"
+            hx-trigger="change delay:300ms, submit"
+            hx-indicator="#loading-indicator"
+            hx-push-url="true"
+            hx-params="*"
+            id="search-form"
+        >
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
+                <!-- Фильтр по ФИО (первый) -->
+                <div class="md:col-span-1 group">
+                    <label for="name" class="block text-sm font-semibold text-gray-700 mb-2.5 group-hover:text-blue-600 transition-colors">
+                        <i class="fas fa-user text-blue-500 mr-2"></i>
+                        {% trans "ФИО" %}
+                    </label>
+                    <div class="relative">
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            value="{{ full_name }}"
+                            placeholder="{% trans 'Введите ФИО' %}"
+                            class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md hover:border-blue-300"
+                            autocomplete="off"
+                        >
+                        <i class="fas fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                    </div>
+                </div>
+
+                <!-- Фильтр по отделу (второй) -->
+                <div class="md:col-span-1 group">
+                    <label for="department" class="block text-sm font-semibold text-gray-700 mb-2.5 group-hover:text-blue-600 transition-colors">
+                        <i class="fas fa-building text-blue-500 mr-2"></i>
+                        {% trans "Отдел" %}
+                    </label>
+                    <select
+                        id="department"
+                        name="department"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md hover:border-blue-300"
+                    >
+                        <option value="">{% trans "Все отделы" %}</option>
+                        {% for department in departments %}
+                            <option value="{{ department.id }}" {% if department_id == department.id|stringformat:"s" %}selected{% endif %}>
+                                {% if LANGUAGE_CODE == 'kk' and department.name_kk %}
+                                    {{ department.name_kk }}
+                                {% else %}
+                                    {{ department.name_ru }}
+                                {% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Фильтр по должности -->
+                <div class="md:col-span-1 group">
+                    <label for="position" class="block text-sm font-semibold text-gray-700 mb-2.5 group-hover:text-blue-600 transition-colors">
+                        <i class="fas fa-briefcase text-blue-500 mr-2"></i>
+                        {% trans "Должность" %}
+                    </label>
+                    <select
+                        id="position"
+                        name="position"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md hover:border-blue-300"
+                    >
+                        <option value="">{% trans "Все должности" %}</option>
+                        {% for position in positions %}
+                            <option value="{{ position.id }}" {% if position_id == position.id|stringformat:"s" %}selected{% endif %}>
+                                {% if LANGUAGE_CODE == 'kk' and position.name_kk %}
+                                    {{ position.name_kk }}
+                                {% else %}
+                                    {{ position.name_ru }}
+                                {% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Фильтр по номеру кабинета -->
+                <div class="md:col-span-1 group">
+                    <label for="room" class="block text-sm font-semibold text-gray-700 mb-2.5 group-hover:text-blue-600 transition-colors">
+                        <i class="fas fa-door-open text-blue-500 mr-2"></i>
+                        {% trans "Номер кабинета" %}
+                    </label>
+                    <div class="relative">
+                        <input
+                            type="text"
+                            id="room"
+                            name="room"
+                            value="{{ room_number }}"
+                            placeholder="{% trans 'Например: 751' %}"
+                            class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md hover:border-blue-300"
+                            autocomplete="off"
+                        >
+                        <i class="fas fa-door-open absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                    </div>
+                </div>
+
+                <!-- Фильтр по телефону -->
+                <div class="md:col-span-1 group">
+                    <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2.5 group-hover:text-blue-600 transition-colors">
+                        <i class="fas fa-phone text-blue-500 mr-2"></i>
+                        {% trans "Телефон" %}
+                    </label>
+                    <div class="relative">
+                        <input
+                            type="text"
+                            id="phone"
+                            name="phone"
+                            value="{{ phone }}"
+                            placeholder="{% trans 'Рабочий или мобильный' %}"
+                            class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md hover:border-blue-300"
+                            autocomplete="off"
+                        >
+                        <i class="fas fa-phone absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Кнопки управления -->
+            <div class="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
+                <button
+                    type="submit"
+                    class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 font-semibold"
+                >
+                    <i class="fas fa-search mr-2"></i>
+                    {% trans "Найти" %}
+                </button>
+                
+                <a
+                    href="{% url 'contacts:search' %}"
+                    class="px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl hover:from-gray-200 hover:to-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 font-semibold inline-block text-center {% if not has_active_filters %}opacity-50 cursor-not-allowed pointer-events-none{% endif %}"
+                >
+                    <i class="fas fa-redo mr-2"></i>
+                    {% trans "Сбросить фильтры" %}
+                </a>
+            </div>
+        </form>
+        
+        <!-- Индикатор загрузки -->
+        <div id="loading-indicator" class="htmx-indicator mt-4 text-center">
+            <div class="inline-flex items-center text-blue-600">
+                <i class="fas fa-spinner fa-spin mr-2"></i>
+                <span>{% trans "Поиск..." %}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Результаты поиска -->
+    <div id="search-results">
+        {% include 'contacts/partials/search_results.html' %}
+    </div>
+</div>
+
+{% endblock %}
