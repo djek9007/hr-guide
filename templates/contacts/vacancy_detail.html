@@ -47,29 +47,16 @@
         </div>
     {% endif %}
 
-    <div class="mt-8 grid gap-6 md:grid-cols-2">
-        {% if vacancy.get_requirements %}
-            <div class="border border-gray-200 rounded-lg p-5">
-                <h2 class="text-lg font-semibold text-gray-800 mb-3">
-                    {% trans "Требования" %}
-                </h2>
-                <div class="text-gray-700">
-                    {{ vacancy.get_requirements|safe }}
-                </div>
+    {% if vacancy.get_requirements_and_conditions %}
+        <div class="mt-8 border border-gray-200 rounded-lg p-5">
+            <h2 class="text-lg font-semibold text-gray-800 mb-3">
+                {% trans "Требования и условия" %}
+            </h2>
+            <div class="text-gray-700 prose max-w-none">
+                {{ vacancy.get_requirements_and_conditions|safe }}
             </div>
-        {% endif %}
-
-        {% if vacancy.get_conditions %}
-            <div class="border border-gray-200 rounded-lg p-5">
-                <h2 class="text-lg font-semibold text-gray-800 mb-3">
-                    {% trans "Условия работы" %}
-                </h2>
-                <div class="text-gray-700">
-                    {{ vacancy.get_conditions|safe }}
-                </div>
-            </div>
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
 
     {% if vacancy.contact_info %}
         <div class="mt-8 border border-blue-100 bg-blue-50 rounded-lg p-5 text-sm text-gray-700">

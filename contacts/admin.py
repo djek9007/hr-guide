@@ -174,10 +174,8 @@ class VacancyAdminForm(forms.ModelForm):
             # Подключаем CKEditor к основным текстовым полям
             "description_ru": CKEditorWidget(),
             "description_kk": CKEditorWidget(),
-            "requirements_ru": CKEditorWidget(),
-            "requirements_kk": CKEditorWidget(),
-            "conditions_ru": CKEditorWidget(),
-            "conditions_kk": CKEditorWidget(),
+            "requirements_and_conditions_ru": CKEditorWidget(),
+            "requirements_and_conditions_kk": CKEditorWidget(),
         }
 
 
@@ -187,24 +185,21 @@ class VacancyAdmin(admin.ModelAdmin):
     Административный интерфейс для управления вакансиями.
     """
     form = VacancyAdminForm
-    list_display = ('title_ru', 'title_kk', 'department', 'is_active', 'display_order', 'created_at')
-    list_filter = ('is_active', 'department', 'created_at')
+    list_display = ('position', 'department', 'is_active', 'display_order', 'created_at')
+    list_filter = ('is_active', 'department', 'position', 'created_at')
     list_editable = ('is_active', 'display_order')
-    search_fields = ('title_ru', 'title_kk', 'description_ru', 'description_kk')
+    search_fields = ('position__name_ru', 'position__name_kk', 'description_ru', 'description_kk')
     list_per_page = 50
 
     fieldsets = (
         (_('Основная информация'), {
-            'fields': ('title_ru', 'title_kk', 'department', 'is_active')
+            'fields': ('position', 'department', 'is_active')
         }),
         (_('Описание'), {
             'fields': ('description_ru', 'description_kk')
         }),
-        (_('Требования'), {
-            'fields': ('requirements_ru', 'requirements_kk')
-        }),
-        (_('Условия работы'), {
-            'fields': ('conditions_ru', 'conditions_kk')
+        (_('Требования и условия'), {
+            'fields': ('requirements_and_conditions_ru', 'requirements_and_conditions_kk')
         }),
         (_('Контактная информация'), {
             'fields': ('contact_info',)

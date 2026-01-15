@@ -362,19 +362,16 @@ class Vacancy(models.Model):
     Модель для хранения вакансий в справочнике.
     Используется для отображения вакансий на сайте.
     """
-    # Название вакансии на русском языке
-    title_ru = models.CharField(
-        max_length=300,
-        verbose_name=_('Название вакансии (русский)'),
-        db_index=True
-    )
-
-    # Название вакансии на казахском языке
-    title_kk = models.CharField(
-        max_length=300,
-        verbose_name=_('Название вакансии (казахский)'),
+    # Должность (связь с таблицей должностей для фильтрации)
+    position = models.ForeignKey(
+        Position,
+        on_delete=models.SET_NULL,
+        null=True,
         blank=True,
-        null=True
+        related_name='vacancies',
+        verbose_name=_('Должность'),
+        db_index=True,
+        help_text=_('Должность для вакансии. Позволяет фильтровать вакансии по должностям.')
     )
 
     # Отдел в организации
@@ -402,36 +399,20 @@ class Vacancy(models.Model):
         null=True
     )
 
-    # Требования на русском языке
-    requirements_ru = models.TextField(
-        verbose_name=_('Требования (русский)'),
+    # Требования и условия на русском языке (объединенное поле)
+    requirements_and_conditions_ru = models.TextField(
+        verbose_name=_('Требования и условия (русский)'),
         blank=True,
         null=True,
-        help_text=_('Требования к кандидату')
+        help_text=_('Требования к кандидату и условия работы')
     )
 
-    # Требования на казахском языке
-    requirements_kk = models.TextField(
-        verbose_name=_('Требования (казахский)'),
+    # Требования и условия на казахском языке (объединенное поле)
+    requirements_and_conditions_kk = models.TextField(
+        verbose_name=_('Требования и условия (казахский)'),
         blank=True,
         null=True,
-        help_text=_('Требования к кандидату')
-    )
-
-    # Условия работы на русском языке
-    conditions_ru = models.TextField(
-        verbose_name=_('Условия работы (русский)'),
-        blank=True,
-        null=True,
-        help_text=_('Условия работы, график и т.д.')
-    )
-
-    # Условия работы на казахском языке
-    conditions_kk = models.TextField(
-        verbose_name=_('Условия работы (казахский)'),
-        blank=True,
-        null=True,
-        help_text=_('Условия работы, график и т.д.')
+        help_text=_('Требования к кандидату и условия работы')
     )
 
     # Контактная информация для отклика
@@ -475,20 +456,24 @@ class Vacancy(models.Model):
         verbose_name_plural = _('Вакансии')
         ordering = ['display_order', '-created_at']
         indexes = [
-            models.Index(fields=['title_ru', 'is_active']),
+            models.Index(fields=['position', 'is_active']),
             models.Index(fields=['department', 'is_active']),
         ]
 
     def __str__(self):
-        return self.title_ru
+        if self.position:
+            return self.position.name_ru
+        return _('Вакансия без должности')
 
     def get_title(self):
-        """Возвращает название вакансии в зависимости от языка"""
+        """Возвращает название должности в зависимости от языка"""
+        if not self.position:
+            return ''
         from django.utils import translation
         lang = translation.get_language()
-        if lang == 'kk' and self.title_kk:
-            return self.title_kk
-        return self.title_ru
+        if lang == 'kk' and self.position.name_kk:
+            return self.position.name_kk
+        return self.position.name_ru
 
     def get_description(self):
         """Возвращает описание вакансии в зависимости от языка"""
@@ -498,18 +483,18 @@ class Vacancy(models.Model):
             return self.description_kk
         return self.description_ru or ''
 
-    def get_requirements(self):
-        """Возвращает требования в зависимости от языка"""
+    def get_requirements_and_conditions(self):
+        """Возвращает требования и условия в зависимости от языка"""
         from django.utils import translation
         lang = translation.get_language()
-        if lang == 'kk' and self.requirements_kk:
-            return self.requirements_kk
-        return self.requirements_ru or ''
+        if lang == 'kk' and self.requirements_and_conditions_kk:
+            return self.requirements_and_conditions_kk
+        return self.requirements_and_conditions_ru or ''
+
+    def get_requirements(self):
+        """Обратная совместимость: возвращает требования и условия"""
+        return self.get_requirements_and_conditions()
 
     def get_conditions(self):
-        """Возвращает условия работы в зависимости от языка"""
-        from django.utils import translation
-        lang = translation.get_language()
-        if lang == 'kk' and self.conditions_kk:
-            return self.conditions_kk
-        return self.conditions_ru or ''
+        """Обратная совместимость: возвращает требования и условия"""
+        return self.get_requirements_and_conditions()
