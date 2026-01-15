@@ -13,12 +13,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-change-this-in-production'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
+# Разрешенные хосты (можно указать через запятую в переменной окружения)
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',') if os.environ.get('ALLOWED_HOSTS') else ['*']
 
 
 # Application definition
@@ -74,12 +75,36 @@ WSGI_APPLICATION = 'hr_guide.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Настройка базы данных: PostgreSQL в Docker, SQLite локально
+DATABASE_HOST = os.environ.get('DATABASE_HOST', '')
+DATABASE_PORT = os.environ.get('DATABASE_PORT', '5432')
+DATABASE_NAME = os.environ.get('DATABASE_NAME', '')
+DATABASE_USER = os.environ.get('DATABASE_USER', '')
+DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD', '')
+
+if DATABASE_HOST and DATABASE_NAME and DATABASE_USER:
+    # Используем PostgreSQL, если указаны переменные окружения
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': DATABASE_NAME,
+            'USER': DATABASE_USER,
+            'PASSWORD': DATABASE_PASSWORD,
+            'HOST': DATABASE_HOST,
+            'PORT': DATABASE_PORT,
+            'OPTIONS': {
+                'connect_timeout': 10,
+            },
+        }
     }
-}
+else:
+    # Используем SQLite для локальной разработки
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -104,13 +129,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'ru'
+LANGUAGE_CODE = os.environ.get('LANGUAGE_CODE', 'ru')
 
-TIME_ZONE = 'Asia/Almaty'
+TIME_ZONE = os.environ.get('TIME_ZONE', 'Asia/Almaty')
 
-USE_I18N = True
+USE_I18N = os.environ.get('USE_I18N', 'True') == 'True'
 
-USE_TZ = True
+USE_TZ = os.environ.get('USE_TZ', 'True') == 'True'
 
 # Поддержка казахского языка
 LANGUAGES = [
@@ -126,15 +151,15 @@ LOCALE_PATHS = [
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = os.environ.get('STATIC_URL', 'static/')
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = Path(os.environ.get('STATIC_ROOT', str(BASE_DIR / 'staticfiles'))) if os.environ.get('STATIC_ROOT') else BASE_DIR / 'staticfiles'
 
 # Media files (загруженные пользователями файлы)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = os.environ.get('MEDIA_URL', '/media/')
+MEDIA_ROOT = Path(os.environ.get('MEDIA_ROOT', str(BASE_DIR / 'media'))) if os.environ.get('MEDIA_ROOT') else BASE_DIR / 'media'
 
 # Настройки для easy-thumbnails
 THUMBNAIL_DEBUG = DEBUG

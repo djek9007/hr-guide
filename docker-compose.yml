@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # Django приложение HR Guide
+  hr-guide-web:
+    build: .
+    container_name: hr-guide-web
+    restart: unless-stopped
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - ./media:/app/media  # Bind mount для медиа файлов из локальной папки
+      - hr-guide-staticfiles:/app/staticfiles  # Named volume для статических файлов
+    ports:
+      - "${PORT:-8880}:8000"  # Внешний порт:внутренний порт (внутри контейнера всегда 8000)
+    env_file:
+      - .env
+    environment:
+      - DEBUG=${DEBUG:-True}
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-change-this-in-production}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
+      - DATABASE_HOST=${DATABASE_HOST:-postgres}
+      - DATABASE_PORT=${DATABASE_PORT:-5432}
+      - DATABASE_NAME=${DATABASE_NAME:-hr-guide}
+      - DATABASE_USER=${DATABASE_USER:-admin}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD:-Postgres9007}
+    networks:
+      - hr-guide-network
+      - database_network  # Подключение к сети, где находится PostgreSQL
+
+volumes:
+  hr-guide-staticfiles:
+    driver: local
+
+networks:
+  hr-guide-network:
+    driver: bridge
+  database_network:
+    external: true
+    name: database_network  # Подключение к существующей сети PostgreSQL
