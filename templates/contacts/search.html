@@ -2,7 +2,7 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 
-{% block title %}{% trans "Поиск контактов" %} - {% trans "Телефонный справочник" %}{% endblock %}
+{% block title %}{% trans "Поиск контактов" %} - {% trans "Справочник Министерства культуры и информации Республики Казахстан" %}{% endblock %}
 
 {% block extra_js %}
 <!-- jQuery (требуется для Select2) -->
@@ -76,21 +76,6 @@
             }
         });
     });
-    
-    // Функция сброса фильтров
-    function resetFilters(event) {
-        if (event) {
-            event.preventDefault();
-        }
-        
-        // Получаем URL без параметров
-        const baseUrl = '{% url "contacts:search" %}';
-        
-        // Просто перезагружаем страницу без параметров
-        window.location.href = baseUrl;
-        
-        return false;
-    }
 </script>
 
 <style>
@@ -173,18 +158,20 @@
 {% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto">
+<div>
     <!-- Заголовок страницы -->
-    <div class="mb-8">
-        <h2 class="text-3xl font-bold text-gray-800 mb-2">
-            <i class="fas fa-search mr-2 text-blue-600"></i>
-            {% trans "Поиск контактов" %}
-        </h2>
-        <p class="text-gray-600">{% trans "Используйте фильтры для поиска нужных контактов" %}</p>
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-search mr-2 text-blue-600"></i>
+                {% trans "Поиск контактов" %}
+            </h2>
+            <p class="text-gray-600 text-sm sm:text-base">{% trans "Используйте фильтры для поиска нужных контактов" %}</p>
+        </div>
     </div>
 
     <!-- Форма поиска с фильтрами -->
-    <div class="bg-gradient-to-br from-white to-blue-50 rounded-xl shadow-lg border border-blue-100 p-6 mb-6">
+    <div class="bg-gradient-to-br from-white to-blue-50 rounded-xl shadow-lg border border-blue-100 p-4 sm:p-6 mb-6">
         <form 
             hx-get="{% url 'contacts:search' %}"
             hx-target="#search-results"
@@ -305,10 +292,10 @@
             </div>
 
             <!-- Кнопки управления -->
-            <div class="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-0 mt-6 pt-6 border-t border-gray-200">
                 <button
                     type="submit"
-                    class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 font-semibold"
+                    class="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 font-semibold text-sm sm:text-base"
                 >
                     <i class="fas fa-search mr-2"></i>
                     {% trans "Найти" %}
@@ -316,7 +303,8 @@
                 
                 <a
                     href="{% url 'contacts:search' %}"
-                    class="px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl hover:from-gray-200 hover:to-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 font-semibold inline-block text-center {% if not has_active_filters %}opacity-50 cursor-not-allowed pointer-events-none{% endif %}"
+                    hx-boost="false"
+                    class="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 font-semibold inline-block text-center text-sm sm:text-base"
                 >
                     <i class="fas fa-redo mr-2"></i>
                     {% trans "Сбросить фильтры" %}

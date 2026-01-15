@@ -1,4 +1,4 @@
-"""
+﻿"""
 Django settings for hr_guide project.
 """
 
@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     'contacts',  # Наше приложение для контактов
     'image_cropping',  # Для обрезки изображений
     'easy_thumbnails',  # Для создания миниатюр
+
+    'ckeditor',  # Для редактора текста
 ]
 
 MIDDLEWARE = [
@@ -144,6 +146,12 @@ THUMBNAIL_ALIASES = {
     },
 }
 
+# Добавляем процессор обрезки для easy-thumbnails
+from easy_thumbnails.conf import Settings as thumbnail_settings
+THUMBNAIL_PROCESSORS = (
+    'image_cropping.thumbnail_processors.crop_corners',
+) + thumbnail_settings.THUMBNAIL_PROCESSORS
+
 # Настройки для image-cropping
 IMAGE_CROPPING_SIZE_WARNING = True
 IMAGE_CROPPING_BACKEND = 'image_cropping.backends.easy_thumbs.EasyThumbnailsBackend'
@@ -172,7 +180,7 @@ JAZZMIN_SETTINGS = {
     "site_icon": None,
     "welcome_sign": "Добро пожаловать в админ-панель",
     "copyright": "HR Guide",
-    "search_model": ["contacts.Contact", "contacts.Department"],
+    "search_model": ["contacts.Contact", "contacts.Department", "contacts.Vacancy"],
     "user_avatar": None,
     "topmenu_links": [
         {"name": "Главная", "url": "admin:index", "permissions": ["auth.view_user"]},
@@ -185,7 +193,7 @@ JAZZMIN_SETTINGS = {
     "navigation_expanded": True,
     "hide_apps": [],
     "hide_models": [],
-    "order_with_respect_to": ["contacts", "contacts.Department", "contacts.Position", "contacts.Room", "contacts.Contact"],
+    "order_with_respect_to": ["contacts", "contacts.Department", "contacts.Position", "contacts.Room", "contacts.Contact", "contacts.Vacancy"],
     "custom_links": {},
     "icons": {
         "auth": "fas fa-users-cog",
@@ -195,6 +203,7 @@ JAZZMIN_SETTINGS = {
         "contacts.Position": "fas fa-briefcase",
         "contacts.Room": "fas fa-door-open",
         "contacts.Contact": "fas fa-address-card",
+        "contacts.Vacancy": "fas fa-briefcase",
     },
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-circle",
@@ -239,3 +248,14 @@ JAZZMIN_UI_TWEAKS = {
         "success": "btn-success"
     }
 }
+
+# Настройки для CKEditor
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'height': 300,
+        'width': '100%',
+        'language': 'ru',
+    },
+}
+

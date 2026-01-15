@@ -1,0 +1,16 @@
+/* Центрирование аватарки в списке админки */
+.field-avatar_thumbnail {
+    text-align: center !important;
+}
+
+.field-avatar_thumbnail div {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 0 auto !important;
+}
+
+/* Центрирование заголовка колонки */
+.admin-list .field-avatar_thumbnail th {
+    text-align: center !important;
+}

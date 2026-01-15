@@ -1,11 +1,12 @@
 {% load i18n %}
+{% load static %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% trans "Телефонный справочник" %}{% endblock %}</title>
+    <title>{% block title %}{% trans "Справочник Министерства культуры и информации Республики Казахстан" %}{% endblock %}</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,13 +17,7 @@
     <!-- Иконки -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <style>
-        /* Дополнительные стили при необходимости */
-        .search-input:focus {
-            outline: none;
-            ring: 2px;
-        }
-    </style>
+
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Шапка сайта -->
@@ -30,8 +25,14 @@
         <div class="container mx-auto px-4 py-4">
             <div class="flex items-center justify-between flex-wrap gap-4">
                 <a href="{% url 'contacts:list' %}" class="text-2xl font-bold hover:text-blue-200 transition-colors">
-                    <i class="fas fa-phone-alt mr-2"></i>
-                    {% trans "Телефонный справочник" %}
+                    <span class="flex items-center gap-3">
+                        <img
+                            src="{% static 'img/gerb-rk.svg' %}"
+                            alt="{% trans "Герб Республики Казахстан" %}"
+                            class="w-8 h-8"
+                        >
+                        <span>{% trans "Справочник МКИ РК" %}</span>
+                    </span>
                 </a>
                 
                 <!-- Навигация -->
@@ -49,6 +50,13 @@
                     >
                         <i class="fas fa-search mr-1"></i>
                         {% trans "Поиск" %}
+                    </a>
+                    <a 
+                        href="{% url 'contacts:vacancies' %}" 
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition-all {% if request.resolver_match.url_name == 'vacancies' %}bg-white bg-opacity-20 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-10{% endif %}"
+                    >
+                        <i class="fas fa-briefcase mr-1"></i>
+                        {% trans "Вакансии" %}
                     </a>
                 </nav>
                 
@@ -115,7 +123,7 @@
     <!-- Подвал -->
     <footer class="bg-gray-800 text-white mt-12">
         <div class="container mx-auto px-4 py-4 text-center text-sm">
-            <p>&copy; 2026 {% trans "Телефонный справочник" %}. {% trans "Все права защищены" %}.</p>
+            <p>&copy; 2026 {% trans "Справочник Министерства культуры и информации Республики Казахстан" %}. {% trans "Все права защищены" %}.</p>
         </div>
     </footer>
 
