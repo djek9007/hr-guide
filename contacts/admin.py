@@ -4,27 +4,41 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.html import format_html
 from image_cropping import ImageCroppingMixin
 from ckeditor.widgets import CKEditorWidget
-from .models import Department, Position, Room, Contact, Vacancy
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
+from .models import Department, Division, Position, Room, Contact, Vacancy
+
+
+# Ресурсы для импорта/экспорта
+class DepartmentResource(resources.ModelResource):
+    """Ресурс для импорта/экспорта департаментов"""
+    class Meta:
+        model = Department
+        fields = ('id', 'name_ru', 'name_kk', 'type', 'display_order', 'description')
+        import_id_fields = ('id',)
+        skip_unchanged = True
+        report_skipped = True
 
 
 @admin.register(Department)
-class DepartmentAdmin(admin.ModelAdmin):
+class DepartmentAdmin(ImportExportModelAdmin):
     """
-    Административный интерфейс для управления отделами.
+    Административный интерфейс для управления департаментами.
     """
-    list_display = ('name_ru', 'name_kk', 'parent', 'display_order', 'created_at')
-    list_editable = ('display_order',)  # Позволяет редактировать порядок прямо в списке
-    list_filter = ('parent', 'created_at')
+    list_display = ('name_ru', 'name_kk', 'type', 'display_order', 'get_divisions_count', 'created_at')
+    list_editable = ('display_order',)
+    list_filter = ('type', 'created_at')
     search_fields = ('name_ru', 'name_kk', 'description')
     list_per_page = 50
     
     fieldsets = (
         (_('Основная информация'), {
-            'fields': ('name_ru', 'name_kk', 'parent')
+            'fields': ('name_ru', 'name_kk', 'type'),
+            'description': _('Департамент - основное подразделение организации. Руководство - верхний уровень управления.')
         }),
         (_('Порядок отображения'), {
             'fields': ('display_order',),
-            'description': _('Укажите порядок отображения отдела в списке. Меньшее число = выше в списке. Если не указано, сортировка по алфавиту.')
+            'description': _('Укажите порядок отображения департамента в списке. Меньшее число = выше в списке.')
         }),
         (_('Описание'), {
             'fields': ('description',)
@@ -36,10 +50,75 @@ class DepartmentAdmin(admin.ModelAdmin):
     )
     
     readonly_fields = ('created_at', 'updated_at')
+    resource_class = DepartmentResource
+    
+    def get_divisions_count(self, obj):
+        """Количество отделов в департаменте"""
+        return obj.divisions.count()
+    get_divisions_count.short_description = _('Количество отделов')
+
+
+class DivisionResource(resources.ModelResource):
+    """Ресурс для импорта/экспорта отделов"""
+    class Meta:
+        model = Division
+        fields = ('id', 'name_ru', 'name_kk', 'department', 'display_order', 'description')
+        import_id_fields = ('id',)
+        skip_unchanged = True
+        report_skipped = True
+
+
+@admin.register(Division)
+class DivisionAdmin(ImportExportModelAdmin):
+    """
+    Административный интерфейс для управления отделами.
+    """
+    list_display = ('name_ru', 'name_kk', 'department', 'display_order', 'get_contacts_count', 'created_at')
+    list_editable = ('display_order',)
+    list_filter = ('department', 'created_at')
+    search_fields = ('name_ru', 'name_kk', 'description', 'department__name_ru', 'department__name_kk')
+    list_per_page = 50
+    
+    fieldsets = (
+        (_('Основная информация'), {
+            'fields': ('name_ru', 'name_kk', 'department'),
+            'description': _('Отдел может принадлежать департаменту или быть независимым.')
+        }),
+        (_('Порядок отображения'), {
+            'fields': ('display_order',),
+            'description': _('Укажите порядок отображения отдела в списке. Меньшее число = выше в списке.')
+        }),
+        (_('Описание'), {
+            'fields': ('description',)
+        }),
+        (_('Системная информация'), {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    readonly_fields = ('created_at', 'updated_at')
+    autocomplete_fields = ['department']
+    resource_class = DivisionResource
+    
+    def get_contacts_count(self, obj):
+        """Количество сотрудников в отделе"""
+        return obj.contacts.count()
+    get_contacts_count.short_description = _('Количество сотрудников')
+
+
+class PositionResource(resources.ModelResource):
+    """Ресурс для импорта/экспорта должностей"""
+    class Meta:
+        model = Position
+        fields = ('id', 'name_ru', 'name_kk', 'description')
+        import_id_fields = ('id',)
+        skip_unchanged = True
+        report_skipped = True
 
 
 @admin.register(Position)
-class PositionAdmin(admin.ModelAdmin):
+class PositionAdmin(ImportExportModelAdmin):
     """
     Административный интерфейс для управления должностями.
     """
@@ -61,10 +140,21 @@ class PositionAdmin(admin.ModelAdmin):
     )
     
     readonly_fields = ('created_at', 'updated_at')
+    resource_class = PositionResource
+
+
+class RoomResource(resources.ModelResource):
+    """Ресурс для импорта/экспорта кабинетов"""
+    class Meta:
+        model = Room
+        fields = ('id', 'number', 'description', 'floor', 'building')
+        import_id_fields = ('id',)
+        skip_unchanged = True
+        report_skipped = True
 
 
 @admin.register(Room)
-class RoomAdmin(admin.ModelAdmin):
+class RoomAdmin(ImportExportModelAdmin):
     """
     Административный интерфейс для управления кабинетами.
     """
@@ -87,16 +177,29 @@ class RoomAdmin(admin.ModelAdmin):
     )
     
     readonly_fields = ('created_at', 'updated_at')
+    resource_class = RoomResource
+
+
+class ContactResource(resources.ModelResource):
+    """Ресурс для импорта/экспорта контактов"""
+    class Meta:
+        model = Contact
+        fields = ('id', 'full_name', 'department', 'division', 'position', 'room', 
+                  'employment_type', 'work_phone', 'mobile_phone', 'email', 
+                  'display_order', 'notes')
+        import_id_fields = ('id',)
+        skip_unchanged = True
+        report_skipped = True
 
 
 @admin.register(Contact)
-class ContactAdmin(ImageCroppingMixin, admin.ModelAdmin):
+class ContactAdmin(ImageCroppingMixin, ImportExportModelAdmin):
     """
-    Административный интерфейс для управления контактами.
+    Административный интерфейс для управления сотрудниками.
     """
-    list_display = ('avatar_thumbnail', 'full_name', 'room', 'position', 'department', 'display_order', 'work_phone')
+    list_display = ('avatar_thumbnail', 'full_name', 'room', 'position', 'division', 'department', 'employment_type', 'display_order', 'work_phone')
     list_editable = ('display_order',)  # Позволяет редактировать порядок прямо в списке
-    list_filter = ('department', 'position', 'room', 'created_at')
+    list_filter = ('employment_type', 'division', 'department', 'position', 'room', 'created_at')
     search_fields = (
         'full_name', 
         'work_phone', 
@@ -104,6 +207,8 @@ class ContactAdmin(ImageCroppingMixin, admin.ModelAdmin):
         'room__number',
         'position__name_ru',
         'position__name_kk',
+        'division__name_ru',
+        'division__name_kk',
         'department__name_ru',
         'department__name_kk'
     )
@@ -111,7 +216,7 @@ class ContactAdmin(ImageCroppingMixin, admin.ModelAdmin):
     
     fieldsets = (
         (_('Основная информация'), {
-            'fields': ('full_name', 'avatar', 'avatar_cropping', 'department', 'position', 'room')
+            'fields': ('full_name', 'avatar', 'avatar_cropping', 'employment_type', 'division', 'department', 'position', 'room')
         }),
         (_('Порядок отображения'), {
             'fields': ('display_order',),
@@ -130,9 +235,10 @@ class ContactAdmin(ImageCroppingMixin, admin.ModelAdmin):
     )
     
     readonly_fields = ('created_at', 'updated_at')
+    resource_class = ContactResource
     
     # Автозаполнение для удобства
-    autocomplete_fields = ['department', 'position', 'room']
+    autocomplete_fields = ['division', 'department', 'position', 'room']
     list_display_links = ('full_name',)
     
     def avatar_thumbnail(self, obj):
@@ -179,8 +285,21 @@ class VacancyAdminForm(forms.ModelForm):
         }
 
 
+class VacancyResource(resources.ModelResource):
+    """Ресурс для импорта/экспорта вакансий"""
+    class Meta:
+        model = Vacancy
+        fields = ('id', 'position', 'division', 'department', 'is_active', 
+                  'description_ru', 'description_kk', 
+                  'requirements_and_conditions_ru', 'requirements_and_conditions_kk',
+                  'contact_info', 'display_order')
+        import_id_fields = ('id',)
+        skip_unchanged = True
+        report_skipped = True
+
+
 @admin.register(Vacancy)
-class VacancyAdmin(admin.ModelAdmin):
+class VacancyAdmin(ImportExportModelAdmin):
     """
     Административный интерфейс для управления вакансиями.
     """
@@ -193,7 +312,7 @@ class VacancyAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (_('Основная информация'), {
-            'fields': ('position', 'department', 'is_active')
+            'fields': ('position', 'division', 'department', 'is_active')
         }),
         (_('Описание'), {
             'fields': ('description_ru', 'description_kk')

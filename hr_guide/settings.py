@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'contacts',  # Наше приложение для контактов
     'image_cropping',  # Для обрезки изображений
     'easy_thumbnails',  # Для создания миниатюр
-
+    'import_export',  # Для импорта и экспорта данных в админке
     'ckeditor',  # Для редактора текста
 ]
 
@@ -284,3 +284,14 @@ CKEDITOR_CONFIGS = {
     },
 }
 
+# Настройки для django-import-export
+# Включаем поддержку форматов XLSX, XLS, CSV, JSON, YAML, HTML, TSV
+IMPORT_EXPORT_FORMATS = {
+    'xlsx': 'xlsx',
+    'xls': 'xls',
+    'csv': 'csv',
+    'json': 'json',
+    'yaml': 'yaml',
+    'html': 'html',
+    'tsv': 'tsv',
+}

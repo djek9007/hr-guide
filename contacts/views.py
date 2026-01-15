@@ -5,40 +5,84 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
-from .models import Contact, Department, Position, Room, Vacancy
+from .models import Contact, Department, Division, Position, Room, Vacancy
 
 
 def list_contacts(request):
     """
-    Представление для отображения списка всех контактов с иерархией отделов.
-    Показывает структуру отделов и сотрудников по отделам.
-    Сортировка: сначала по display_order (если указан), потом по ФИО.
+    Представление для отображения списка всех сотрудников с иерархией.
+    Показывает структуру: Департаменты -> Отделы -> Сотрудники.
+    Сортировка: сначала по display_order (если указан), потом по названию/ФИО.
     """
-    # Получаем все отделы с их контактами
-    # Сначала по display_order (nulls_last), потом по названию
+    # Получаем все департаменты с их отделами и сотрудниками
     departments = Department.objects.prefetch_related(
         'contacts__room',
         'contacts__position',
-        'contacts__department'
-    ).all().order_by(F('display_order').asc(nulls_last=True), 'name_ru')
+        'divisions__contacts__room',
+        'divisions__contacts__position'
+    ).order_by(F('display_order').asc(nulls_last=True), 'type', 'name_ru')
 
-    # Применяем сортировку к контактам в каждом отделе
-    # Сначала по display_order (nulls_last), потом по ФИО
+    # Для каждого департамента получаем его отделы и контакты
     for department in departments:
-        department.contacts_sorted = department.contacts.all().select_related('room', 'position').order_by(
+        # Получаем отделы внутри департамента (используем другое имя для присвоения)
+        divisions_queryset = department.divisions.all().prefetch_related(
+            'contacts__room', 
+            'contacts__position'
+        ).order_by(
             F('display_order').asc(nulls_last=True),
-            'full_name'
+            'name_ru'
         )
+        # Присваиваем в список, а не в related manager
+        department.divisions_list = list(divisions_queryset)
+        
+        # Получаем сотрудников напрямую в департаменте (ТОЛЬКО те, у которых НЕТ отдела)
+        # ВАЖНО: Если у сотрудника есть division, он НЕ должен попадать сюда, даже если у него указан этот department
+        department.contacts_sorted = list(
+            department.contacts.filter(
+                division__isnull=True  # Только сотрудники без отдела
+            ).select_related('room', 'position').order_by(
+                'employment_type',
+                F('display_order').asc(nulls_last=True),
+                'full_name'
+            )
+        )
+        
+        # Для каждого отдела внутри департамента сортируем сотрудников
+        # Фильтруем только отделы, где есть сотрудники
+        # ВАЖНО: Сотрудник с division всегда показывается только в отделе, даже если у него есть department
+        divisions_with_contacts = []
+        for division in department.divisions_list:
+            # Просто получаем всех сотрудников отдела - если у них есть division, они должны показываться только здесь
+            division_contacts = division.contacts.all().select_related('room', 'position').order_by(
+                'employment_type',
+                F('display_order').asc(nulls_last=True),
+                'full_name'
+            )
+            division.contacts_sorted = list(division_contacts)
+            # Добавляем только отделы с сотрудниками
+            if division.contacts_sorted:
+                divisions_with_contacts.append(division)
+        
+        # Заменяем список на отфильтрованный
+        department.divisions_list = divisions_with_contacts
+        
+        # Пересчитываем общее количество сотрудников в департаменте
+        # (сотрудники напрямую в департаменте + сотрудники во всех отделах)
+        total_contacts_in_dept = len(department.contacts_sorted)
+        for division in department.divisions_list:
+            total_contacts_in_dept += len(division.contacts_sorted)
+        department.total_contacts_count = total_contacts_in_dept
 
-    # Получаем контакты без отдела с сортировкой
+    # Получаем сотрудников без отдела и без департамента с сортировкой
     contacts_without_department = Contact.objects.filter(
-        department__isnull=True
+        department__isnull=True,
+        division__isnull=True
     ).select_related('room', 'position').order_by(
         F('display_order').asc(nulls_last=True),
         'full_name'
     )
 
-    # Пагинация для контактов без отдела
+    # Пагинация для сотрудников без отдела
     paginator = Paginator(contacts_without_department, 20)
     page = request.GET.get('page', 1)
 
@@ -49,11 +93,15 @@ def list_contacts(request):
     except EmptyPage:
         contacts_page = paginator.page(paginator.num_pages)
 
+    # Подсчитываем общее количество отделов
+    total_divisions = Division.objects.count()
+
     context = {
         'departments': departments,
         'contacts_without_department': contacts_page,
         'paginator': paginator,
         'total_contacts': Contact.objects.count(),
+        'total_divisions': total_divisions,
     }
 
     return render(request, 'contacts/list.html', context)
@@ -61,16 +109,18 @@ def list_contacts(request):
 
 def search_contacts(request):
     """
-    Представление для поиска контактов с использованием фильтров.
-    Поддерживает фильтрацию по: номеру кабинета, ФИО, должности, отделу, телефону.
+    Представление для поиска сотрудников с использованием фильтров.
+    Поддерживает фильтрацию по: номеру кабинета, ФИО, должности, отделу, телефону, типу трудоустройства.
     Доступно всем пользователям (публичный доступ).
     """
     # Получаем параметры фильтров
     room_number = request.GET.get('room', '').strip()
     full_name = request.GET.get('name', '').strip()
     position_id = request.GET.get('position', '').strip()
+    division_id = request.GET.get('division', '').strip()
     department_id = request.GET.get('department', '').strip()
     phone = request.GET.get('phone', '').strip()
+    employment_type = request.GET.get('employment_type', '').strip()
 
     # Базовый queryset с оптимизацией запросов
     contacts = Contact.objects.select_related('room', 'position', 'department').all()
@@ -94,15 +144,33 @@ def search_contacts(request):
             pass
 
     # Фильтр по отделу
+    if division_id:
+        try:
+            filters &= Q(division_id=int(division_id))
+        except ValueError:
+            pass
+    
+    # Фильтр по департаменту
+    # Если выбран департамент - показываем сотрудников всех отделов внутри него + сотрудников департамента
     if department_id:
         try:
-            filters &= Q(department_id=int(department_id))
+            dept_id = int(department_id)
+            department = Department.objects.filter(id=dept_id).first()
+            if department:
+                # Получаем ID всех отделов внутри департамента
+                division_ids = list(department.divisions.values_list('id', flat=True))
+                # Фильтруем: сотрудники отделов + сотрудники напрямую в департаменте
+                filters &= (Q(division_id__in=division_ids) | Q(department_id=dept_id))
         except ValueError:
             pass
 
     # Фильтр по телефону (рабочий или мобильный)
     if phone:
         filters &= (Q(work_phone__icontains=phone) | Q(mobile_phone__icontains=phone))
+    
+    # Фильтр по типу трудоустройства
+    if employment_type:
+        filters &= Q(employment_type=employment_type)
 
     # Применяем все фильтры
     if filters:
@@ -128,24 +196,32 @@ def search_contacts(request):
         contacts_page = paginator.page(paginator.num_pages)
 
     # Получаем списки для выпадающих меню
-    departments = Department.objects.all().order_by('name_ru')
+    departments = Department.objects.all().order_by(
+        'type', F('display_order').asc(nulls_last=True), 'name_ru'
+    )
+    divisions = Division.objects.select_related('department').order_by(
+        F('display_order').asc(nulls_last=True), 'name_ru'
+    )
     positions = Position.objects.all().order_by('name_ru')
 
     # Проверяем, есть ли активные фильтры
-    has_active_filters = any([room_number, full_name, position_id, department_id, phone])
+    has_active_filters = any([room_number, full_name, position_id, division_id, department_id, phone, employment_type])
 
     context = {
         'contacts': contacts_page,
         'paginator': paginator,
         'total_results': contacts.count(),
         'departments': departments,
+        'divisions': divisions,
         'positions': positions,
         # Значения фильтров для формы
         'room_number': room_number,
         'full_name': full_name,
         'position_id': position_id,
+        'division_id': division_id,
         'department_id': department_id,
         'phone': phone,
+        'employment_type': employment_type,
         'has_active_filters': has_active_filters,
     }
 
