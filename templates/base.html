@@ -58,6 +58,14 @@
                         <i class="fas fa-briefcase mr-1"></i>
                         {% trans "Вакансии" %}
                     </a>
+                    <a 
+                        href="{% url 'contacts:chat' %}" 
+                        target="_blank"
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition-all {% if request.resolver_match.url_name == 'chat' %}bg-white bg-opacity-20 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-10{% endif %}"
+                    >
+                        <i class="fas fa-comments mr-1"></i>
+                        {% trans "Чат" %}
+                    </a>
                 </nav>
                 
                 <div class="flex items-center gap-4">

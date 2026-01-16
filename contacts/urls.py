@@ -9,4 +9,5 @@ urlpatterns = [
     path('search/', views.search_contacts, name='search'),  # Страница поиска
     path('vacancies/', views.list_vacancies, name='vacancies'),  # Страница вакансий
     path('vacancies/<int:pk>/', views.vacancy_detail, name='vacancy_detail'),  # Детальная страница вакансии
+    path('chat/', views.chat_view, name='chat'),  # Страница чата
 ]

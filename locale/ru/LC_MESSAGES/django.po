@@ -682,6 +682,26 @@ msgstr ""
 msgid "Назад к списку вакансий"
 msgstr ""
 
+#: .\templates\base.html:54
+msgid "Чат"
+msgstr "Чат"
+
+#: .\templates\contacts\chat.html:10
+msgid "Система общения между сотрудниками"
+msgstr "Система общения между сотрудниками"
+
+#: .\templates\contacts\chat.html:18
+msgid "Чат в разработке"
+msgstr "Чат в разработке"
+
+#: .\templates\contacts\chat.html:21
+msgid "Функционал чата будет доступен в ближайшее время. Здесь будет возможность общаться с коллегами, отправлять сообщения и файлы."
+msgstr "Функционал чата будет доступен в ближайшее время. Здесь будет возможность общаться с коллегами, отправлять сообщения и файлы."
+
+#: .\templates\contacts\chat.html:26
+msgid "Скоро здесь появится полноценный интерфейс для общения!"
+msgstr "Скоро здесь появится полноценный интерфейс для общения!"
+
 #: .\venv\Lib\site-packages\ckeditor_uploader\forms.py:6
 msgid "Search files"
 msgstr ""

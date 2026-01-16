@@ -308,3 +308,12 @@ def login_view(request):
             messages.error(request, _('Пожалуйста, заполните все поля.'))
 
     return render(request, 'accounts/login.html')
+
+
+def chat_view(request):
+    """
+    Представление для страницы чата.
+    Пока что простая заглушка, позже будет реализован полноценный функционал.
+    """
+    context = {}
+    return render(request, 'contacts/chat.html', context)
