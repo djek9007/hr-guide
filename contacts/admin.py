@@ -68,6 +68,7 @@ class DepartmentAdmin(ImportExportModelAdmin):
     list_filter = ('type', 'created_at')
     search_fields = ('name_ru', 'name_kk', 'description')
     list_per_page = 50
+    list_display_links = ('name_ru', 'name_kk')
     
     fieldsets = (
         (_('Основная информация'), {
@@ -116,6 +117,7 @@ class DivisionAdmin(ImportExportModelAdmin):
     list_filter = ('department', 'created_at')
     search_fields = ('name_ru', 'name_kk', 'description', 'department__name_ru', 'department__name_kk')
     list_per_page = 50
+    list_display_links = ('name_ru', 'name_kk')
     
     fieldsets = (
         (_('Основная информация'), {
@@ -163,6 +165,7 @@ class PositionAdmin(ImportExportModelAdmin):
     list_display = ('id', 'name_ru', 'name_kk', 'created_at')
     search_fields = ('name_ru', 'name_kk', 'description')
     list_per_page = 50
+    list_display_links = ('name_ru', 'name_kk')
     
     fieldsets = (
         (_('Основная информация'), {
@@ -200,6 +203,7 @@ class RoomAdmin(ImportExportModelAdmin):
     list_filter = ('floor', 'building', 'created_at')
     search_fields = ('number', 'description', 'building')
     list_per_page = 50
+    list_display_links = ('number',)
     
     fieldsets = (
         (_('Основная информация'), {
@@ -261,6 +265,7 @@ class ContactAdmin(ImageCroppingMixin, ImportExportModelAdmin):
     list_display = ('id', 'avatar_thumbnail', 'full_name', 'room', 'position', 'division', 'department', 'employment_type', 'display_order', 'work_phone')
     list_editable = ('display_order',)  # Позволяет редактировать порядок прямо в списке
     list_filter = ('employment_type', 'division', 'department', 'position', 'room', 'created_at')
+    list_display_links = ('full_name',)
     search_fields = (
         'full_name', 
         'work_phone', 
@@ -410,6 +415,7 @@ class VacancyAdmin(ImportExportModelAdmin):
     list_editable = ('is_active', 'display_order')
     search_fields = ('position__name_ru', 'position__name_kk', 'description_ru', 'description_kk')
     list_per_page = 50
+    list_display_links = ('position',)
 
     fieldsets = (
         (_('Основная информация'), {
