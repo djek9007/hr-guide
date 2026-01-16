@@ -34,7 +34,7 @@
                         </th>
                         <th scope="col" class="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider hidden lg:table-cell">
                             <i class="fas fa-building mr-1 sm:mr-2 text-blue-600"></i>
-                            {% trans "Отдел" %}
+                            {% trans "Управление" %}
                         </th>
                         <th scope="col" class="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             <i class="fas fa-phone mr-1 sm:mr-2 text-blue-600"></i>
@@ -81,7 +81,7 @@
                             <td class="px-3 sm:px-6 py-3 sm:py-4">
                                 <div class="text-sm text-gray-800">
                                     {% if contact.position %}
-                                        {% if LANGUAGE_CODE == 'kk' and contact.position.name_kk %}
+                                        {% if LANGUAGE_CODE|slice:":2" == 'kk' and contact.position.name_kk %}
                                             {{ contact.position.name_kk }}
                                         {% else %}
                                             {{ contact.position.name_ru }}
@@ -92,11 +92,11 @@
                                 </div>
                             </td>
                             
-                            <!-- Отдел -->
+                            <!-- Управление -->
                             <td class="px-3 sm:px-6 py-3 sm:py-4 hidden lg:table-cell">
                                 <div class="text-sm text-gray-800">
                                     {% if contact.department %}
-                                        {% if LANGUAGE_CODE == 'kk' and contact.department.name_kk %}
+                                        {% if LANGUAGE_CODE|slice:":2" == 'kk' and contact.department.name_kk %}
                                             {{ contact.department.name_kk }}
                                         {% else %}
                                             {{ contact.department.name_ru }}

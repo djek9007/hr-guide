@@ -22,7 +22,7 @@
                 <i class="fas fa-users mr-2 text-blue-600"></i>
                 {% trans "Список сотрудников" %}
             </h2>
-            <p class="text-gray-600 text-sm sm:text-base">{% trans "Структура отделов и сотрудников" %}</p>
+            
         </div>
         <a 
             href="{% url 'contacts:search' %}" 
@@ -50,11 +50,11 @@
             <div class="h-12 w-px bg-gray-300"></div>
             <div class="text-center">
                 <div class="text-2xl font-bold text-gray-800">{{ total_divisions }}</div>
-                <div class="text-sm text-gray-600 mt-1">{% trans "Отделов" %}</div>
+                <div class="text-sm text-gray-600 mt-1">{% trans "Управлении" %}</div>
             </div>
         </div>
     </div>
-    <!-- Список департаментов и отделов с иерархией -->
+    <!-- Список департаментов и управлений с иерархией -->
     <div class="space-y-8">
         {% for department in departments %}
             <!-- Департамент как отдельный крупный блок -->
@@ -66,7 +66,7 @@
                             <i class="fas fa-sitemap text-xl mr-3"></i>
                             <div>
                                 <h2 class="text-xl font-bold">
-                                    {% if LANGUAGE_CODE == 'kk' and department.name_kk %}
+                                    {% if LANGUAGE_CODE|slice:":2" == 'kk' and department.name_kk %}
                                         {{ department.name_kk }}
                                     {% else %}
                                         {{ department.name_ru }}
@@ -78,7 +78,7 @@
                             {% if department.divisions_list %}
                                 <div class="text-right">
                                     <div class="text-base font-semibold">{{ department.divisions_list|length }}</div>
-                                    <div class="text-xs opacity-80">{% trans "отделов" %}</div>
+                                    <div class="text-xs opacity-80">{% trans "управлений" %}</div>
                                 </div>
                             {% endif %}
                             {% if department.total_contacts_count %}
@@ -162,7 +162,7 @@
                                         <td class="px-6 py-4">
                                             <div class="text-sm text-gray-800">
                                                 {% if contact.position %}
-                                                    {% if LANGUAGE_CODE == 'kk' and contact.position.name_kk %}
+                                                    {% if LANGUAGE_CODE|slice:":2" == 'kk' and contact.position.name_kk %}
                                                         {{ contact.position.name_kk }}
                                                     {% else %}
                                                         {{ contact.position.name_ru }}
@@ -209,7 +209,7 @@
                     </div>
                 {% endif %}
 
-                <!-- Отделы внутри департамента -->
+                <!-- Управления внутри департамента -->
                 {% if department.divisions_list %}
                     {% for division in department.divisions_list %}
                         <div class="{% if department.contacts_sorted %}mt-6{% endif %}">
@@ -218,7 +218,7 @@
                                     <div class="flex items-center justify-between">
                                         <h4 class="text-base font-semibold text-gray-800 flex items-center">
                                             <i class="fas fa-building text-blue-600 mr-2 text-sm"></i>
-                                            {% if LANGUAGE_CODE == 'kk' and division.name_kk %}
+                                            {% if LANGUAGE_CODE|slice:":2" == 'kk' and division.name_kk %}
                                                 {{ division.name_kk }}
                                             {% else %}
                                                 {{ division.name_ru }}
@@ -231,7 +231,7 @@
                                 </div>
                             </div>
                             
-                            <!-- Сотрудники отдела -->
+                            <!-- Сотрудники управления -->
                             {% if division.contacts_sorted %}
                                 <div class="overflow-x-auto ml-4 mr-4 mb-4">
                                     <table class="w-full min-w-[800px] divide-y divide-gray-200">
@@ -278,7 +278,7 @@
                                                     <td class="px-6 py-4">
                                                         <div class="text-sm text-gray-800">
                                                             {% if contact.position %}
-                                                                {% if LANGUAGE_CODE == 'kk' and contact.position.name_kk %}{{ contact.position.name_kk }}{% else %}{{ contact.position.name_ru }}{% endif %}
+                                                                {% if LANGUAGE_CODE|slice:":2" == 'kk' and contact.position.name_kk %}{{ contact.position.name_kk }}{% else %}{{ contact.position.name_ru }}{% endif %}
                                                             {% else %}<span class="text-gray-400 italic">—</span>{% endif %}
                                                         </div>
                                                     </td>
@@ -401,7 +401,7 @@
                                     <td class="px-6 py-4">
                                         <div class="text-sm text-gray-800">
                                             {% if contact.position %}
-                                                {% if LANGUAGE_CODE == 'kk' and contact.position.name_kk %}
+                                                {% if LANGUAGE_CODE|slice:":2" == 'kk' and contact.position.name_kk %}
                                                     {{ contact.position.name_kk }}
                                                 {% else %}
                                                     {{ contact.position.name_ru }}

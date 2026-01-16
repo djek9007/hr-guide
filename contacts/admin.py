@@ -2,11 +2,49 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import format_html
+from django.http import JsonResponse
+from django.urls import path
 from image_cropping import ImageCroppingMixin
 from ckeditor.widgets import CKEditorWidget
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
+from import_export.widgets import ForeignKeyWidget
 from .models import Department, Division, Position, Room, Contact, Vacancy
+
+
+class SafeForeignKeyWidget(ForeignKeyWidget):
+    """
+    Виджет для ForeignKey полей, который безопасно обрабатывает отсутствующие значения.
+    Если объект не найден, возвращает None вместо выброса исключения.
+    """
+    def clean(self, value, row=None, **kwargs):
+        """Очистка значения с обработкой отсутствующих объектов"""
+        # Обрабатываем пустые значения
+        if value is None or value == '' or (isinstance(value, str) and value.strip() == ''):
+            return None
+        
+        # Пытаемся преобразовать в число, если это ID
+        try:
+            # Если значение - число, используем его как ID
+            if isinstance(value, (int, float)):
+                value = int(value)
+            elif isinstance(value, str):
+                # Пытаемся преобразовать строку в число
+                value = int(value.strip())
+        except (ValueError, TypeError):
+            # Если не удалось преобразовать, пробуем найти по строковому значению
+            pass
+        
+        try:
+            # Пытаемся получить объект через родительский метод
+            return super().clean(value, row, **kwargs)
+        except Exception as e:
+            # Если объект не найден или произошла ошибка, возвращаем None
+            # Логируем ошибку для отладки (можно убрать в продакшене)
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Не удалось найти объект для значения '{value}': {e}")
+            return None
 
 
 # Ресурсы для импорта/экспорта
@@ -25,7 +63,7 @@ class DepartmentAdmin(ImportExportModelAdmin):
     """
     Административный интерфейс для управления департаментами.
     """
-    list_display = ('name_ru', 'name_kk', 'type', 'display_order', 'get_divisions_count', 'created_at')
+    list_display = ('id', 'name_ru', 'name_kk', 'type', 'display_order', 'get_divisions_count', 'created_at')
     list_editable = ('display_order',)
     list_filter = ('type', 'created_at')
     search_fields = ('name_ru', 'name_kk', 'description')
@@ -53,13 +91,13 @@ class DepartmentAdmin(ImportExportModelAdmin):
     resource_class = DepartmentResource
     
     def get_divisions_count(self, obj):
-        """Количество отделов в департаменте"""
+        """Количество управлений в департаменте"""
         return obj.divisions.count()
-    get_divisions_count.short_description = _('Количество отделов')
+    get_divisions_count.short_description = _('Количество управлений')
 
 
 class DivisionResource(resources.ModelResource):
-    """Ресурс для импорта/экспорта отделов"""
+    """Ресурс для импорта/экспорта управлений"""
     class Meta:
         model = Division
         fields = ('id', 'name_ru', 'name_kk', 'department', 'display_order', 'description')
@@ -71,9 +109,9 @@ class DivisionResource(resources.ModelResource):
 @admin.register(Division)
 class DivisionAdmin(ImportExportModelAdmin):
     """
-    Административный интерфейс для управления отделами.
+    Административный интерфейс для управления управлениями.
     """
-    list_display = ('name_ru', 'name_kk', 'department', 'display_order', 'get_contacts_count', 'created_at')
+    list_display = ('id', 'name_ru', 'name_kk', 'department', 'display_order', 'get_contacts_count', 'created_at')
     list_editable = ('display_order',)
     list_filter = ('department', 'created_at')
     search_fields = ('name_ru', 'name_kk', 'description', 'department__name_ru', 'department__name_kk')
@@ -82,11 +120,11 @@ class DivisionAdmin(ImportExportModelAdmin):
     fieldsets = (
         (_('Основная информация'), {
             'fields': ('name_ru', 'name_kk', 'department'),
-            'description': _('Отдел может принадлежать департаменту или быть независимым.')
+            'description': _('Управление может принадлежать департаменту или быть независимым.')
         }),
         (_('Порядок отображения'), {
             'fields': ('display_order',),
-            'description': _('Укажите порядок отображения отдела в списке. Меньшее число = выше в списке.')
+            'description': _('Укажите порядок отображения управления в списке. Меньшее число = выше в списке.')
         }),
         (_('Описание'), {
             'fields': ('description',)
@@ -102,7 +140,7 @@ class DivisionAdmin(ImportExportModelAdmin):
     resource_class = DivisionResource
     
     def get_contacts_count(self, obj):
-        """Количество сотрудников в отделе"""
+        """Количество сотрудников в управлении"""
         return obj.contacts.count()
     get_contacts_count.short_description = _('Количество сотрудников')
 
@@ -122,7 +160,7 @@ class PositionAdmin(ImportExportModelAdmin):
     """
     Административный интерфейс для управления должностями.
     """
-    list_display = ('name_ru', 'name_kk', 'created_at')
+    list_display = ('id', 'name_ru', 'name_kk', 'created_at')
     search_fields = ('name_ru', 'name_kk', 'description')
     list_per_page = 50
     
@@ -158,7 +196,7 @@ class RoomAdmin(ImportExportModelAdmin):
     """
     Административный интерфейс для управления кабинетами.
     """
-    list_display = ('number', 'description', 'floor', 'building', 'created_at')
+    list_display = ('id', 'number', 'description', 'floor', 'building', 'created_at')
     list_filter = ('floor', 'building', 'created_at')
     search_fields = ('number', 'description', 'building')
     list_per_page = 50
@@ -182,6 +220,29 @@ class RoomAdmin(ImportExportModelAdmin):
 
 class ContactResource(resources.ModelResource):
     """Ресурс для импорта/экспорта контактов"""
+    # Настройка виджетов для ForeignKey полей с обработкой отсутствующих значений
+    # Используем SafeForeignKeyWidget для безопасной обработки отсутствующих объектов
+    department = resources.Field(
+        column_name='department',
+        attribute='department',
+        widget=SafeForeignKeyWidget(Department, 'id')
+    )
+    division = resources.Field(
+        column_name='division',
+        attribute='division',
+        widget=SafeForeignKeyWidget(Division, 'id')
+    )
+    position = resources.Field(
+        column_name='position',
+        attribute='position',
+        widget=SafeForeignKeyWidget(Position, 'id')
+    )
+    room = resources.Field(
+        column_name='room',
+        attribute='room',
+        widget=SafeForeignKeyWidget(Room, 'id')
+    )
+    
     class Meta:
         model = Contact
         fields = ('id', 'full_name', 'department', 'division', 'position', 'room', 
@@ -197,7 +258,7 @@ class ContactAdmin(ImageCroppingMixin, ImportExportModelAdmin):
     """
     Административный интерфейс для управления сотрудниками.
     """
-    list_display = ('avatar_thumbnail', 'full_name', 'room', 'position', 'division', 'department', 'employment_type', 'display_order', 'work_phone')
+    list_display = ('id', 'avatar_thumbnail', 'full_name', 'room', 'position', 'division', 'department', 'employment_type', 'display_order', 'work_phone')
     list_editable = ('display_order',)  # Позволяет редактировать порядок прямо в списке
     list_filter = ('employment_type', 'division', 'department', 'position', 'room', 'created_at')
     search_fields = (
@@ -271,7 +332,7 @@ class ContactAdmin(ImageCroppingMixin, ImportExportModelAdmin):
 
 
 class VacancyAdminForm(forms.ModelForm):
-    """Форма вакансии с подключенным CKEditor."""
+    """Форма вакансии с подключенным CKEditor и фильтрацией управлений по департаменту."""
 
     class Meta:
         model = Vacancy
@@ -283,6 +344,46 @@ class VacancyAdminForm(forms.ModelForm):
             "requirements_and_conditions_ru": CKEditorWidget(),
             "requirements_and_conditions_kk": CKEditorWidget(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Фильтруем управления по выбранному департаменту
+        if 'department' in self.data:
+            try:
+                department_id = self.data.get('department')
+                if department_id:
+                    # Если департамент выбран - показываем управления этого департамента
+                    department_id = int(department_id)
+                    self.fields['division'].queryset = Division.objects.filter(
+                        department_id=department_id
+                    ).order_by('name_ru')
+                else:
+                    # Если департамент не выбран - показываем независимые управления (без департамента)
+                    self.fields['division'].queryset = Division.objects.filter(
+                        department__isnull=True
+                    ).order_by('name_ru')
+            except (ValueError, TypeError):
+                # Невалидный ID департамента - показываем независимые управления
+                self.fields['division'].queryset = Division.objects.filter(
+                    department__isnull=True
+                ).order_by('name_ru')
+        elif self.instance and self.instance.pk:
+            # При редактировании существующей вакансии
+            if self.instance.department:
+                # Показываем управления выбранного департамента
+                self.fields['division'].queryset = Division.objects.filter(
+                    department=self.instance.department
+                ).order_by('name_ru')
+            else:
+                # Если департамент не выбран - показываем независимые управления
+                self.fields['division'].queryset = Division.objects.filter(
+                    department__isnull=True
+                ).order_by('name_ru')
+        else:
+            # При создании новой вакансии без выбранного департамента - показываем независимые управления
+            self.fields['division'].queryset = Division.objects.filter(
+                department__isnull=True
+            ).order_by('name_ru')
 
 
 class VacancyResource(resources.ModelResource):
@@ -304,7 +405,7 @@ class VacancyAdmin(ImportExportModelAdmin):
     Административный интерфейс для управления вакансиями.
     """
     form = VacancyAdminForm
-    list_display = ('position', 'department', 'is_active', 'display_order', 'created_at')
+    list_display = ('id', 'position', 'department', 'is_active', 'display_order', 'created_at')
     list_filter = ('is_active', 'department', 'position', 'created_at')
     list_editable = ('is_active', 'display_order')
     search_fields = ('position__name_ru', 'position__name_kk', 'description_ru', 'description_kk')
@@ -312,7 +413,7 @@ class VacancyAdmin(ImportExportModelAdmin):
 
     fieldsets = (
         (_('Основная информация'), {
-            'fields': ('position', 'division', 'department', 'is_active')
+            'fields': ('position', 'department', 'division', 'is_active')
         }),
         (_('Описание'), {
             'fields': ('description_ru', 'description_kk')
@@ -334,5 +435,66 @@ class VacancyAdmin(ImportExportModelAdmin):
     )
 
     readonly_fields = ('created_at', 'updated_at')
+    resource_class = VacancyResource
+
+    def get_form(self, request, obj=None, **kwargs):
+        """Переопределяем метод для фильтрации управлений по департаменту."""
+        form = super().get_form(request, obj, **kwargs)
+        
+        # Если редактируем существующую вакансию
+        if obj and obj.department:
+            # Показываем управления выбранного департамента
+            form.base_fields['division'].queryset = Division.objects.filter(
+                department=obj.department
+            ).order_by('name_ru')
+        else:
+            # При создании новой вакансии или если департамент не выбран - показываем независимые управления
+            form.base_fields['division'].queryset = Division.objects.filter(
+                department__isnull=True
+            ).order_by('name_ru')
+        
+        return form
+
+    def get_urls(self):
+        """Добавляем кастомный URL для получения управлений по департаменту."""
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                'get-divisions-by-department/',
+                self.admin_site.admin_view(self.get_divisions_by_department),
+                name='contacts_vacancy_get_divisions',
+            ),
+        ]
+        return custom_urls + urls
+
+    def get_divisions_by_department(self, request):
+        """Возвращает JSON со списком управлений для выбранного департамента или независимые управления."""
+        department_id = request.GET.get('department_id')
+        
+        if department_id:
+            try:
+                # Если департамент выбран - возвращаем управления этого департамента
+                divisions = Division.objects.filter(
+                    department_id=int(department_id)
+                ).order_by('name_ru')
+            except (ValueError, TypeError):
+                # Невалидный ID - возвращаем независимые управления
+                divisions = Division.objects.filter(
+                    department__isnull=True
+                ).order_by('name_ru')
+        else:
+            # Если департамент не выбран - возвращаем независимые управления (без департамента)
+            divisions = Division.objects.filter(
+                department__isnull=True
+            ).order_by('name_ru')
+        
+        divisions_data = [
+            {'id': div.id, 'name_ru': div.name_ru}
+            for div in divisions
+        ]
+        return JsonResponse({'divisions': divisions_data})
+
+    class Media:
+        js = ('admin/js/vacancy_admin.js',)
 
 

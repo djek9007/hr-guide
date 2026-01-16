@@ -15,67 +15,82 @@
 <script>
     // Инициализация Select2 после загрузки страницы
     $(document).ready(function() {
-        // Инициализируем Select2 для должностей
-        $('#position').select2({
-            placeholder: '{% trans "Все должности" %}',
-            allowClear: true,
-            width: '100%',
-            language: {
-                noResults: function() {
-                    return "{% trans 'Ничего не найдено' %}";
-                },
-                searching: function() {
-                    return "{% trans 'Поиск...' %}";
-                }
-            }
-        });
-        
-        // Инициализируем Select2 для отделов
-        $('#department').select2({
-            placeholder: '{% trans "Все отделы" %}',
-            allowClear: true,
-            width: '100%',
-            language: {
-                noResults: function() {
-                    return "{% trans 'Ничего не найдено' %}";
-                },
-                searching: function() {
-                    return "{% trans 'Поиск...' %}";
-                }
-            }
-        });
+        initSelect2();
     });
     
-    // Переинициализация Select2 после HTMX обновления
-    document.body.addEventListener('htmx:afterSwap', function() {
-        $('#position').select2('destroy').select2({
-            placeholder: '{% trans "Все должности" %}',
-            allowClear: true,
-            width: '100%',
-            language: {
-                noResults: function() {
-                    return "{% trans 'Ничего не найдено' %}";
-                },
-                searching: function() {
-                    return "{% trans 'Поиск...' %}";
+    // Функция для инициализации Select2
+    function initSelect2() {
+        // Инициализируем Select2 для должностей
+        if ($('#position').length && !$('#position').hasClass('select2-hidden-accessible')) {
+            $('#position').select2({
+                placeholder: '{% trans "Все должности" %}',
+                allowClear: true,
+                width: '100%',
+                language: {
+                    noResults: function() {
+                        return "{% trans 'Ничего не найдено' %}";
+                    },
+                    searching: function() {
+                        return "{% trans 'Поиск...' %}";
+                    }
                 }
-            }
-        });
+            });
+        }
         
-        $('#department').select2('destroy').select2({
-            placeholder: '{% trans "Все отделы" %}',
-            allowClear: true,
-            width: '100%',
-            language: {
-                noResults: function() {
-                    return "{% trans 'Ничего не найдено' %}";
-                },
-                searching: function() {
-                    return "{% trans 'Поиск...' %}";
+        // Инициализируем Select2 для департаментов
+        if ($('#department').length && !$('#department').hasClass('select2-hidden-accessible')) {
+            $('#department').select2({
+                placeholder: '{% trans "Все департаменты" %}',
+                allowClear: true,
+                width: '100%',
+                language: {
+                    noResults: function() {
+                        return "{% trans 'Ничего не найдено' %}";
+                    },
+                    searching: function() {
+                        return "{% trans 'Поиск...' %}";
+                    }
                 }
-            }
-        });
+            });
+        }
+        
+        // Инициализируем Select2 для управлений
+        if ($('#division').length && !$('#division').hasClass('select2-hidden-accessible')) {
+            $('#division').select2({
+                placeholder: '{% trans "Все управления" %}',
+                allowClear: true,
+                width: '100%',
+                language: {
+                    noResults: function() {
+                        return "{% trans 'Ничего не найдено' %}";
+                    },
+                    searching: function() {
+                        return "{% trans 'Поиск...' %}";
+                    }
+                }
+            });
+        }
+    }
+    
+    // Переинициализация Select2 после HTMX обновления
+    document.body.addEventListener('htmx:afterSwap', function(event) {
+        // Уничтожаем существующие экземпляры Select2
+        if ($('#position').hasClass('select2-hidden-accessible')) {
+            $('#position').select2('destroy');
+        }
+        if ($('#department').hasClass('select2-hidden-accessible')) {
+            $('#department').select2('destroy');
+        }
+        if ($('#division').hasClass('select2-hidden-accessible')) {
+            $('#division').select2('destroy');
+        }
+        
+        // Инициализируем заново
+        setTimeout(initSelect2, 100);
     });
+    
+    // Обновление Select2 при переключении языка (полная перезагрузка страницы)
+    // При переключении языка страница перезагружается, поэтому Select2 инициализируется заново
 </script>
 
 <style>
@@ -215,38 +230,36 @@
                     >
                         <option value="">{% trans "Все департаменты" %}</option>
                         {% for department in departments %}
-                            <option value="{{ department.id }}" {% if department_id == department.id|stringformat:"s" %}selected{% endif %}>
-                                {% if LANGUAGE_CODE == 'kk' and department.name_kk %}
+                            <option value="{{ department.id }}" {% if department_id == department.id|stringformat:"s" %}selected{% endif %} data-name-ru="{{ department.name_ru }}" data-name-kk="{% if department.name_kk %}{{ department.name_kk }}{% endif %}" data-type="{{ department.type }}">
+                                {% if LANGUAGE_CODE|slice:":2" == 'kk' and department.name_kk %}
                                     {{ department.name_kk }}
                                 {% else %}
                                     {{ department.name_ru }}
                                 {% endif %}
-                                {% if department.type == 'department' %} ({% trans "Департамент" %}){% endif %}
-                                {% if department.type == 'management' %} ({% trans "Руководство" %}){% endif %}
                             </option>
                         {% endfor %}
                     </select>
                 </div>
 
-                <!-- Фильтр по отделу -->
+                <!-- Фильтр по управлению -->
                 <div class="md:col-span-1 group">
                     <label for="division" class="block text-sm font-semibold text-gray-700 mb-2.5 group-hover:text-blue-600 transition-colors">
                         <i class="fas fa-building text-blue-500 mr-2"></i>
-                        {% trans "Отдел" %}
+                        {% trans "Управление" %}
                     </label>
                     <select
                         id="division"
                         name="division"
                         class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md hover:border-blue-300"
                     >
-                        <option value="">{% trans "Все отделы" %}</option>
+                        <option value="">{% trans "Все управления" %}</option>
                         {% regroup divisions by department as divisions_by_dept %}
                         {% for dept_group in divisions_by_dept %}
                             {% if dept_group.grouper %}
-                                <optgroup label="{% if LANGUAGE_CODE == 'kk' and dept_group.grouper.name_kk %}{{ dept_group.grouper.name_kk }}{% else %}{{ dept_group.grouper.name_ru }}{% endif %}">
+                                <optgroup label="{% if LANGUAGE_CODE|slice:":2" == 'kk' and dept_group.grouper.name_kk %}{{ dept_group.grouper.name_kk }}{% else %}{{ dept_group.grouper.name_ru }}{% endif %}">
                                     {% for division in dept_group.list %}
-                                        <option value="{{ division.id }}" {% if division_id == division.id|stringformat:"s" %}selected{% endif %}>
-                                            {% if LANGUAGE_CODE == 'kk' and division.name_kk %}
+                                        <option value="{{ division.id }}" {% if division_id == division.id|stringformat:"s" %}selected{% endif %} data-name-ru="{{ division.name_ru }}" data-name-kk="{% if division.name_kk %}{{ division.name_kk }}{% endif %}">
+                                            {% if LANGUAGE_CODE|slice:":2" == 'kk' and division.name_kk %}
                                                 {{ division.name_kk }}
                                             {% else %}
                                                 {{ division.name_ru }}
@@ -255,10 +268,10 @@
                                     {% endfor %}
                                 </optgroup>
                             {% else %}
-                                <optgroup label="{% trans "Независимые отделы" %}">
+                                <optgroup label="{% trans "Независимые управления" %}">
                                     {% for division in dept_group.list %}
-                                        <option value="{{ division.id }}" {% if division_id == division.id|stringformat:"s" %}selected{% endif %}>
-                                            {% if LANGUAGE_CODE == 'kk' and division.name_kk %}
+                                        <option value="{{ division.id }}" {% if division_id == division.id|stringformat:"s" %}selected{% endif %} data-name-ru="{{ division.name_ru }}" data-name-kk="{% if division.name_kk %}{{ division.name_kk }}{% endif %}">
+                                            {% if LANGUAGE_CODE|slice:":2" == 'kk' and division.name_kk %}
                                                 {{ division.name_kk }}
                                             {% else %}
                                                 {{ division.name_ru }}
@@ -284,8 +297,8 @@
                     >
                         <option value="">{% trans "Все должности" %}</option>
                         {% for position in positions %}
-                            <option value="{{ position.id }}" {% if position_id == position.id|stringformat:"s" %}selected{% endif %}>
-                                {% if LANGUAGE_CODE == 'kk' and position.name_kk %}
+                            <option value="{{ position.id }}" {% if position_id == position.id|stringformat:"s" %}selected{% endif %} data-name-ru="{{ position.name_ru }}" data-name-kk="{% if position.name_kk %}{{ position.name_kk }}{% endif %}">
+                                {% if LANGUAGE_CODE|slice:":2" == 'kk' and position.name_kk %}
                                     {{ position.name_kk }}
                                 {% else %}
                                     {{ position.name_ru }}

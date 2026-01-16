@@ -11,10 +11,10 @@ from .models import Contact, Department, Division, Position, Room, Vacancy
 def list_contacts(request):
     """
     Представление для отображения списка всех сотрудников с иерархией.
-    Показывает структуру: Департаменты -> Отделы -> Сотрудники.
+    Показывает структуру: Департаменты -> Управления -> Сотрудники.
     Сортировка: сначала по display_order (если указан), потом по названию/ФИО.
     """
-    # Получаем все департаменты с их отделами и сотрудниками
+    # Получаем все департаменты с их управлениями и сотрудниками
     departments = Department.objects.prefetch_related(
         'contacts__room',
         'contacts__position',
@@ -22,9 +22,9 @@ def list_contacts(request):
         'divisions__contacts__position'
     ).order_by(F('display_order').asc(nulls_last=True), 'type', 'name_ru')
 
-    # Для каждого департамента получаем его отделы и контакты
+    # Для каждого департамента получаем его управления и контакты
     for department in departments:
-        # Получаем отделы внутри департамента (используем другое имя для присвоения)
+        # Получаем управления внутри департамента (используем другое имя для присвоения)
         divisions_queryset = department.divisions.all().prefetch_related(
             'contacts__room', 
             'contacts__position'
@@ -35,11 +35,11 @@ def list_contacts(request):
         # Присваиваем в список, а не в related manager
         department.divisions_list = list(divisions_queryset)
         
-        # Получаем сотрудников напрямую в департаменте (ТОЛЬКО те, у которых НЕТ отдела)
+        # Получаем сотрудников напрямую в департаменте (ТОЛЬКО те, у которых НЕТ управления)
         # ВАЖНО: Если у сотрудника есть division, он НЕ должен попадать сюда, даже если у него указан этот department
         department.contacts_sorted = list(
             department.contacts.filter(
-                division__isnull=True  # Только сотрудники без отдела
+                division__isnull=True  # Только сотрудники без управления
             ).select_related('room', 'position').order_by(
                 'employment_type',
                 F('display_order').asc(nulls_last=True),
@@ -47,19 +47,19 @@ def list_contacts(request):
             )
         )
         
-        # Для каждого отдела внутри департамента сортируем сотрудников
-        # Фильтруем только отделы, где есть сотрудники
-        # ВАЖНО: Сотрудник с division всегда показывается только в отделе, даже если у него есть department
+        # Для каждого управления внутри департамента сортируем сотрудников
+        # Фильтруем только управления, где есть сотрудники
+        # ВАЖНО: Сотрудник с division всегда показывается только в управлении, даже если у него есть department
         divisions_with_contacts = []
         for division in department.divisions_list:
-            # Просто получаем всех сотрудников отдела - если у них есть division, они должны показываться только здесь
+            # Просто получаем всех сотрудников управления - если у них есть division, они должны показываться только здесь
             division_contacts = division.contacts.all().select_related('room', 'position').order_by(
                 'employment_type',
                 F('display_order').asc(nulls_last=True),
                 'full_name'
             )
             division.contacts_sorted = list(division_contacts)
-            # Добавляем только отделы с сотрудниками
+            # Добавляем только управления с сотрудниками
             if division.contacts_sorted:
                 divisions_with_contacts.append(division)
         
@@ -67,13 +67,13 @@ def list_contacts(request):
         department.divisions_list = divisions_with_contacts
         
         # Пересчитываем общее количество сотрудников в департаменте
-        # (сотрудники напрямую в департаменте + сотрудники во всех отделах)
+        # (сотрудники напрямую в департаменте + сотрудники во всех управлениях)
         total_contacts_in_dept = len(department.contacts_sorted)
         for division in department.divisions_list:
             total_contacts_in_dept += len(division.contacts_sorted)
         department.total_contacts_count = total_contacts_in_dept
 
-    # Получаем сотрудников без отдела и без департамента с сортировкой
+    # Получаем сотрудников без управления и без департамента с сортировкой
     contacts_without_department = Contact.objects.filter(
         department__isnull=True,
         division__isnull=True
@@ -82,7 +82,7 @@ def list_contacts(request):
         'full_name'
     )
 
-    # Пагинация для сотрудников без отдела
+    # Пагинация для сотрудников без управления
     paginator = Paginator(contacts_without_department, 20)
     page = request.GET.get('page', 1)
 
@@ -93,7 +93,7 @@ def list_contacts(request):
     except EmptyPage:
         contacts_page = paginator.page(paginator.num_pages)
 
-    # Подсчитываем общее количество отделов
+    # Подсчитываем общее количество управлений
     total_divisions = Division.objects.count()
 
     context = {
@@ -110,7 +110,7 @@ def list_contacts(request):
 def search_contacts(request):
     """
     Представление для поиска сотрудников с использованием фильтров.
-    Поддерживает фильтрацию по: номеру кабинета, ФИО, должности, отделу, телефону, типу трудоустройства.
+    Поддерживает фильтрацию по: номеру кабинета, ФИО, должности, управлению, телефону, типу трудоустройства.
     Доступно всем пользователям (публичный доступ).
     """
     # Получаем параметры фильтров
@@ -143,7 +143,7 @@ def search_contacts(request):
         except ValueError:
             pass
 
-    # Фильтр по отделу
+    # Фильтр по управлению
     if division_id:
         try:
             filters &= Q(division_id=int(division_id))
@@ -151,15 +151,15 @@ def search_contacts(request):
             pass
     
     # Фильтр по департаменту
-    # Если выбран департамент - показываем сотрудников всех отделов внутри него + сотрудников департамента
+    # Если выбран департамент - показываем сотрудников всех управлений внутри него + сотрудников департамента
     if department_id:
         try:
             dept_id = int(department_id)
             department = Department.objects.filter(id=dept_id).first()
             if department:
-                # Получаем ID всех отделов внутри департамента
+                # Получаем ID всех управлений внутри департамента
                 division_ids = list(department.divisions.values_list('id', flat=True))
-                # Фильтруем: сотрудники отделов + сотрудники напрямую в департаменте
+                # Фильтруем: сотрудники управлений + сотрудники напрямую в департаменте
                 filters &= (Q(division_id__in=division_ids) | Q(department_id=dept_id))
         except ValueError:
             pass

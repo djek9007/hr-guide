@@ -16,12 +16,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
+"(n%100>=11 && n%100<=14)? 2 : 3);\n"
 
 #: .\contacts\admin.py:73 .\contacts\admin.py:121 .\contacts\admin.py:168
 #: .\contacts\admin.py:205 .\contacts\admin.py:279 .\contacts\admin.py:415
 msgid "Основная информация"
-msgstr "Негізгі ақпарат"
+msgstr ""
 
 #: .\contacts\admin.py:75
 msgid ""
@@ -33,30 +35,28 @@ msgstr ""
 #: .\contacts\admin.py:427 .\contacts\models.py:48 .\contacts\models.py:119
 #: .\contacts\models.py:336 .\contacts\models.py:554
 msgid "Порядок отображения"
-msgstr "Көрсету реті"
+msgstr ""
 
 #: .\contacts\admin.py:79
 msgid ""
 "Укажите порядок отображения департамента в списке. Меньшее число = выше в "
 "списке."
 msgstr ""
-"Тізімде департамент көрсетілу ретін көрсетіңіз. Төменгі сан = тізімде "
-"жоғары. Егер көрсетілмесе, әліпби бойынша сұрыптау."
 
 #: .\contacts\admin.py:81 .\contacts\admin.py:129 .\contacts\admin.py:171
 #: .\contacts\admin.py:418 .\contacts\models.py:41 .\contacts\models.py:112
 #: .\contacts\models.py:171 .\contacts\models.py:216
 msgid "Описание"
-msgstr "Сипаттама"
+msgstr ""
 
 #: .\contacts\admin.py:84 .\contacts\admin.py:132 .\contacts\admin.py:174
 #: .\contacts\admin.py:211 .\contacts\admin.py:292 .\contacts\admin.py:431
 msgid "Системная информация"
-msgstr "Жүйелік ақпарат"
+msgstr ""
 
 #: .\contacts\admin.py:96
 msgid "Количество управлений"
-msgstr "Басқармалар саны"
+msgstr ""
 
 #: .\contacts\admin.py:123
 msgid "Управление может принадлежать департаменту или быть независимым."
@@ -67,65 +67,59 @@ msgid ""
 "Укажите порядок отображения управления в списке. Меньшее число = выше в "
 "списке."
 msgstr ""
-"Тізімде басқарманың көрсетілу ретін көрсетіңіз. Төменгі сан = тізімде "
-"жоғары. Егер көрсетілмесе, әліпби бойынша сұрыптау."
 
 #: .\contacts\admin.py:145
 msgid "Количество сотрудников"
-msgstr "Қызметкерлер саны"
+msgstr ""
 
 #: .\contacts\admin.py:208
 msgid "Расположение"
-msgstr "Орналасуы"
+msgstr ""
 
 #: .\contacts\admin.py:284
 msgid ""
 "Укажите порядок отображения сотрудника в списке. Меньшее число = выше в "
 "списке. Если не указано, сортировка по алфавиту."
 msgstr ""
-"Тізімде қызметкердің көрсетілу ретін көрсетіңіз. Төменгі сан = тізімде "
-"жоғары. Егер көрсетілмесе, әліпби бойынша сұрыптау."
 
 #: .\contacts\admin.py:286
 msgid "Контакты"
-msgstr "Байланыс"
+msgstr ""
 
 #: .\contacts\admin.py:289
 msgid "Дополнительно"
-msgstr "Қосымша"
+msgstr ""
 
 #: .\contacts\admin.py:315 .\contacts\models.py:345
 msgid "Аватарка"
-msgstr "Аватар"
+msgstr ""
 
 #: .\contacts\admin.py:421 .\templates\contacts\vacancy_detail.html:53
 msgid "Требования и условия"
-msgstr "Талаптар мен шарттар"
+msgstr ""
 
 #: .\contacts\admin.py:424 .\contacts\models.py:539
 #: .\templates\contacts\vacancy_detail.html:64
 msgid "Контактная информация"
-msgstr "Байланыс ақпараты"
+msgstr ""
 
 #: .\contacts\admin.py:429
 msgid ""
 "Укажите порядок отображения вакансии в списке. Меньшее число = выше в "
 "списке. Если не указано, сортировка по дате создания."
 msgstr ""
-"Тізімде вакансияның көрсетілу ретін көрсетіңіз. Төменгі сан = тізімде "
-"жоғары. Егер көрсетілмесе, жасалған күні бойынша сұрыптау."
 
 #: .\contacts\models.py:14
 msgid "Название отдела (русский)"
-msgstr "Басқарма атауы (орыс)"
+msgstr ""
 
 #: .\contacts\models.py:21
 msgid "Название департамента (казахский)"
-msgstr "Департамент атауы (қазақша)"
+msgstr ""
 
 #: .\contacts\models.py:34
 msgid "Тип департамента"
-msgstr "Департамент түрі"
+msgstr ""
 
 #: .\contacts\models.py:35
 msgid ""
@@ -137,35 +131,33 @@ msgid ""
 "Число для указания порядка отображения департамента в списке. Меньшее число "
 "= выше в списке."
 msgstr ""
-"Тізімдегі департамент көрсету ретін көрсететін сан. Кіші Сан = жоғары "
-"тізімде. Егер көрсетілмесе, Алфавит бойынша сұрыптау"
 
 #: .\contacts\models.py:57 .\contacts\models.py:128 .\contacts\models.py:179
 #: .\contacts\models.py:240 .\contacts\models.py:397 .\contacts\models.py:563
 msgid "Дата создания"
-msgstr "Құрылған күні"
+msgstr ""
 
 #: .\contacts\models.py:63 .\contacts\models.py:134 .\contacts\models.py:185
 #: .\contacts\models.py:246 .\contacts\models.py:403 .\contacts\models.py:569
 msgid "Дата обновления"
-msgstr "Жаңарту күні"
+msgstr ""
 
 #: .\contacts\models.py:67 .\contacts\models.py:105 .\contacts\models.py:273
 #: .\contacts\models.py:489 .\templates\contacts\search.html:224
 msgid "Департамент"
-msgstr "Департамент"
+msgstr ""
 
 #: .\contacts\models.py:68
 msgid "Департаменты"
-msgstr "Департаменттер"
+msgstr ""
 
 #: .\contacts\models.py:86
 msgid "Название управления (русский)"
-msgstr "Басқарма атауы (орыс)"
+msgstr ""
 
 #: .\contacts\models.py:93
 msgid "Название управления (казахский)"
-msgstr "Басқарма атауы (қазақша)"
+msgstr ""
 
 #: .\contacts\models.py:106
 msgid ""
@@ -178,26 +170,24 @@ msgid ""
 "Число для указания порядка отображения управления в списке. Меньшее число = "
 "выше в списке."
 msgstr ""
-"Тізімдегі басқарманы көрсету ретін көрсететін сан. Кіші Сан = жоғары "
-"тізімде. Егер көрсетілмесе, Алфавит бойынша сұрыптау"
 
 #: .\contacts\models.py:138 .\contacts\models.py:285 .\contacts\models.py:501
 #: .\templates\contacts\partials\search_results.html:37
 #: .\templates\contacts\search.html:248
 msgid "Управление"
-msgstr "Басқарма"
+msgstr ""
 
 #: .\contacts\models.py:139
 msgid "Управления"
-msgstr "Басқармалар"
+msgstr ""
 
 #: .\contacts\models.py:157
 msgid "Название должности (русский)"
-msgstr "Лауазымның атауы (орыс)"
+msgstr ""
 
 #: .\contacts\models.py:164
 msgid "Название должности (казахский)"
-msgstr "Лауазымның атауы (қазақша)"
+msgstr ""
 
 #: .\contacts\models.py:189 .\contacts\models.py:297 .\contacts\models.py:477
 #: .\templates\contacts\list.html:109 .\templates\contacts\list.html:242
@@ -205,42 +195,42 @@ msgstr "Лауазымның атауы (қазақша)"
 #: .\templates\contacts\partials\search_results.html:32
 #: .\templates\contacts\search.html:291
 msgid "Должность"
-msgstr "Лауазым"
+msgstr ""
 
 #: .\contacts\models.py:190
 msgid "Должности"
-msgstr "Лауазымдар"
+msgstr ""
 
 #: .\contacts\models.py:207 .\templates\contacts\search.html:334
 msgid "Номер кабинета"
-msgstr "Кабинет нөмірі"
+msgstr ""
 
 #: .\contacts\models.py:210
 msgid "Номер кабинета (например: 751, 1023)"
-msgstr "Кабинет нөмірі (мысалы: 751, 1023)"
+msgstr ""
 
 #: .\contacts\models.py:219
 msgid "Дополнительная информация о кабинете"
-msgstr "Кабинет туралы қосымша ақпарат"
+msgstr ""
 
 #: .\contacts\models.py:224
 msgid "Этаж"
-msgstr "Этаж"
+msgstr ""
 
 #: .\contacts\models.py:232
 msgid "Корпус/Здание"
-msgstr "Корпус/Ғимарат"
+msgstr ""
 
 #: .\contacts\models.py:250 .\contacts\models.py:308
 #: .\templates\contacts\list.html:121 .\templates\contacts\list.html:245
 #: .\templates\contacts\list.html:364
 #: .\templates\contacts\partials\search_results.html:50
 msgid "Кабинет"
-msgstr "Кабинет"
+msgstr ""
 
 #: .\contacts\models.py:251
 msgid "Кабинеты"
-msgstr "Кабинеттер"
+msgstr ""
 
 #: .\contacts\models.py:274
 msgid ""
@@ -250,87 +240,84 @@ msgstr ""
 
 #: .\contacts\models.py:286
 msgid "Управление, к которому относится сотрудник"
-msgstr "Қызметкер басқармаға қатысты"
+msgstr ""
 
 #: .\contacts\models.py:315 .\templates\contacts\list.html:105
 #: .\templates\contacts\list.html:241 .\templates\contacts\list.html:348
 #: .\templates\contacts\partials\search_results.html:28
 #: .\templates\contacts\search.html:204
 msgid "ФИО"
-msgstr "ТАӘ"
+msgstr ""
 
 #: .\contacts\models.py:323 .\templates\contacts\search.html:323
 msgid "Штатный сотрудник"
-msgstr "Штаттық қызметкер"
+msgstr ""
 
 #: .\contacts\models.py:324 .\templates\contacts\search.html:324
 msgid "Совместитель"
-msgstr "қосымша істеуші"
+msgstr ""
 
 #: .\contacts\models.py:325 .\templates\contacts\search.html:325
 msgid "Внештатный сотрудник"
-msgstr "Штаттан тыс қызметкер"
+msgstr ""
 
 #: .\contacts\models.py:326 .\templates\contacts\search.html:326
 msgid "По договору"
-msgstr "Келісім шарт бойынша"
+msgstr ""
 
 #: .\contacts\models.py:329 .\templates\contacts\search.html:315
 msgid "Тип трудоустройства"
-msgstr "Жұмысқа орналасу түрі"
+msgstr ""
 
 #: .\contacts\models.py:330
 msgid "Тип трудоустройства сотрудника (штатный, внештатный и т.д.)"
-msgstr "Қызметкерді жұмысқа орналастыру түрі (штаттық, штаттан тыс және т. б.)"
+msgstr ""
 
 #: .\contacts\models.py:339
 msgid ""
 "Число для указания порядка отображения сотрудника в списке. Меньшее число = "
 "выше в списке. Если не указано, сортировка по алфавиту."
 msgstr ""
-"Тізімдегі қызметкердің көрсету ретін көрсететін сан. Кіші Сан = жоғарыда "
-"тізімде. Егер көрсетілмесе, Алфавит бойынша сұрыптау"
 
 #: .\contacts\models.py:348
 msgid "Фото сотрудника (необязательно)"
-msgstr "Қызметкердің суреті (міндетті емес)"
+msgstr ""
 
 #: .\contacts\models.py:356
 msgid "Обрезка аватарки"
-msgstr "Аватарды кесу"
+msgstr ""
 
 #: .\contacts\models.py:357
 msgid ""
 "Выберите область для обрезки изображения. Рекомендуемый размер: 400x400 "
 "пикселей"
 msgstr ""
-"Кескінді кесу үшін Аймақты таңдаңыз. Ұсынылатын Өлшем: 400x400 пикселдер"
 
 #: .\contacts\models.py:366
 msgid "Рабочий телефон"
-msgstr "Жұмыс телефоны"
+msgstr ""
 
 #: .\contacts\models.py:375
 msgid "Мобильный телефон"
-msgstr "Ұялы телефон"
+msgstr ""
 
 #: .\contacts\models.py:382 .\templates\contacts\list.html:117
 #: .\templates\contacts\list.html:244 .\templates\contacts\list.html:360
 #: .\templates\contacts\partials\search_results.html:46
 msgid "Email"
-msgstr "Email"
+msgstr ""
 
 #: .\contacts\models.py:389
 msgid "Примечания"
-msgstr "Ескертпелер"
+msgstr ""
 
 #: .\contacts\models.py:407
 msgid "Сотрудник"
-msgstr "Қызметкер"
+msgstr ""
 
 #: .\contacts\models.py:408
 msgid "Сотрудники"
-msgstr "Қызметкерлер"
+msgstr ""
 
 #: .\contacts\models.py:479
 msgid "Должность для вакансии. Позволяет фильтровать вакансии по должностям."
@@ -338,65 +325,63 @@ msgstr ""
 
 #: .\contacts\models.py:490
 msgid "Департамент (если вакансия на уровне департамента)"
-msgstr "Департамент (егер бос орын Департамент деңгейінде болса)"
+msgstr ""
 
 #: .\contacts\models.py:502
 msgid "Управление, в котором открыта вакансия"
-msgstr "Бос жұмыс орын ашылған басқарма"
+msgstr ""
 
 #: .\contacts\models.py:508
 msgid "Описание вакансии (русский)"
-msgstr "Бос орын сипаттамасы (орысша)"
+msgstr ""
 
 #: .\contacts\models.py:515
 msgid "Описание вакансии (казахский)"
-msgstr "Бос орын сипаттамасы (қазақша)"
+msgstr ""
 
 #: .\contacts\models.py:522
 msgid "Требования и условия (русский)"
-msgstr "Талаптар мен шарттар (орысша)"
+msgstr ""
 
 #: .\contacts\models.py:525 .\contacts\models.py:533
 msgid "Требования к кандидату и условия работы"
-msgstr "Үміткерге қойылатын талаптар мен шарттар"
+msgstr ""
 
 #: .\contacts\models.py:530
 msgid "Требования и условия (казахский)"
-msgstr "Талаптар мен шарттар (қазақша)"
+msgstr ""
 
 #: .\contacts\models.py:542
 msgid "Email, телефон или другая контактная информация для отклика"
-msgstr "Email, телефон немесе басқа байланыс ақпараты"
+msgstr ""
 
 #: .\contacts\models.py:548
 msgid "Активна"
-msgstr "Белсенді"
+msgstr ""
 
 #: .\contacts\models.py:549
 msgid "Показывать ли вакансию в списке и на сайте"
-msgstr "Бос орын тізімде және сайтта көрсету"
+msgstr ""
 
 #: .\contacts\models.py:557
 msgid ""
 "Число для сортировки вакансий в списке. Меньшее число = выше в списке. Если "
 "не указано, сортировка по дате создания."
 msgstr ""
-"Тізімдегі жұмыс орындарын сұрыптауға арналған Сан. Төменгі Сан = тізімде "
-"жоғары. Егер көрсетілмеген, құрылған күні бойынша сұрыптау."
 
 #: .\contacts\models.py:573 .\templates\contacts\vacancies.html:56
 msgid "Вакансия"
-msgstr "Бос орын"
+msgstr ""
 
 #: .\contacts\models.py:574 .\templates\base.html:59
 #: .\templates\contacts\vacancies.html:4 .\templates\contacts\vacancies.html:23
 #: .\templates\contacts\vacancy_detail.html:4
 msgid "Вакансии"
-msgstr "Бос орындар"
+msgstr ""
 
 #: .\contacts\models.py:585
 msgid "Вакансия без должности"
-msgstr "Лауазым бос орындар"
+msgstr ""
 
 #: .\contacts\views.py:300
 msgid "Вы успешно вошли в систему."
@@ -419,7 +404,6 @@ msgstr ""
 #: .\templates\contacts\search.html:5 .\templates\contacts\vacancies.html:4
 msgid "Справочник Министерства культуры и информации Республики Казахстан"
 msgstr ""
-"Қазақстан Республикасы Мәдениет және ақпарат министрлігінің анықтамалығы"
 
 #: .\templates\accounts\login.html:15
 msgid "Введите ваши учетные данные для доступа к справочнику"
@@ -427,27 +411,27 @@ msgstr ""
 
 #: .\templates\accounts\login.html:26
 msgid "Имя пользователя"
-msgstr "Пайдаланушы аты"
+msgstr ""
 
 #: .\templates\accounts\login.html:35
 msgid "Введите имя пользователя"
-msgstr "Пайдаланушы атын енгізіңіз"
+msgstr ""
 
 #: .\templates\accounts\login.html:43
 msgid "Пароль"
-msgstr "Құпия сөз"
+msgstr ""
 
 #: .\templates\accounts\login.html:51
 msgid "Введите пароль"
-msgstr "Құпия сөзді енгізіңіз"
+msgstr ""
 
 #: .\templates\accounts\login.html:61
 msgid "Войти"
-msgstr "Кіру"
+msgstr ""
 
 #: .\templates\accounts\login.html:72
 msgid "Админ-панель"
-msgstr "Әкімші тақтасы"
+msgstr ""
 
 #: .\templates\accounts\login.html:81
 msgid "Для разработки:"
@@ -459,101 +443,99 @@ msgstr ""
 
 #: .\templates\base.html:31
 msgid "Герб Республики Казахстан"
-msgstr "Қазақстан Республикасының Мемлекеттік Елтаңбасы"
+msgstr ""
 
 #: .\templates\base.html:34
 msgid "Справочник МКИ РК"
-msgstr "ҚР МАМ анықтамалығы"
+msgstr ""
 
 #: .\templates\base.html:45
 msgid "Список"
-msgstr "Тізім"
+msgstr ""
 
 #: .\templates\base.html:52 .\templates\contacts\list.html:32
 msgid "Поиск"
-msgstr "Іздеу"
+msgstr ""
 
 #: .\templates\base.html:126
 msgid "Все права защищены"
-msgstr "Барлық құқықтар қорғалған"
+msgstr ""
 
 #: .\templates\contacts\list.html:6 .\templates\contacts\list.html:23
 msgid "Список сотрудников"
-msgstr "Қызметкерлер тізімі"
+msgstr ""
 
 #: .\templates\contacts\list.html:14
 msgid ""
 "Официальный справочник Министерства культуры и информации Республики "
 "Казахстан"
 msgstr ""
-"Қазақстан Республикасы Мәдениет және ақпарат министрлігінің ресми "
-"анықтамалығы"
 
 #: .\templates\contacts\list.html:43
 msgid "Всего сотрудников"
-msgstr "Барлық қызметкерлер"
+msgstr ""
 
 #: .\templates\contacts\list.html:48
 msgid "Департаментов"
-msgstr "Департамент"
+msgstr ""
 
 #: .\templates\contacts\list.html:53
 msgid "Управлении"
-msgstr "Басқарма"
+msgstr ""
 
 #: .\templates\contacts\list.html:81
 msgid "управлений"
-msgstr "басқармалар"
+msgstr ""
 
 #: .\templates\contacts\list.html:87 .\templates\contacts\list.html:228
 #: .\templates\contacts\list.html:334
 msgid "сотрудников"
-msgstr "қызметкерлер"
+msgstr ""
 
 #: .\templates\contacts\list.html:101 .\templates\contacts\list.html:240
 #: .\templates\contacts\list.html:344
 #: .\templates\contacts\partials\search_results.html:24
 msgid "Фото"
-msgstr "Фото"
+msgstr ""
 
 #: .\templates\contacts\list.html:113 .\templates\contacts\list.html:243
 #: .\templates\contacts\list.html:356
 #: .\templates\contacts\partials\search_results.html:41
 msgid "Телефоны"
-msgstr "Телефоны"
+msgstr ""
 
 #: .\templates\contacts\list.html:180 .\templates\contacts\list.html:288
 #: .\templates\contacts\list.html:422
 #: .\templates\contacts\partials\search_results.html:117
 msgid "раб."
-msgstr "жұм."
+msgstr ""
 
 #: .\templates\contacts\list.html:183 .\templates\contacts\list.html:291
 #: .\templates\contacts\list.html:429
 #: .\templates\contacts\partials\search_results.html:124
 msgid "моб."
-msgstr "ұялы."
+msgstr ""
 
 #: .\templates\contacts\list.html:202 .\templates\contacts\list.html:306
 #: .\templates\contacts\list.html:457
 #: .\templates\contacts\partials\search_results.html:152
 msgid "Не указан"
-msgstr "Көрсетілмеген"
+msgstr ""
 
 #: .\templates\contacts\list.html:329
 msgid "Сотрудники без отдела"
-msgstr "Басқармасыз қызметкерлер"
+msgstr ""
 
 #: .\templates\contacts\list.html:475
 #: .\templates\contacts\partials\search_results.html:180
 #: .\templates\contacts\partials\search_results.html:185
 #: .\templates\contacts\vacancies.html:86
 msgid "Предыдущая"
-msgstr "Алдыңғы"
+msgstr ""
 
 #: .\templates\contacts\list.html:480 .\templates\contacts\vacancies.html:90
 msgid "Страница"
-msgstr "Бет"
+msgstr ""
 
 #: .\templates\contacts\list.html:480
 #: .\templates\contacts\partials\search_results.html:168
@@ -566,139 +548,139 @@ msgstr ""
 #: .\templates\contacts\partials\search_results.html:234
 #: .\templates\contacts\vacancies.html:94
 msgid "Следующая"
-msgstr "Келесі"
+msgstr ""
 
 #: .\templates\contacts\partials\search_results.html:11
 msgid "Найдено результатов"
-msgstr "Нәтижелер табылды"
+msgstr ""
 
 #: .\templates\contacts\partials\search_results.html:13
 msgid "Всего контактов"
-msgstr "Барлық байланыстар"
+msgstr ""
 
 #: .\templates\contacts\partials\search_results.html:33
 msgid "Должн."
-msgstr "Лауаз."
+msgstr ""
 
 #: .\templates\contacts\partials\search_results.html:42
 msgid "Тел."
-msgstr "Тел."
+msgstr ""
 
 #: .\templates\contacts\partials\search_results.html:51
 msgid "Каб."
-msgstr "Каб."
+msgstr ""
 
 #: .\templates\contacts\partials\search_results.html:168
 msgid "Показано"
-msgstr "Көрсетілді"
+msgstr ""
 
 #: .\templates\contacts\partials\search_results.html:168
 msgid "записей"
-msgstr "жазба"
+msgstr ""
 
 #: .\templates\contacts\partials\search_results.html:252
 msgid "Результаты не найдены"
-msgstr "Нәтижелер табылмады"
+msgstr ""
 
 #: .\templates\contacts\partials\search_results.html:255
 msgid "По заданным фильтрам ничего не найдено."
-msgstr "Берілген сүзгілерден ештеңе табылған жоқ."
+msgstr ""
 
 #: .\templates\contacts\partials\search_results.html:263
 #: .\templates\contacts\search.html:387
 msgid "Сбросить фильтры"
-msgstr "Сүзгілерді қалпына келтіріңіз"
+msgstr ""
 
 #: .\templates\contacts\partials\search_results.html:272
 msgid "База данных пуста"
-msgstr "Дерекқор бос"
+msgstr ""
 
 #: .\templates\contacts\partials\search_results.html:275
 msgid "В базе данных пока нет контактов."
-msgstr "Деректер базасында әлі байланыс жоқ."
+msgstr ""
 
 #: .\templates\contacts\partials\search_results.html:278
 msgid "Для импорта данных выполните команду"
-msgstr "Деректерді импорттау үшін пәрменді іске қосыңыз"
+msgstr ""
 
 #: .\templates\contacts\search.html:5 .\templates\contacts\search.html:182
 msgid "Поиск контактов"
-msgstr "Контактілерді іздеу"
+msgstr ""
 
 #: .\templates\contacts\search.html:26 .\templates\contacts\search.html:298
 msgid "Все должности"
-msgstr "Барлық лауазымдар"
+msgstr ""
 
 #: .\templates\contacts\search.html:31 .\templates\contacts\search.html:48
 #: .\templates\contacts\search.html:65
 msgid "Ничего не найдено"
-msgstr "Ештеңе табылмады"
+msgstr ""
 
 #: .\templates\contacts\search.html:34 .\templates\contacts\search.html:51
 #: .\templates\contacts\search.html:68 .\templates\contacts\search.html:396
 msgid "Поиск..."
-msgstr "Іздеу..."
+msgstr ""
 
 #: .\templates\contacts\search.html:43 .\templates\contacts\search.html:231
 msgid "Все департаменты"
-msgstr "Барлық департаменттер"
+msgstr ""
 
 #: .\templates\contacts\search.html:60 .\templates\contacts\search.html:255
 msgid "Все управления"
-msgstr "Барлық басқармалар"
+msgstr ""
 
 #: .\templates\contacts\search.html:184
 msgid "Используйте фильтры для поиска нужных контактов"
-msgstr "Қажетті контактілерді табу үшін сүзгілерді пайдаланыңыз"
+msgstr ""
 
 #: .\templates\contacts\search.html:212
 msgid "Введите ФИО"
-msgstr "Аты-жөнін енгізіңіз"
+msgstr ""
 
 #: .\templates\contacts\search.html:271
 msgid "Независимые управления"
-msgstr "Тәуелсіз басқармалар"
+msgstr ""
 
 #: .\templates\contacts\search.html:322
 msgid "Все типы"
-msgstr "Барлық түрі"
+msgstr ""
 
 #: .\templates\contacts\search.html:342
 msgid "Например: 751"
-msgstr "Мысалы: 751"
+msgstr ""
 
 #: .\templates\contacts\search.html:354
 msgid "Телефон"
-msgstr "Телефон"
+msgstr ""
 
 #: .\templates\contacts\search.html:362
 msgid "Рабочий или мобильный"
-msgstr "Жұмыс немесе ұялы"
+msgstr ""
 
 #: .\templates\contacts\search.html:378
 msgid "Найти"
-msgstr "Іздеу"
+msgstr ""
 
 #: .\templates\contacts\vacancies.html:26
 msgid "Всего активных вакансий"
-msgstr "Белсенді бос жұмыс орындарының саны"
+msgstr ""
 
 #: .\templates\contacts\vacancies.html:45
 #: .\templates\contacts\vacancy_detail.html:34
 msgid "Опубликовано"
-msgstr "Жарияланды"
+msgstr ""
 
 #: .\templates\contacts\vacancies.html:74
 msgid "Подробнее"
-msgstr "Толығырақ"
+msgstr ""
 
 #: .\templates\contacts\vacancies.html:102
 msgid "Активных вакансий пока нет"
-msgstr "Қазір белсенді бос жұмыс орындары жоқ"
+msgstr ""
 
 #: .\templates\contacts\vacancy_detail.html:40
 msgid "Назад к списку вакансий"
-msgstr "Вакансиялар тізіміне қайту"
+msgstr ""
 
 #: .\venv\Lib\site-packages\ckeditor_uploader\forms.py:6
 msgid "Search files"
@@ -1984,42 +1966,3 @@ msgstr ""
 #, python-brace-format
 msgid "Can't retrieve the image backend '{}'. Message: '{}'."
 msgstr ""
-
-#~ msgid "Отдел"
-#~ msgstr "Бөлім"
-
-#~ msgid "Отделов"
-#~ msgstr "Бөлімшелер"
-
-#~ msgid "Руководство"
-#~ msgstr "Басшылық"
-
-#~ msgid "Требования"
-#~ msgstr "Талаптар"
-
-#~ msgid "Условия работы"
-#~ msgstr "Жұмыс шарттары"
-
-#~ msgid "Контакт"
-#~ msgstr "Байланыс"
-
-#~ msgid "Название вакансии (русский)"
-#~ msgstr "Бос орын атауы (орыс)"
-
-#~ msgid "Название вакансии (казахский)"
-#~ msgstr "Бос орын атауы (қазақша)"
-
-#~ msgid "Условия работы (русский)"
-#~ msgstr "Жұмыс шарттары (орысша)"
-
-#~ msgid "Условия работы, график и т.д."
-#~ msgstr "Жұмыс шарттары, кесте және т.б."
-
-#~ msgid "Условия работы (казахский)"
-#~ msgstr "Жұмыс шарттары (қазақша)"
-
-#~ msgid "Управлений"
-#~ msgstr "Басқармалар"
-
-#~ msgid "Телефонный справочник"
-#~ msgstr "Телефон анықтамалығы"

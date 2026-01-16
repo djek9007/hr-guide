@@ -78,24 +78,24 @@ class Department(models.Model):
 
 class Division(models.Model):
     """
-    Модель для отделов, которые могут входить в департаменты.
+    Модель для управлений, которые могут входить в департаменты.
     """
-    # Название отдела на русском языке
+    # Название управления на русском языке
     name_ru = models.CharField(
         max_length=300,
-        verbose_name=_('Название отдела (русский)'),
+        verbose_name=_('Название управления (русский)'),
         db_index=True
     )
     
-    # Название отдела на казахском языке
+    # Название управления на казахском языке
     name_kk = models.CharField(
         max_length=300,
-        verbose_name=_('Название отдела (казахский)'),
+        verbose_name=_('Название управления (казахский)'),
         blank=True,
         null=True
     )
     
-    # Департамент, к которому относится отдел
+    # Департамент, к которому относится управление
     department = models.ForeignKey(
         Department,
         on_delete=models.SET_NULL,
@@ -103,11 +103,11 @@ class Division(models.Model):
         blank=True,
         related_name='divisions',
         verbose_name=_('Департамент'),
-        help_text=_('Департамент, к которому относится отдел. Может быть пустым для независимых отделов.'),
+        help_text=_('Департамент, к которому относится управление. Может быть пустым для независимых управлений.'),
         db_index=True
     )
     
-    # Описание отдела
+    # Описание управления
     description = models.TextField(
         verbose_name=_('Описание'),
         blank=True,
@@ -119,7 +119,7 @@ class Division(models.Model):
         verbose_name=_('Порядок отображения'),
         blank=True,
         null=True,
-        help_text=_('Число для указания порядка отображения отдела в списке. Меньшее число = выше в списке.')
+        help_text=_('Число для указания порядка отображения управления в списке. Меньшее число = выше в списке.')
     )
     
     # Дата создания
@@ -135,8 +135,8 @@ class Division(models.Model):
     )
 
     class Meta:
-        verbose_name = _('Отдел')
-        verbose_name_plural = _('Отделы')
+        verbose_name = _('Управление')
+        verbose_name_plural = _('Управления')
         ordering = ['display_order', 'name_ru']
         indexes = [
             models.Index(fields=['name_ru']),
@@ -271,19 +271,19 @@ class Contact(models.Model):
         blank=True,
         related_name='contacts',
         verbose_name=_('Департамент'),
-        help_text=_('Департамент (если сотрудник привязан напрямую к департаменту, а не к отделу)'),
+        help_text=_('Департамент (если сотрудник привязан напрямую к департаменту, а не к управлению)'),
         db_index=True
     )
     
-    # Связь с отделом
+    # Связь с управлением
     division = models.ForeignKey(
         Division,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='contacts',
-        verbose_name=_('Отдел'),
-        help_text=_('Отдел, к которому относится сотрудник'),
+        verbose_name=_('Управление'),
+        help_text=_('Управление, к которому относится сотрудник'),
         db_index=True
     )
     
@@ -320,10 +320,10 @@ class Contact(models.Model):
     employment_type = models.CharField(
         max_length=20,
         choices=[
-            ('full_time', 'Штатный сотрудник'),
-            ('part_time', 'Совместитель'),
-            ('external', 'Внештатный сотрудник'),
-            ('contract', 'По договору'),
+            ('full_time', _('Штатный сотрудник')),
+            ('part_time', _('Совместитель')),
+            ('external', _('Внештатный сотрудник')),
+            ('contract', _('По договору')),
         ],
         default='full_time',
         verbose_name=_('Тип трудоустройства'),
@@ -331,7 +331,7 @@ class Contact(models.Model):
         db_index=True
     )
     
-    # Порядок отображения (для сортировки внутри отдела)
+    # Порядок отображения (для сортировки внутри управления)
     display_order = models.IntegerField(
         verbose_name=_('Порядок отображения'),
         blank=True,
@@ -491,15 +491,15 @@ class Vacancy(models.Model):
         db_index=True
     )
 
-    # Отдел в организации
+    # Управление в организации
     division = models.ForeignKey(
         Division,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='vacancies',
-        verbose_name=_('Отдел'),
-        help_text=_('Отдел, в котором открыта вакансия'),
+        verbose_name=_('Управление'),
+        help_text=_('Управление, в котором открыта вакансия'),
         db_index=True
     )
 

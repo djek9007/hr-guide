@@ -285,13 +285,10 @@ CKEDITOR_CONFIGS = {
 }
 
 # Настройки для django-import-export
-# Включаем поддержку форматов XLSX, XLS, CSV, JSON, YAML, HTML, TSV
-IMPORT_EXPORT_FORMATS = {
-    'xlsx': 'xlsx',
-    'xls': 'xls',
-    'csv': 'csv',
-    'json': 'json',
-    'yaml': 'yaml',
-    'html': 'html',
-    'tsv': 'tsv',
-}
+# Настройки для django-import-export
+# Для поддержки XLSX требуется библиотека openpyxl (уже добавлена в requirements.txt)
+# django-import-export автоматически определит доступные форматы при установке openpyxl
+IMPORT_EXPORT_USE_TRANSACTIONS = True  # Использовать транзакции при импорте
+IMPORT_EXPORT_SKIP_ADMIN_LOG = False  # Логировать импорт в админке
+IMPORT_EXPORT_IMPORT_PERMISSION_CODE = 'change'  # Права доступа для импорта
+IMPORT_EXPORT_EXPORT_PERMISSION_CODE = 'view'  # Права доступа для экспорта

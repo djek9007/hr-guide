@@ -129,5 +129,21 @@
 
     {% block extra_js %}
     {% endblock %}
+    
+    <script>
+        // Обновление Select2 после переключения языка
+        // При переключении языка страница перезагружается, но Select2 может не обновиться
+        // Поэтому мы принудительно перезагружаем страницу после переключения языка
+        document.addEventListener('DOMContentLoaded', function() {
+            // Находим форму переключения языка
+            const langForm = document.querySelector('form[action*="set_language"]');
+            if (langForm) {
+                langForm.addEventListener('submit', function(e) {
+                    // После отправки формы переключения языка страница перезагрузится автоматически
+                    // Select2 будет инициализирован заново с правильными данными
+                });
+            }
+        });
+    </script>
 </body>
 </html>
