@@ -19,7 +19,14 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-produc
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 # Разрешенные хосты (можно указать через запятую в переменной окружения)
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',') if os.environ.get('ALLOWED_HOSTS') else ['*']
+# Для работы по локальной сети добавляем IP адреса автоматически
+ALLOWED_HOSTS_ENV = os.environ.get('ALLOWED_HOSTS', '*')
+if ALLOWED_HOSTS_ENV and ALLOWED_HOSTS_ENV != '*':
+    ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_ENV.split(',')]
+else:
+    # Разрешаем все хосты для работы по локальной сети
+    # В production лучше указать конкретные домены/IP
+    ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -41,6 +48,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise для эффективного обслуживания статических файлов
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',  # Для поддержки локализации
     'django.middleware.common.CommonMiddleware',
@@ -151,7 +159,7 @@ LOCALE_PATHS = [
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = os.environ.get('STATIC_URL', 'static/')
+STATIC_URL = os.environ.get('STATIC_URL', '/static/')
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
@@ -160,6 +168,21 @@ STATIC_ROOT = Path(os.environ.get('STATIC_ROOT', str(BASE_DIR / 'staticfiles')))
 # Media files (загруженные пользователями файлы)
 MEDIA_URL = os.environ.get('MEDIA_URL', '/media/')
 MEDIA_ROOT = Path(os.environ.get('MEDIA_ROOT', str(BASE_DIR / 'media'))) if os.environ.get('MEDIA_ROOT') else BASE_DIR / 'media'
+
+# Настройки WhiteNoise для эффективного обслуживания статических файлов
+# WhiteNoise обслуживает статику напрямую из Django, что хорошо для работы по локальной сети
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",  # Сжатие и кэширование статики
+    },
+}
+
+# Дополнительные настройки WhiteNoise (опционально, можно настроить кэширование и сжатие)
+WHITENOISE_USE_FINDERS = True  # Позволяет обслуживать статику из STATICFILES_DIRS в режиме разработки
+WHITENOISE_AUTOREFRESH = DEBUG  # Автообновление при изменениях в режиме разработки
 
 # Настройки для easy-thumbnails
 THUMBNAIL_DEBUG = DEBUG
