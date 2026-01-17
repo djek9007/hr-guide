@@ -25,6 +25,6 @@ urlpatterns = [
 
 # Обслуживание медиа файлов
 # WhiteNoise обслуживает статические файлы через middleware (см. settings.py)
-# Медиа файлы обслуживаем через Django для разработки
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Медиа файлы обслуживаем через Django всегда (для локальной сети и простоты настройки)
+# В production лучше настроить nginx для обслуживания медиа напрямую
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
