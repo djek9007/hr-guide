@@ -57,9 +57,9 @@
                         {% trans "Вакансии" %}
                     </a>
                     <a 
-                        href="{% url 'contacts:chat' %}" 
+                        href="{% url 'messaging:chat' %}" 
                         target="_blank"
-                        class="px-4 py-2 rounded-lg text-sm font-medium transition-all {% if request.resolver_match.url_name == 'chat' %}bg-white bg-opacity-20 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-10{% endif %}"
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition-all {% if request.resolver_match.app_name == 'messaging' %}bg-white bg-opacity-20 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-10{% endif %}"
                     >
                         <i class="fas fa-comments mr-1"></i>
                         {% trans "Чат" %}

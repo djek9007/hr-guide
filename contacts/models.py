@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from image_cropping import ImageRatioField
 
@@ -306,6 +307,18 @@ class Contact(models.Model):
         blank=True,
         related_name='contacts',
         verbose_name=_('Кабинет'),
+        db_index=True
+    )
+    
+    # Связь с пользователем (опционально)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='contact',
+        verbose_name=_('Пользователь'),
+        help_text=_('Связь с учетной записью пользователя для доступа к чату'),
         db_index=True
     )
     

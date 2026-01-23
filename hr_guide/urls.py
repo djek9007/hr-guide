@@ -21,6 +21,12 @@ urlpatterns = [
     
     # Приложение contacts
     path('', include('contacts.urls')),  # Подключаем URLs приложения contacts
+    
+    # API для чата
+    path('api/', include('messaging.api_urls')),
+    
+    # Чат (заменяем старый URL из contacts)
+    path('chat/', include('messaging.urls')),
 ]
 
 # Обслуживание медиа файлов

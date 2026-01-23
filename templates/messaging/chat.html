@@ -1,0 +1,575 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Чат" %} - {% trans "Справочник Министерства культуры и информации Республики Казахстан" %}{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/alpine.min.js' %}" defer></script>
+{% endblock %}
+
+{% block content %}
+<script id="current-user-data" type="application/json">{{ current_user|safe }}</script>
+<div x-data="chatApp()" x-init="init()" class="max-w-7xl mx-auto h-[calc(100vh-200px)] flex flex-col">
+    <!-- Заголовок -->
+    <div class="mb-4 bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-comments text-blue-600 text-2xl"></i>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">{% trans "Чат" %}</h1>
+                    <p class="text-gray-600 text-sm">{% trans "Общение с коллегами" %}</p>
+                </div>
+            </div>
+            <button 
+                @click="showNewChatModal = true"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            >
+                <i class="fas fa-plus"></i>
+                <span>{% trans "Новый чат" %}</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="flex-1 flex gap-4 overflow-hidden">
+        <!-- Боковая панель со списком чатов -->
+        <div class="w-1/3 bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-gray-200">
+                <h2 class="font-semibold text-gray-800">{% trans "Чаты" %}</h2>
+            </div>
+            <div class="flex-1 overflow-y-auto">
+                <template x-if="chats.length === 0">
+                    <div class="p-4 text-center text-gray-500">
+                        <i class="fas fa-comments text-4xl mb-2 opacity-30"></i>
+                        <p>{% trans "Нет активных чатов" %}</p>
+                        <button 
+                            @click="showNewChatModal = true"
+                            class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                            {% trans "Создать чат" %}
+                        </button>
+                    </div>
+                </template>
+                <template x-for="chat in chats" :key="chat.id">
+                    <div 
+                        @click="selectChat(chat.id)"
+                        :class="{'bg-blue-50 border-blue-300': currentChatId === chat.id, 'hover:bg-gray-50': currentChatId !== chat.id}"
+                        class="p-4 border-b border-gray-100 cursor-pointer transition-colors"
+                    >
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-blue-600"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-semibold text-gray-800 truncate" x-text="chat.other_participant?.username || 'Пользователь'"></h3>
+                                    <span class="text-xs text-gray-500" x-text="formatTime(chat.last_message_at)"></span>
+                                </div>
+                                <p class="text-sm text-gray-600 truncate" x-text="chat.last_message?.text || ''"></p>
+                                <template x-if="chat.unread_count > 0">
+                                    <span class="inline-block mt-1 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full" x-text="chat.unread_count"></span>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Область сообщений -->
+        <div class="flex-1 bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col overflow-hidden">
+            <template x-if="!currentChatId">
+                <div class="flex-1 flex items-center justify-center text-gray-500">
+                    <div class="text-center">
+                        <i class="fas fa-comments text-6xl mb-4 opacity-30"></i>
+                        <p class="text-lg">{% trans "Выберите чат для начала общения" %}</p>
+                    </div>
+                </div>
+            </template>
+            
+            <template x-if="currentChatId">
+                <div class="flex-1 flex flex-col">
+                    <!-- Заголовок чата -->
+                    <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800" x-text="currentChat?.other_participant?.username || 'Пользователь'"></h3>
+                                <p class="text-xs text-gray-500" x-text="currentChat?.other_participant?.contact_info?.position || ''"></p>
+                            </div>
+                        </div>
+                        <template x-if="isTyping">
+                            <span class="text-sm text-gray-500 italic">{% trans "Печатает..." %}</span>
+                        </template>
+                    </div>
+
+                    <!-- Сообщения -->
+                    <div 
+                        x-ref="messagesContainer"
+                        class="flex-1 overflow-y-auto p-4 space-y-4"
+                    >
+                        <template x-for="message in messages" :key="message.id">
+                            <div 
+                                :class="message.sender.id === currentUser.id ? 'ml-auto' : 'mr-auto'"
+                                class="max-w-[70%]"
+                            >
+                                <div 
+                                    :class="message.sender.id === currentUser.id ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'"
+                                    class="rounded-lg p-3"
+                                >
+                                    <p class="text-sm" x-text="message.text"></p>
+                                    <div class="flex items-center justify-end gap-2 mt-2">
+                                        <span 
+                                            :class="message.sender.id === currentUser.id ? 'text-blue-100' : 'text-gray-500'"
+                                            class="text-xs"
+                                            x-text="formatTime(message.created_at)"
+                                        ></span>
+                                        <template x-if="message.sender.id === currentUser.id && message.is_read">
+                                            <i class="fas fa-check-double text-blue-100 text-xs"></i>
+                                        </template>
+                                    </div>
+                                </div>
+                                <!-- Вложения -->
+                                <template x-if="message.attachments && message.attachments.length > 0">
+                                    <div class="mt-2 space-y-2">
+                                        <template x-for="attachment in message.attachments" :key="attachment.id">
+                                            <a 
+                                                :href="attachment.file_url"
+                                                target="_blank"
+                                                class="block p-2 bg-gray-50 rounded border border-gray-200 hover:bg-gray-100 transition-colors"
+                                            >
+                                                <div class="flex items-center gap-2">
+                                                    <i class="fas fa-file text-gray-400"></i>
+                                                    <span class="text-sm text-gray-700" x-text="attachment.original_filename"></span>
+                                                    <span class="text-xs text-gray-500 ml-auto" x-text="attachment.file_size_mb + ' МБ'"></span>
+                                                </div>
+                                            </a>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Форма отправки сообщения -->
+                    <div class="p-4 border-t border-gray-200">
+                        <form @submit.prevent="sendMessage()" class="flex gap-2">
+                            <input 
+                                type="file"
+                                x-ref="fileInput"
+                                @change="handleFileSelect"
+                                multiple
+                                class="hidden"
+                            >
+                            <button 
+                                type="button"
+                                @click="$refs.fileInput.click()"
+                                class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                            >
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <input 
+                                type="text"
+                                x-model="messageText"
+                                @input="handleTyping()"
+                                @keydown.enter.prevent="sendMessage()"
+                                placeholder="{% trans 'Введите сообщение...' %}"
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                            <button 
+                                type="submit"
+                                :disabled="!messageText.trim() && selectedFiles.length === 0"
+                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </form>
+                        <!-- Выбранные файлы -->
+                        <template x-if="selectedFiles.length > 0">
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                <template x-for="(file, index) in selectedFiles" :key="index">
+                                    <div class="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded border border-gray-200">
+                                        <i class="fas fa-file text-gray-400"></i>
+                                        <span class="text-sm text-gray-700" x-text="file.name"></span>
+                                        <button 
+                                            @click="removeFile(index)"
+                                            class="text-red-500 hover:text-red-700"
+                                        >
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- Модальное окно создания нового чата -->
+    <template x-if="showNewChatModal">
+        <div 
+            @click.self="showNewChatModal = false"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        >
+            <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">{% trans "Выберите сотрудника" %}</h2>
+                    <button 
+                        @click="showNewChatModal = false"
+                        class="text-gray-500 hover:text-gray-700"
+                    >
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <input 
+                    type="text"
+                    x-model="userSearchQuery"
+                    @input="searchUsers()"
+                    placeholder="{% trans 'Поиск по имени...' %}"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                <div class="space-y-2 max-h-96 overflow-y-auto">
+                    <template x-if="availableUsers.length === 0">
+                        <p class="text-center text-gray-500 py-4">{% trans "Сотрудники не найдены" %}</p>
+                    </template>
+                    <template x-for="user in availableUsers" :key="user.id">
+                        <button 
+                            @click="createChat(user.id)"
+                            class="w-full p-3 text-left hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-3"
+                        >
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-blue-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-semibold text-gray-800" x-text="user.contact_info?.full_name || user.username"></p>
+                                <p class="text-sm text-gray-500" x-text="user.contact_info?.position || ''"></p>
+                            </div>
+                        </button>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>
+
+<script>
+function chatApp() {
+    return {
+        chats: [],
+        currentChatId: null,
+        currentChat: null,
+        messages: [],
+        messageText: '',
+        selectedFiles: [],
+        showNewChatModal: false,
+        availableUsers: [],
+        userSearchQuery: '',
+        currentUser: null,
+        ws: null,
+        isTyping: false,
+        typingTimeout: null,
+
+        async init() {
+            // Получаем текущего пользователя
+            await this.loadCurrentUser();
+            
+            // Загружаем список чатов
+            await this.loadChats();
+            
+            // Подключаемся к WebSocket
+            this.connectWebSocket();
+        },
+
+        async loadCurrentUser() {
+            try {
+                const response = await fetch('/api/users/me/', {
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    this.currentUser = await response.json();
+                } else {
+                    // Используем данные из контекста шаблона
+                    const userDataElement = document.getElementById('current-user-data');
+                    if (userDataElement) {
+                        this.currentUser = JSON.parse(userDataElement.textContent);
+                    } else {
+                        this.currentUser = { id: 0, username: '' };
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading current user:', error);
+                // Используем данные из контекста шаблона
+                const userDataElement = document.getElementById('current-user-data');
+                if (userDataElement) {
+                    this.currentUser = JSON.parse(userDataElement.textContent);
+                } else {
+                    this.currentUser = { id: 0, username: '' };
+                }
+            }
+        },
+
+        async loadChats() {
+            try {
+                const response = await fetch('/api/chats/', {
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    this.chats = await response.json();
+                }
+            } catch (error) {
+                console.error('Error loading chats:', error);
+            }
+        },
+
+        async selectChat(chatId) {
+            this.currentChatId = chatId;
+            this.currentChat = this.chats.find(c => c.id === chatId);
+            
+            // Загружаем сообщения
+            await this.loadMessages(chatId);
+            
+            // Отмечаем сообщения как прочитанные
+            await this.markChatAsRead(chatId);
+        },
+
+        async loadMessages(chatId) {
+            try {
+                const response = await fetch(`/api/messages/?chat_id=${chatId}`, {
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    this.messages = await response.json();
+                    this.$nextTick(() => {
+                        this.scrollToBottom();
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading messages:', error);
+            }
+        },
+
+        async sendMessage() {
+            if (!this.messageText.trim() && this.selectedFiles.length === 0) {
+                return;
+            }
+
+            const chatId = this.currentChatId;
+            const text = this.messageText.trim();
+
+            // Отправляем через WebSocket для real-time
+            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                this.ws.send(JSON.stringify({
+                    type: 'chat_message',
+                    chat_id: chatId,
+                    text: text
+                }));
+            }
+
+            // Отправляем файлы через API
+            if (this.selectedFiles.length > 0) {
+                await this.uploadFiles(chatId, text);
+            }
+
+            this.messageText = '';
+            this.selectedFiles = [];
+        },
+
+        async uploadFiles(chatId, text) {
+            const formData = new FormData();
+            formData.append('chat', chatId);
+            if (text) {
+                formData.append('text', text);
+            }
+
+            this.selectedFiles.forEach((file, index) => {
+                formData.append(`file_${index}`, file);
+            });
+
+            try {
+                const response = await fetch('/api/messages/', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include',
+                    headers: {
+                        'X-CSRFToken': this.getCsrfToken()
+                    }
+                });
+
+                if (response.ok) {
+                    const message = await response.json();
+                    this.messages.push(message);
+                    this.$nextTick(() => {
+                        this.scrollToBottom();
+                    });
+                }
+            } catch (error) {
+                console.error('Error uploading files:', error);
+            }
+        },
+
+        handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            this.selectedFiles.push(...files);
+        },
+
+        removeFile(index) {
+            this.selectedFiles.splice(index, 1);
+        },
+
+        async createChat(userId) {
+            try {
+                const response = await fetch(`/api/chats/get_or_create/?user_id=${userId}`, {
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    const chat = await response.json();
+                    this.showNewChatModal = false;
+                    await this.loadChats();
+                    await this.selectChat(chat.id);
+                }
+            } catch (error) {
+                console.error('Error creating chat:', error);
+            }
+        },
+
+        async searchUsers() {
+            if (!this.userSearchQuery.trim()) {
+                this.availableUsers = [];
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/users/?search=${encodeURIComponent(this.userSearchQuery)}`, {
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    this.availableUsers = data.results || data;
+                }
+            } catch (error) {
+                console.error('Error searching users:', error);
+            }
+        },
+
+        async markChatAsRead(chatId) {
+            try {
+                await fetch(`/api/chats/${chatId}/mark_read/`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'X-CSRFToken': this.getCsrfToken()
+                    }
+                });
+            } catch (error) {
+                console.error('Error marking chat as read:', error);
+            }
+        },
+
+        connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws/chat/`;
+            
+            this.ws = new WebSocket(wsUrl);
+
+            this.ws.onopen = () => {
+                console.log('WebSocket connected');
+            };
+
+            this.ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                
+                if (data.type === 'chat_message') {
+                    if (data.chat_id === this.currentChatId) {
+                        this.messages.push(data.message);
+                        this.$nextTick(() => {
+                            this.scrollToBottom();
+                        });
+                    }
+                    // Обновляем список чатов
+                    this.loadChats();
+                } else if (data.type === 'typing_indicator') {
+                    if (data.chat_id === this.currentChatId) {
+                        this.isTyping = data.is_typing;
+                        if (data.is_typing) {
+                            clearTimeout(this.typingTimeout);
+                            this.typingTimeout = setTimeout(() => {
+                                this.isTyping = false;
+                            }, 3000);
+                        }
+                    }
+                }
+            };
+
+            this.ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+
+            this.ws.onclose = () => {
+                console.log('WebSocket disconnected');
+                // Переподключение через 3 секунды
+                setTimeout(() => {
+                    this.connectWebSocket();
+                }, 3000);
+            };
+        },
+
+        handleTyping() {
+            if (this.ws && this.ws.readyState === WebSocket.OPEN && this.currentChatId) {
+                this.ws.send(JSON.stringify({
+                    type: 'typing',
+                    chat_id: this.currentChatId,
+                    is_typing: true
+                }));
+
+                clearTimeout(this.typingTimeout);
+                this.typingTimeout = setTimeout(() => {
+                    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                        this.ws.send(JSON.stringify({
+                            type: 'typing',
+                            chat_id: this.currentChatId,
+                            is_typing: false
+                        }));
+                    }
+                }, 1000);
+            }
+        },
+
+        scrollToBottom() {
+            const container = this.$refs.messagesContainer;
+            if (container) {
+                container.scrollTop = container.scrollHeight;
+            }
+        },
+
+        formatTime(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            
+            if (minutes < 1) return '{% trans "Только что" %}';
+            if (minutes < 60) return `${minutes} {% trans "мин назад" %}`;
+            if (minutes < 1440) return `${Math.floor(minutes / 60)} {% trans "ч назад" %}`;
+            
+            return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        },
+
+        getCsrfToken() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') {
+                    return value;
+                }
+            }
+            return '';
+        }
+    }
+}
+</script>
+{% endblock %}

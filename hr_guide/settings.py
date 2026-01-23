@@ -1,4 +1,4 @@
-﻿"""
+"""
 Django settings for hr_guide project.
 """
 
@@ -39,7 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',  # Django Channels для WebSocket
+    'rest_framework',  # Django REST Framework для API
     'contacts',  # Наше приложение для контактов
+    'messaging',  # Приложение для чата
     'image_cropping',  # Для обрезки изображений
     'easy_thumbnails',  # Для создания миниатюр
     'import_export',  # Для импорта и экспорта данных в админке
@@ -335,3 +338,56 @@ LOGGING = {
         'level': 'DEBUG',
     },
 }
+
+# Настройки Django Channels для WebSocket
+ASGI_APPLICATION = 'hr_guide.asgi.application'
+
+# Настройки Channels (используем InMemoryChannelLayer для локальной разработки)
+# Для production используйте Redis: channels_redis
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
+
+# Для production с Redis раскомментируйте:
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [('127.0.0.1', 6379)],
+#         },
+#     },
+# }
+
+# Настройки Django REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+}
+
+# Настройки Celery
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+# Расписание для Celery Beat (периодические задачи)
+from celery.schedules import crontab
+CELERY_BEAT_SCHEDULE = {
+    'delete-old-chat-files': {
+        'task': 'messaging.tasks.delete_old_files',
+        'schedule': crontab(hour=2, minute=0),  # Каждый день в 2:00 ночи
+    },
+}
+
+# Период хранения файлов в чате (в днях)
+CHAT_FILE_RETENTION_DAYS = 30
