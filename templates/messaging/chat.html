@@ -136,6 +136,10 @@
                             <p class="text-xs mt-2" x-text="'Chat ID: ' + currentChatId"></p>
                         </div>
                     </template>
+                    <!-- Отладочная информация о количестве сообщений -->
+                    <template x-if="messages && messages.length > 0">
+                        <div class="text-xs text-gray-400 mb-2 px-2" x-text="'Всего сообщений: ' + messages.length"></div>
+                    </template>
                     <template x-for="(message, index) in (messages || [])" :key="`msg-${message?.id || index}-${index}`">
                         <template x-if="message && message.id">
                             <div>
@@ -146,7 +150,7 @@
                                         :class="message.sender?.id === currentUser?.id ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border border-gray-200'"
                                         class="rounded-lg p-3 max-w-[70%] shadow-sm"
                                     >
-                                        <p class="text-sm whitespace-pre-wrap" x-text="message.text || ''"></p>
+                                        <p class="text-sm whitespace-pre-wrap" x-text="message.text || '(пустое сообщение)'"></p>
                                         <div class="flex items-center justify-end gap-2 mt-2">
                                             <span 
                                                 :class="message.sender?.id === currentUser?.id ? 'text-blue-100' : 'text-gray-500'"
@@ -525,9 +529,28 @@ function chatApp() {
                     // Фильтруем null/undefined значения и гарантируем, что это массив
                     const messagesArray = (Array.isArray(data) ? data : (data.results || [])).filter(msg => msg != null && msg.id);
                     console.log(`Загружено сообщений для чата ${chatId}:`, messagesArray.length);
+                    
+                    // Логируем информацию о сообщениях
                     if (messagesArray.length > 0) {
-                        console.log('Первое сообщение:', messagesArray[0]);
-                        console.log('Последнее сообщение:', messagesArray[messagesArray.length - 1]);
+                        console.log('Первое сообщение:', {
+                            id: messagesArray[0].id,
+                            sender: messagesArray[0].sender?.username || messagesArray[0].sender?.id,
+                            text: messagesArray[0].text?.substring(0, 30),
+                            created_at: messagesArray[0].created_at
+                        });
+                        console.log('Последнее сообщение:', {
+                            id: messagesArray[messagesArray.length - 1].id,
+                            sender: messagesArray[messagesArray.length - 1].sender?.username || messagesArray[messagesArray.length - 1].sender?.id,
+                            text: messagesArray[messagesArray.length - 1].text?.substring(0, 30),
+                            created_at: messagesArray[messagesArray.length - 1].created_at
+                        });
+                        
+                        // Подсчитываем сообщения от текущего пользователя и от других
+                        const fromCurrentUser = messagesArray.filter(m => m.sender?.id === this.currentUser?.id).length;
+                        const fromOthers = messagesArray.length - fromCurrentUser;
+                        console.log(`Сообщений от текущего пользователя: ${fromCurrentUser}, от других: ${fromOthers}`);
+                    } else {
+                        console.warn('⚠️ Нет сообщений в ответе API для чата', chatId);
                     }
                     
                     // Сортируем сообщения по дате создания (старые первыми)
@@ -539,7 +562,13 @@ function chatApp() {
                     
                     // Заменяем все сообщения новыми (не добавляем, а заменяем)
                     this.messages = messagesArray;
-                    console.log(`Сообщения установлены в UI для чата ${chatId}. Всего: ${this.messages.length}`);
+                    console.log(`✅ Сообщения установлены в UI для чата ${chatId}. Всего: ${this.messages.length}`);
+                    
+                    // Проверяем, что сообщения действительно установлены
+                    if (this.messages.length === 0) {
+                        console.warn('⚠️ Массив сообщений пуст после установки!');
+                    }
+                    
                     this.$nextTick(() => {
                         this.scrollToBottom();
                     });
