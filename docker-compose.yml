@@ -1,28 +1,25 @@
 version: '3.8'
 
 services:
-  # Django приложение HR Guide
   hr-guide-web:
     build: .
     container_name: hr-guide-web
     restart: unless-stopped
-    command: python manage.py runserver 0.0.0.0:8000
+    # Добавлен --noreload для скорости в локальной сети
+    command: python manage.py runserver 0.0.0.0:8000 --noreload
     volumes:
       - .:/app
-      - ./media:/app/media  # Bind mount для медиа файлов из локальной папки
-      - hr-guide-staticfiles:/app/staticfiles  # Named volume для статических файлов
-    # Порты для локального доступа (можно закомментировать при использовании только через nginxproxymanager)
+      - ./media:/app/media
+      # Поменяйте эту строку:
+      - ./staticfiles:/app/staticfiles
     ports:
-      - "8880:8000"  # Внешний порт:внутренний порт (внутри контейнера всегда 8000)
-    expose:
-      - "8000"  # Экспортируем порт также для nginxproxymanager (если будет настроен)
+      - "8880:8000"
     env_file:
       - .env
     environment:
       - DEBUG=${DEBUG:-True}
       - SECRET_KEY=${SECRET_KEY:-django-insecure-change-this-in-production}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
-      # WhiteNoise остается как fallback, но nginxproxymanager будет обслуживать статику эффективнее
       - DATABASE_HOST=${DATABASE_HOST:-postgres}
       - DATABASE_PORT=${DATABASE_PORT:-5432}
       - DATABASE_NAME=${DATABASE_NAME:-hr-guide}
@@ -30,9 +27,7 @@ services:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD:-Postgres9007}
     networks:
       - hr-guide-network
-      - database_network  # Подключение к сети, где находится PostgreSQL
-      # Раскомментируйте следующую строку, если nginxproxymanager использует внешнюю сеть
-      # - nginxproxymanager_network  # Подключение к сети nginxproxymanager
+      - database_network
 
 volumes:
   hr-guide-staticfiles:
@@ -43,8 +38,4 @@ networks:
     driver: bridge
   database_network:
     external: true
-    name: database_network  # Подключение к существующей сети PostgreSQL
-  # Раскомментируйте следующую секцию, если nginxproxymanager использует внешнюю сеть
-  # nginxproxymanager_network:
-  #   external: true
-  #   name: npm_default  # Или имя сети вашего nginxproxymanager (обычно npm_default или nginxproxymanager_default)
+    name: database_network

@@ -26,7 +26,7 @@ RUN mkdir -p /app/media /app/staticfiles
 # Устанавливаем права на запись
 RUN chmod -R 755 /app/media /app/staticfiles
 
-# Открываем порт
+# Открываем порт    
 EXPOSE 8000
 
 # Используем entrypoint скрипт

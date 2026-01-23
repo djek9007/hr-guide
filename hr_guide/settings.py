@@ -159,26 +159,34 @@ LOCALE_PATHS = [
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = os.environ.get('STATIC_URL', '/static/')
+# 1. Папка, куда Django БУДЕТ СОБИРАТЬ все файлы (ваша итоговая папка)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# 2. Папки, из которых Django БЕРЕТ файлы при сборке (ваша папка с исходниками)
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',
+    os.path.join(BASE_DIR, 'static'),
 ]
-STATIC_ROOT = Path(os.environ.get('STATIC_ROOT', str(BASE_DIR / 'staticfiles'))) if os.environ.get('STATIC_ROOT') else BASE_DIR / 'staticfiles'
+
+# 3. URL для доступа к файлам
+STATIC_URL = '/static/'
+# Вместо CompressedManifestStaticFilesStorage
+# Вместо CompressedManifestStaticFilesStorage
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Media files (загруженные пользователями файлы)
-MEDIA_URL = os.environ.get('MEDIA_URL', '/media/')
-MEDIA_ROOT = Path(os.environ.get('MEDIA_ROOT', str(BASE_DIR / 'media'))) if os.environ.get('MEDIA_ROOT') else BASE_DIR / 'media'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Настройки WhiteNoise для эффективного обслуживания статических файлов
 # WhiteNoise обслуживает статику напрямую из Django, что хорошо для работы по локальной сети
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",  # Сжатие и кэширование статики
-    },
-}
+# STORAGES = {
+#     "default": {
+#         "BACKEND": "django.core.files.storage.FileSystemStorage",
+#     },
+#     "staticfiles": {
+#         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",  # Сжатие и кэширование статики
+#     },
+# }
 
 # Дополнительные настройки WhiteNoise (опционально, можно настроить кэширование и сжатие)
 WHITENOISE_USE_FINDERS = True  # Позволяет обслуживать статику из STATICFILES_DIRS в режиме разработки
@@ -315,3 +323,18 @@ IMPORT_EXPORT_USE_TRANSACTIONS = True  # Использовать транзак
 IMPORT_EXPORT_SKIP_ADMIN_LOG = False  # Логировать импорт в админке
 IMPORT_EXPORT_IMPORT_PERMISSION_CODE = 'change'  # Права доступа для импорта
 IMPORT_EXPORT_EXPORT_PERMISSION_CODE = 'view'  # Права доступа для экспорта
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}
