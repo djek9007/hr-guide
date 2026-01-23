@@ -368,10 +368,10 @@ function chatApp() {
                     this.chats = Array.isArray(data) ? data : (data.results || []);
                     // Создаем маппинг employee_id -> chat
                     this.chatsByEmployeeId = {};
-                    this.chats.forEach(chat => {
-                        const otherParticipant = chat.other_participant;
+                    this.chats.forEach(chatItem => {
+                        const otherParticipant = chatItem.other_participant;
                         if (otherParticipant) {
-                            this.chatsByEmployeeId[otherParticipant.id] = chat;
+                            this.chatsByEmployeeId[otherParticipant.id] = chatItem;
                         }
                     });
                     // Обновляем отфильтрованный список сотрудников с учетом новых данных о чатах
@@ -1017,7 +1017,8 @@ function chatApp() {
                                 messages_count: this.messages.length,
                                 selectedEmployeeId: this.selectedEmployeeId,
                                 isChatOpenInUI,
-                                chat_found: !!chat
+                                chat_found: !!chat,
+                                chat_id: chat?.id
                             });
                             
                             // Если это сообщение для текущего открытого чата, добавляем его
@@ -1106,6 +1107,9 @@ function chatApp() {
                                     console.log('⚠️ Сообщение уже есть в списке или нет ID:', messageId);
                                 }
                             } else {
+                                // Находим чат в списке (используем переменную, определенную выше)
+                                const chatForMessage = this.chats.find(c => c.id === data.chat_id);
+                                
                                 console.log('⚠️ Сообщение для другого чата (текущий:', currentChatIdNum, ', получен:', receivedChatId, ')');
                                 console.log('💡 Это означает, что чат не открыт. Сообщение будет показано при открытии чата или через периодическую загрузку.');
                                 console.log('🔍 Детали проверки:', {
@@ -1116,7 +1120,7 @@ function chatApp() {
                                     messages_count: this.messages.length,
                                     selectedEmployeeId: this.selectedEmployeeId,
                                     isChatOpenInUI,
-                                    chat_found: !!chat,
+                                    chat_found: !!chatForMessage,
                                     messages_chat_ids: this.messages.map(m => {
                                         const msgChatId = m.chat ? (typeof m.chat === 'object' ? m.chat.id : parseInt(m.chat)) : null;
                                         return msgChatId;
@@ -1125,7 +1129,7 @@ function chatApp() {
                                 
                                 // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Если чат есть в списке, но currentChatId null,
                                 // возможно чат открыт, но currentChatId сброшен. Попробуем восстановить.
-                                if (chat && !currentChatIdNum) {
+                                if (chatForMessage && !currentChatIdNum) {
                                     // Проверяем, есть ли чат в chatsByEmployeeId для любого сотрудника
                                     const chatInMapping = Object.values(this.chatsByEmployeeId).find(c => c && c.id === receivedChatId);
                                     if (chatInMapping) {
@@ -1157,13 +1161,12 @@ function chatApp() {
                                 console.log('Добавлен чат в моргающие:', data.chat_id, 'Всего моргающих:', Array.from(this.blinkingChats));
                                 
                                 // Обновляем счетчик непрочитанных для этого чата вручную
-                                const chat = this.chats.find(c => c.id === data.chat_id);
-                                if (chat) {
+                                if (chatForMessage) {
                                     // Увеличиваем счетчик непрочитанных
-                                    if (!chat.unread_count) chat.unread_count = 0;
-                                    chat.unread_count += 1;
-                                    chat.last_message_at = data.message.created_at;
-                                    console.log('Обновлен счетчик для чата:', data.chat_id, 'непрочитанных:', chat.unread_count);
+                                    if (!chatForMessage.unread_count) chatForMessage.unread_count = 0;
+                                    chatForMessage.unread_count += 1;
+                                    chatForMessage.last_message_at = data.message.created_at;
+                                    console.log('Обновлен счетчик для чата:', data.chat_id, 'непрочитанных:', chatForMessage.unread_count);
                                 }
                                 
                                 // Через 10 секунд убираем моргание (пользователь должен был заметить)
@@ -1177,10 +1180,10 @@ function chatApp() {
                                 
                                 // Принудительно обновляем маппинг после загрузки чатов
                                 this.chatsByEmployeeId = {};
-                                this.chats.forEach(chat => {
-                                    const otherParticipant = chat.other_participant;
+                                this.chats.forEach(chatItem => {
+                                    const otherParticipant = chatItem.other_participant;
                                     if (otherParticipant) {
-                                        this.chatsByEmployeeId[otherParticipant.id] = chat;
+                                        this.chatsByEmployeeId[otherParticipant.id] = chatItem;
                                     }
                                 });
                                 
@@ -1195,10 +1198,10 @@ function chatApp() {
                         
                         // Принудительно обновляем маппинг после загрузки чатов
                         this.chatsByEmployeeId = {};
-                        this.chats.forEach(chat => {
-                            const otherParticipant = chat.other_participant;
+                        this.chats.forEach(chatItem => {
+                            const otherParticipant = chatItem.other_participant;
                             if (otherParticipant) {
-                                this.chatsByEmployeeId[otherParticipant.id] = chat;
+                                this.chatsByEmployeeId[otherParticipant.id] = chatItem;
                             }
                         });
                         
