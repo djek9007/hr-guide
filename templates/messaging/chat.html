@@ -614,10 +614,18 @@ function chatApp() {
                         // Проверяем, что сообщения можно отобразить
                         const displayableMessages = this.messages.filter(m => m && m.id && (m.text || m.attachments?.length > 0));
                         console.log(`✅ Готово к отображению сообщений: ${displayableMessages.length} из ${this.messages.length}`);
+                        
+                        // Принудительно обновляем реактивность Alpine.js
+                        this.messages = [...this.messages];
+                        console.log('🔄 Реактивность обновлена после загрузки сообщений');
                     }
                     
+                    // Используем двойной $nextTick для гарантии обновления DOM
                     this.$nextTick(() => {
-                        this.scrollToBottom();
+                        this.$nextTick(() => {
+                            this.scrollToBottom();
+                            console.log('📜 Прокрутка выполнена после загрузки сообщений');
+                        });
                     });
                 } else if (response.status >= 500 && retryCount < maxRetries) {
                     // Повторяем запрос при серверных ошибках
@@ -655,11 +663,20 @@ function chatApp() {
 
         async sendMessage() {
             if (!this.messageText.trim() && this.selectedFiles.length === 0) {
+                console.warn('⚠️ Попытка отправить пустое сообщение');
                 return;
             }
 
             const chatId = this.currentChatId;
             const text = this.messageText.trim();
+
+            console.log('📤 Начало отправки сообщения:', {
+                chatId,
+                text: text.substring(0, 30),
+                currentUser: this.currentUser?.id,
+                wsState: this.ws?.readyState,
+                wsConnected: this.wsConnected
+            });
 
             // Очищаем поля ввода сразу для лучшего UX
             const messageTextToSend = this.messageText.trim();
@@ -669,6 +686,7 @@ function chatApp() {
 
             // Если есть файлы, отправляем через API (файлы всегда через API)
             if (filesToSend.length > 0) {
+                console.log('📎 Отправка сообщения с файлами через API');
                 await this.uploadFiles(chatId, messageTextToSend, filesToSend);
                 return;
             }
@@ -679,12 +697,14 @@ function chatApp() {
             // Пытаемся отправить через WebSocket
             if (this.ws && this.ws.readyState === WebSocket.OPEN) {
                 try {
+                    console.log('📡 Отправка сообщения через WebSocket:', { chat_id: chatId, text: messageTextToSend.substring(0, 30) });
                     this.ws.send(JSON.stringify({
                         type: 'chat_message',
                         chat_id: chatId,
                         text: messageTextToSend
                     }));
                     messageSent = true;
+                    console.log('✅ Сообщение отправлено через WebSocket');
                     // Сообщение будет добавлено в UI через WebSocket onmessage
                     // Но на случай, если WebSocket не доставит сообщение, добавим временное
                     const tempMessageId = 'temp_ws_' + Date.now();
@@ -732,11 +752,21 @@ function chatApp() {
 
             // Если WebSocket недоступен или произошла ошибка, отправляем через API
             if (!messageSent) {
+                console.log('📡 WebSocket недоступен, отправка через API');
                 await this.sendMessageViaAPI(chatId, messageTextToSend);
+            } else {
+                console.log('✅ Сообщение отправлено через WebSocket, ожидаем подтверждение');
             }
         },
 
         async sendMessageViaAPI(chatId, text) {
+            console.log('📤 Отправка сообщения через API:', {
+                chatId,
+                text: text.substring(0, 30),
+                currentUser: this.currentUser?.id,
+                currentUserUsername: this.currentUser?.username
+            });
+            
             // Создаем временное сообщение для оптимистичного обновления UI
             const tempMessageId = 'temp_' + Date.now();
             const tempMessage = {
@@ -761,6 +791,12 @@ function chatApp() {
             });
 
             try {
+                const requestBody = {
+                    chat: chatId,
+                    text: text
+                };
+                console.log('📤 Отправка POST запроса на /api/messages/:', requestBody);
+                
                 const response = await fetch('/api/messages/', {
                     method: 'POST',
                     headers: {
@@ -768,14 +804,24 @@ function chatApp() {
                         'X-CSRFToken': this.getCsrfToken()
                     },
                     credentials: 'include',
-                    body: JSON.stringify({
-                        chat: chatId,
-                        text: text
-                    })
+                    body: JSON.stringify(requestBody)
+                });
+                
+                console.log('📥 Ответ от API:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    ok: response.ok
                 });
 
                 if (response.ok) {
                     const message = await response.json();
+                    console.log('✅ Сообщение успешно создано через API:', {
+                        id: message.id,
+                        sender: message.sender?.id,
+                        text: message.text?.substring(0, 30),
+                        chat: message.chat
+                    });
+                    
                     // Удаляем временное сообщение
                     const tempIndex = this.messages.findIndex(msg => msg && msg.id === tempMessageId);
                     if (tempIndex !== -1) {
@@ -789,7 +835,12 @@ function chatApp() {
                         });
                     }
                 } else {
-                    console.error('Ошибка отправки сообщения через API:', response.status);
+                    const errorText = await response.text().catch(() => 'Не удалось прочитать ответ');
+                    console.error('❌ Ошибка отправки сообщения через API:', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        error: errorText.substring(0, 200)
+                    });
                     // Удаляем временное сообщение при ошибке
                     const tempIndex = this.messages.findIndex(msg => msg && msg.id === tempMessageId);
                     if (tempIndex !== -1) {
@@ -945,22 +996,35 @@ function chatApp() {
                             // (например, через loadMessages), то currentChatId должен совпадать
                             // Но если currentChatId null, а сообщения есть - значит чат открыт
                             
+                            // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Проверяем, открыт ли чат с этим ID в UI
+                            // Если selectedEmployeeId соответствует участнику чата, значит чат открыт
+                            const chat = this.chats.find(c => c.id === receivedChatId);
+                            const isChatOpenInUI = chat && (
+                                this.selectedEmployeeId && (
+                                    chat.other_participant?.id === this.selectedEmployeeId ||
+                                    (chat.participant1?.id === this.selectedEmployeeId || chat.participant2?.id === this.selectedEmployeeId)
+                                )
+                            );
+                            
                             console.log('🔍 Проверка сообщения:', {
                                 receivedChatId,
                                 currentChatIdNum,
                                 shouldAddToCurrentChat,
                                 hasMessagesForThisChat,
-                                messages_count: this.messages.length
+                                messages_count: this.messages.length,
+                                selectedEmployeeId: this.selectedEmployeeId,
+                                isChatOpenInUI,
+                                chat_found: !!chat
                             });
                             
                             // Если это сообщение для текущего открытого чата, добавляем его
-                            // Проверяем: currentChatId совпадает ИЛИ есть сообщения для этого чата
-                            const shouldAdd = receivedChatId === currentChatIdNum || shouldAddToCurrentChat || hasMessagesForThisChat;
+                            // Проверяем: currentChatId совпадает ИЛИ есть сообщения для этого чата ИЛИ чат открыт в UI
+                            const shouldAdd = receivedChatId === currentChatIdNum || shouldAddToCurrentChat || hasMessagesForThisChat || isChatOpenInUI;
                             
                             if (shouldAdd) {
-                                // Если currentChatId был null, но сообщения для этого чата уже есть, восстанавливаем currentChatId
-                                if (this.currentChatId === null && (shouldAddToCurrentChat || hasMessagesForThisChat)) {
-                                    console.log('🔧 Восстанавливаем currentChatId:', receivedChatId, '(найдены сообщения для этого чата)');
+                                // Если currentChatId был null, но сообщения для этого чата уже есть или чат открыт в UI, восстанавливаем currentChatId
+                                if (this.currentChatId === null && (shouldAddToCurrentChat || hasMessagesForThisChat || isChatOpenInUI)) {
+                                    console.log('🔧 Восстанавливаем currentChatId:', receivedChatId, '(найдены сообщения для этого чата или чат открыт в UI)');
                                     this.currentChatId = receivedChatId;
                                 }
                                 
@@ -1019,12 +1083,21 @@ function chatApp() {
                                         const displayable = this.messages.filter(m => m && m.id && (m.text || (m.attachments && m.attachments.length > 0)));
                                         console.log('📊 После $nextTick: всего сообщений:', this.messages.length, 'готово к отображению:', displayable.length);
                                         
-                                        // Прокручиваем вниз после обновления DOM
-                                        this.scrollToBottom();
-                                        
                                         // Дополнительная проверка: убеждаемся, что сообщение действительно в массиве
                                         const messageExists = this.messages.some(m => m && m.id === data.message.id);
                                         console.log('🔍 Сообщение найдено в массиве:', messageExists, 'ID:', data.message.id);
+                                        
+                                        // Принудительно обновляем реактивность еще раз, если нужно
+                                        if (!messageExists) {
+                                            console.warn('⚠️ Сообщение не найдено в массиве после $nextTick! Принудительно обновляем...');
+                                            this.messages = [...this.messages];
+                                        }
+                                        
+                                        // Прокручиваем вниз после обновления DOM
+                                        // Используем двойной $nextTick для гарантии обновления DOM
+                                        this.$nextTick(() => {
+                                            this.scrollToBottom();
+                                        });
                                     });
                                 } else {
                                     console.log('⚠️ Сообщение уже есть в списке или нет ID:', messageId);
