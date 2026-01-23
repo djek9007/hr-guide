@@ -54,17 +54,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def handle_chat_message(self, data):
         """Обработка нового сообщения"""
         from .serializers import MessageSerializer
+        import logging
+        
+        logger = logging.getLogger(__name__)
         
         chat_id = data.get('chat_id')
         text = data.get('text', '').strip()
         
         if not chat_id or not text:
+            logger.warning(f'Недостаточно данных для создания сообщения: chat_id={chat_id}, text={text[:50] if text else None}')
             return
+        
+        logger.info(f'Обработка нового сообщения через WebSocket: chat_id={chat_id}, отправитель={self.user.id}, текст={text[:50]}')
         
         # Создаем сообщение
         message = await self.create_message(chat_id, text)
         
         if message:
+            logger.info(f'Сообщение создано: ID={message.id}, chat_id={chat_id}')
             # Сериализуем сообщение
             serializer = MessageSerializer(message, context={'request': None})
             message_data = serializer.data
@@ -75,22 +82,37 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 participant1_group = f"user_{chat.participant1_id}"
                 participant2_group = f"user_{chat.participant2_id}"
                 
-                await self.channel_layer.group_send(
-                    participant1_group,
-                    {
-                        'type': 'chat_message',
-                        'message': message_data,
-                        'chat_id': chat_id
-                    }
-                )
-                await self.channel_layer.group_send(
-                    participant2_group,
-                    {
-                        'type': 'chat_message',
-                        'message': message_data,
-                        'chat_id': chat_id
-                    }
-                )
+                logger.info(f'Отправка сообщения через channel_layer: participant1={participant1_group}, participant2={participant2_group}')
+                
+                try:
+                    await self.channel_layer.group_send(
+                        participant1_group,
+                        {
+                            'type': 'chat_message',
+                            'message': message_data,
+                            'chat_id': chat_id
+                        }
+                    )
+                    logger.info(f'Сообщение отправлено в группу {participant1_group}')
+                except Exception as e:
+                    logger.error(f'Ошибка отправки сообщения в группу {participant1_group}: {e}', exc_info=True)
+                
+                try:
+                    await self.channel_layer.group_send(
+                        participant2_group,
+                        {
+                            'type': 'chat_message',
+                            'message': message_data,
+                            'chat_id': chat_id
+                        }
+                    )
+                    logger.info(f'Сообщение отправлено в группу {participant2_group}')
+                except Exception as e:
+                    logger.error(f'Ошибка отправки сообщения в группу {participant2_group}: {e}', exc_info=True)
+            else:
+                logger.warning(f'Чат {chat_id} не найден')
+        else:
+            logger.warning(f'Не удалось создать сообщение для chat_id={chat_id}')
     
     async def handle_typing(self, data):
         """Обработка индикатора печати"""
@@ -118,11 +140,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     async def chat_message(self, event):
         """Отправка сообщения клиенту"""
-        await self.send(text_data=json.dumps({
-            'type': 'chat_message',
-            'message': event['message'],
-            'chat_id': event['chat_id']
-        }))
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        try:
+            message_data = {
+                'type': 'chat_message',
+                'message': event['message'],
+                'chat_id': event['chat_id']
+            }
+            logger.info(f'Отправка сообщения клиенту через WebSocket: user_id={self.user.id}, chat_id={event["chat_id"]}, message_id={event["message"].get("id")}')
+            await self.send(text_data=json.dumps(message_data))
+            logger.info(f'Сообщение успешно отправлено клиенту user_id={self.user.id}')
+        except Exception as e:
+            logger.error(f'Ошибка отправки сообщения клиенту user_id={self.user.id}: {e}', exc_info=True)
     
     async def typing_indicator(self, event):
         """Отправка индикатора печати клиенту"""

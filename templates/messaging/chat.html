@@ -746,31 +746,41 @@ function chatApp() {
                     const data = JSON.parse(event.data);
                     
                     if (data.type === 'chat_message') {
-                        if (data.chat_id === this.currentChatId && data.message) {
-                            // Инициализируем messages как массив, если он undefined
-                            if (!Array.isArray(this.messages)) {
-                                this.messages = [];
-                            }
-                            // Проверяем, что сообщение не null и не дублируется
-                            const messageId = data.message.id;
-                            if (messageId && !this.messages.find(msg => msg && msg.id === messageId)) {
-                                // Удаляем временные сообщения с таким же текстом от текущего пользователя
-                                const messageText = data.message.text || '';
-                                const senderId = data.message.sender?.id;
-                                if (senderId === this.currentUser?.id && messageText) {
-                                    this.messages = this.messages.filter(msg => {
-                                        // Удаляем временные сообщения (начинаются с temp_) с таким же текстом
-                                        if (msg && msg.id && msg.id.toString().startsWith('temp_')) {
-                                            return msg.text !== messageText;
-                                        }
-                                        return true;
-                                    });
+                        console.log('Получено сообщение через WebSocket:', data);
+                        // Проверяем, относится ли сообщение к текущему чату или любому чату пользователя
+                        if (data.chat_id && data.message) {
+                            // Если это сообщение для текущего открытого чата, добавляем его
+                            if (data.chat_id === this.currentChatId) {
+                                // Инициализируем messages как массив, если он undefined
+                                if (!Array.isArray(this.messages)) {
+                                    this.messages = [];
                                 }
-                                // Добавляем реальное сообщение
-                                this.messages.push(data.message);
-                                this.$nextTick(() => {
-                                    this.scrollToBottom();
-                                });
+                                // Проверяем, что сообщение не null и не дублируется
+                                const messageId = data.message.id;
+                                if (messageId && !this.messages.find(msg => msg && msg.id === messageId)) {
+                                    // Удаляем временные сообщения с таким же текстом от текущего пользователя
+                                    const messageText = data.message.text || '';
+                                    const senderId = data.message.sender?.id;
+                                    if (senderId === this.currentUser?.id && messageText) {
+                                        this.messages = this.messages.filter(msg => {
+                                            // Удаляем временные сообщения (начинаются с temp_) с таким же текстом
+                                            if (msg && msg.id && msg.id.toString().startsWith('temp_')) {
+                                                return msg.text !== messageText;
+                                            }
+                                            return true;
+                                        });
+                                    }
+                                    // Добавляем реальное сообщение
+                                    console.log('Добавление сообщения в UI:', data.message);
+                                    this.messages.push(data.message);
+                                    this.$nextTick(() => {
+                                        this.scrollToBottom();
+                                    });
+                                } else {
+                                    console.log('Сообщение уже есть в списке или нет ID:', messageId);
+                                }
+                            } else {
+                                console.log('Сообщение для другого чата (текущий:', this.currentChatId, ', получен:', data.chat_id, ')');
                             }
                         }
                         // Обновляем список чатов для обновления счетчиков непрочитанных

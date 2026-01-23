@@ -159,7 +159,11 @@ class MessageViewSet(viewsets.ModelViewSet):
                 participant2_group = f"user_{message.chat.participant2_id}"
                 
                 # Отправляем асинхронно, чтобы не блокировать ответ API
+                import logging
+                logger = logging.getLogger(__name__)
+                
                 try:
+                    logger.info(f'Отправка сообщения через channel_layer участнику 1: {participant1_group}, chat_id: {message.chat.id}')
                     async_to_sync(channel_layer.group_send)(
                         participant1_group,
                         {
@@ -168,12 +172,12 @@ class MessageViewSet(viewsets.ModelViewSet):
                             'chat_id': message.chat.id
                         }
                     )
+                    logger.info(f'Сообщение успешно отправлено участнику 1: {participant1_group}')
                 except Exception as e1:
-                    import logging
-                    logger = logging.getLogger(__name__)
-                    logger.warning(f'Не удалось отправить сообщение участнику 1 ({participant1_group}): {e1}')
+                    logger.warning(f'Не удалось отправить сообщение участнику 1 ({participant1_group}): {e1}', exc_info=True)
                 
                 try:
+                    logger.info(f'Отправка сообщения через channel_layer участнику 2: {participant2_group}, chat_id: {message.chat.id}')
                     async_to_sync(channel_layer.group_send)(
                         participant2_group,
                         {
@@ -182,10 +186,9 @@ class MessageViewSet(viewsets.ModelViewSet):
                             'chat_id': message.chat.id
                         }
                     )
+                    logger.info(f'Сообщение успешно отправлено участнику 2: {participant2_group}')
                 except Exception as e2:
-                    import logging
-                    logger = logging.getLogger(__name__)
-                    logger.warning(f'Не удалось отправить сообщение участнику 2 ({participant2_group}): {e2}')
+                    logger.warning(f'Не удалось отправить сообщение участнику 2 ({participant2_group}): {e2}', exc_info=True)
             else:
                 import logging
                 logger = logging.getLogger(__name__)
