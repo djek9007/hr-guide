@@ -131,6 +131,7 @@ class DivisionAdmin(ImportExportModelAdmin):
     search_fields = ('name_ru', 'name_kk', 'description', 'department__name_ru', 'department__name_kk')
     list_per_page = 50
     list_display_links = ('name_ru', 'name_kk')
+    list_editable =('display_order','department')
     
     fieldsets = (
         (_('Основная информация'), {
@@ -288,7 +289,7 @@ class ContactAdmin(ImageCroppingMixin, ImportExportModelAdmin):
     """
     Административный интерфейс для управления сотрудниками.
     """
-    list_display = ('id', 'avatar_thumbnail', 'full_name', 'room', 'position', 'division', 'department', 'employment_type', 'display_order', 'work_phone')
+    list_display = ('id', 'avatar_thumbnail', 'full_name', 'room', 'position', 'division', 'department',  'display_order', 'work_phone')
     list_editable = ('display_order', 'division', 'department')  # Позволяет редактировать порядок прямо в списке
     list_filter = (
         ('employment_type', ChoiceDropdownFilter),

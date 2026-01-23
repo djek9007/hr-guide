@@ -83,6 +83,35 @@ def list_contacts(request):
             total_contacts_in_dept += len(division.contacts_sorted)
         department.total_contacts_count = total_contacts_in_dept
 
+    # 4.5. Обрабатываем независимые управления (без департамента)
+    # Они должны отображаться как департаменты (на верхнем уровне)
+    independent_divisions = [div for div in all_divisions if not div.department_id]
+    
+    for division in independent_divisions:
+        # Берем сотрудников этого управления
+        division_contacts = contacts_by_division.get(division.id, [])
+        division.contacts_sorted = division_contacts
+        
+        # Эмулируем структуру департамента
+        division.divisions_list = []
+        division.total_contacts_count = len(division_contacts)
+        
+        # Помечаем как независимое управление, чтобы корректно обработать в шаблоне
+        division.is_independent_division = True
+        
+        # Добавляем в общий список
+        departments.append(division)
+        
+    # Пересортируем общий список, чтобы учесть добавленные управления
+    def get_sort_key(obj):
+        order = getattr(obj, 'display_order', None)
+        if order is None:
+            order = float('inf')
+        name = getattr(obj, 'name_ru', '')
+        return (order, name)
+        
+    departments.sort(key=get_sort_key)
+
     # 5. Получаем сотрудников без управления и без департамента (как и раньше)
     contacts_without_department = Contact.objects.filter(
         department__isnull=True,

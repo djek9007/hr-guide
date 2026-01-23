@@ -11,14 +11,14 @@ class Department(models.Model):
     # Название отдела на русском языке
     name_ru = models.CharField(
         max_length=300,
-        verbose_name=_('Название отдела (русский)'),
+        verbose_name=_('Название департамента/комитета (русский)'),
         db_index=True
     )
     
     # Название отдела на казахском языке
     name_kk = models.CharField(
         max_length=300,
-        verbose_name=_('Название департамента (казахский)'),
+        verbose_name=_('Название департамента/комитета (казахский)'),
         blank=True,
         null=True
     )
@@ -27,7 +27,7 @@ class Department(models.Model):
     type = models.CharField(
         max_length=20,
         choices=[
-            ('department', 'Департамент'),
+            ('department', 'Департамент/Комитет'),
             ('management', 'Руководство'),
         ],
         default='department',
@@ -64,8 +64,8 @@ class Department(models.Model):
     )
 
     class Meta:
-        verbose_name = _('Департамент')
-        verbose_name_plural = _('Департаменты')
+        verbose_name = _('Департамент/Комитет')
+        verbose_name_plural = _('Департаменты/Комитеты')
         ordering = ['display_order', 'type', 'name_ru']
         indexes = [
             models.Index(fields=['name_ru']),
@@ -102,8 +102,8 @@ class Division(models.Model):
         null=True,
         blank=True,
         related_name='divisions',
-        verbose_name=_('Департамент'),
-        help_text=_('Департамент, к которому относится управление. Может быть пустым для независимых управлений.'),
+        verbose_name=_('Департамент/Комитет'),
+        help_text=_('Департамент/комитет, к которому относится управление. Может быть пустым для независимых управлений.'),
         db_index=True
     )
     
@@ -270,8 +270,8 @@ class Contact(models.Model):
         null=True,
         blank=True,
         related_name='contacts',
-        verbose_name=_('Департамент'),
-        help_text=_('Департамент (если сотрудник привязан напрямую к департаменту, а не к управлению)'),
+        verbose_name=_('Департамент/Комитет'),
+        help_text=_('Департамент/комитет (если сотрудник привязан напрямую к департаменту, а не к управлению)'),
         db_index=True
     )
     
@@ -486,8 +486,8 @@ class Vacancy(models.Model):
         null=True,
         blank=True,
         related_name='vacancies',
-        verbose_name=_('Департамент'),
-        help_text=_('Департамент (если вакансия на уровне департамента)'),
+        verbose_name=_('Департамент/Комитет'),
+        help_text=_('Департамент/комитет (если вакансия на уровне департамента)'),
         db_index=True
     )
 

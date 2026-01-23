@@ -1,0 +1,581 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load cropping %}
+{% get_current_language as LANGUAGE_CODE %}
+
+{% block title %}{% trans "Список сотрудников" %} - {% trans "Справочник Министерства культуры и информации Республики
+Казахстан" %}{% endblock %}
+
+{% block content %}
+<div>
+    <div class="mb-6 bg-white border border-gray-100 rounded-xl p-4 sm:p-5 shadow-sm">
+        <div class="flex items-start gap-3">
+            <i class="fas fa-landmark text-blue-600 text-xl mt-0.5"></i>
+            <p class="text-gray-800 text-lg">
+                {% trans "Официальный справочник Министерства культуры и информации Республики Казахстан" %}
+            </p>
+        </div>
+    </div>
+    <!-- Заголовок страницы -->
+    <div
+        class="mb-8 bg-white border border-gray-100 rounded-xl p-4 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-users mr-2 text-blue-600"></i>
+                {% trans "Список сотрудников" %}
+            </h2>
+
+        </div>
+        <a href="{% url 'contacts:search' %}"
+            class="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 font-semibold text-sm sm:text-base text-center">
+            <i class="fas fa-search mr-2"></i>
+            {% trans "Поиск" %}
+        </a>
+    </div>
+
+
+
+    <!-- Статистика -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-6">
+        <div class="flex items-center justify-center gap-8 flex-wrap">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-gray-800">{{ total_contacts }}</div>
+                <div class="text-sm text-gray-600 mt-1">{% trans "Всего сотрудников" %}</div>
+            </div>
+            <div class="h-12 w-px bg-gray-300"></div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-gray-800">{{ departments|length }}</div>
+                <div class="text-sm text-gray-600 mt-1">{% trans "Структурных подразделений" %}</div>
+            </div>
+            <div class="h-12 w-px bg-gray-300"></div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-gray-800">{{ total_divisions }}</div>
+                <div class="text-sm text-gray-600 mt-1">{% trans "Управлении" %}</div>
+            </div>
+        </div>
+    </div>
+    <!-- Список департаментов и управлений с иерархией -->
+    <div class="space-y-8">
+        {% for department in departments %}
+        <!-- Департамент как отдельный крупный блок -->
+        <div
+            class="bg-white rounded-xl shadow-lg border {% if department.type == 'department' or department.is_independent_division %}border-blue-300{% else %}border-gray-300{% endif %} overflow-hidden">
+            <!-- Заголовок департамента - более крупный и заметный -->
+            <div
+                class="bg-gradient-to-r {% if department.type == 'department' or department.is_independent_division %}from-blue-700 to-indigo-700{% else %}from-gray-700 to-gray-800{% endif %} text-white px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        {% if department.is_independent_division %}
+                        <i class="fas fa-building text-xl mr-3"></i>
+                        {% else %}
+                        <i class="fas fa-sitemap text-xl mr-3"></i>
+                        {% endif %}
+                        <div>
+                            <h2 class="text-xl font-bold">
+                                {% if LANGUAGE_CODE|slice:":2" == 'kk' and department.name_kk %}
+                                {{ department.name_kk }}
+                                {% else %}
+                                {{ department.name_ru }}
+                                {% endif %}
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-6">
+                        {% if department.divisions_list %}
+                        <div class="text-right">
+                            <div class="text-base font-semibold">{{ department.divisions_list|length }}</div>
+                            <div class="text-xs opacity-80">{% trans "управлений" %}</div>
+                        </div>
+                        {% endif %}
+                        {% if department.total_contacts_count %}
+                        <div class="text-right">
+                            <div class="text-base font-semibold">{{ department.total_contacts_count }}</div>
+                            <div class="text-xs opacity-80">{% trans "сотрудников" %}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Сотрудники департамента (если есть напрямую в департаменте) -->
+            {% if department.contacts_sorted %}
+            <div class="overflow-x-auto">
+                <table class="w-full min-w-[800px] divide-y divide-gray-200">
+                    <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+                        <tr>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                {% trans "Фото" %}
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                <i class="fas fa-user mr-2 text-blue-600"></i>
+                                {% trans "ФИО" %}
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                <i class="fas fa-briefcase mr-2 text-blue-600"></i>
+                                {% trans "Должность" %}
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                <i class="fas fa-phone mr-2 text-blue-600"></i>
+                                {% trans "Телефоны" %}
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                <i class="fas fa-envelope mr-2 text-blue-600"></i>
+                                {% trans "Email" %}
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                <i class="fas fa-door-open mr-2 text-blue-600"></i>
+                                {% trans "Кабинет" %}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-100">
+                        {% for contact in department.contacts_sorted %}
+                        <tr
+                            class="hover:bg-blue-50 transition-all duration-150 border-l-4 border-transparent hover:border-blue-500">
+                            <!-- Аватарка -->
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                {% if contact.avatar %}
+                                {% if contact.avatar_cropping %}
+                                <img src="{% cropped_thumbnail contact 'avatar_cropping' %}"
+                                    alt="{{ contact.full_name }}"
+                                    class="w-12 h-12 rounded-full object-cover object-center border-2 border-blue-200 mx-auto block">
+                                {% else %}
+                                <img src="{{ contact.avatar.url }}" alt="{{ contact.full_name }}"
+                                    class="w-12 h-12 rounded-full object-cover object-center border-2 border-blue-200 mx-auto block">
+                                {% endif %}
+                                {% else %}
+                                <div
+                                    class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-semibold text-lg border-2 border-blue-200">
+                                    {{ contact.full_name|first|upper }}
+                                </div>
+                                {% endif %}
+                            </td>
+
+                            <!-- ФИО -->
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-sm font-semibold text-gray-900">
+                                        {{ contact.full_name }}
+                                    </div>
+                                    {% if contact.employment_type != 'full_time' %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                                        {% if contact.employment_type == 'external' %}bg-orange-100 text-orange-800{% endif %}
+                                                        {% if contact.employment_type == 'part_time' %}bg-blue-100 text-blue-800{% endif %}
+                                                        {% if contact.employment_type == 'contract' %}bg-purple-100 text-purple-800{% endif %}
+                                                    ">
+                                        {{ contact.get_employment_type_display }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Должность -->
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-800">
+                                    {% if contact.position %}
+                                    {% if LANGUAGE_CODE|slice:":2" == 'kk' and contact.position.name_kk %}
+                                    {{ contact.position.name_kk }}
+                                    {% else %}
+                                    {{ contact.position.name_ru }}
+                                    {% endif %}
+                                    {% else %}
+                                    <span class="text-gray-400 italic">—</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Телефоны -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm">
+                                    {% if contact.work_phone %}
+                                    <div class="flex items-center mb-1"><i
+                                            class="fas fa-phone mr-2 text-green-600"></i><span
+                                            class="font-medium text-gray-900">{{ contact.work_phone }}</span><span
+                                            class="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{% trans
+                                            "раб." %}</span></div>
+                                    {% endif %}
+                                    {% if contact.mobile_phone %}
+                                    <div class="flex items-center"><i
+                                            class="fas fa-mobile-alt mr-2 text-blue-600"></i><span
+                                            class="font-medium text-gray-900">{{ contact.mobile_phone }}</span><span
+                                            class="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{% trans
+                                            "моб." %}</span></div>
+                                    {% endif %}
+                                    {% if not contact.work_phone and not contact.mobile_phone %}<span
+                                        class="text-gray-400 italic">—</span>{% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Email -->
+                            <td class="px-6 py-4">
+                                {% if contact.email %}
+                                <a href="mailto:{{ contact.email }}"
+                                    class="text-sm text-blue-600 hover:text-blue-800 hover:underline flex items-center"><i
+                                        class="fas fa-envelope mr-2"></i>{{ contact.email }}</a>
+                                {% else %}
+                                <span class="text-gray-400 italic text-sm">—</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Кабинет -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span
+                                    class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200 shadow-sm">
+                                    <i class="fas fa-door-open mr-1.5"></i>
+                                    {% if contact.room %}{{ contact.room.number }}{% else %}{% trans "Не указан" %}{%
+                                    endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            <!-- Управления внутри департамента -->
+            {% if department.divisions_list %}
+            {% for division in department.divisions_list %}
+            <div class="{% if department.contacts_sorted %}mt-6{% endif %}">
+                <div
+                    class="border-l-4 {% if department.type == 'department' %}border-blue-400{% else %}border-gray-400{% endif %} ml-6 mb-3">
+                    <div class="bg-gray-50 px-6 py-3">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-base font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-building text-blue-600 mr-2 text-sm"></i>
+                                {% if LANGUAGE_CODE|slice:":2" == 'kk' and division.name_kk %}
+                                {{ division.name_kk }}
+                                {% else %}
+                                {{ division.name_ru }}
+                                {% endif %}
+                            </h4>
+                            <span class="text-sm text-gray-600 font-medium">
+                                {% if division.contacts_sorted %}{{ division.contacts_sorted|length }}{% else %}0{%
+                                endif %} {% trans "сотрудников" %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Сотрудники управления -->
+                {% if division.contacts_sorted %}
+                <div class="overflow-x-auto ml-4 mr-4 mb-4">
+                    <table class="w-full min-w-[800px] divide-y divide-gray-200">
+                        <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+                            <tr>
+                                <th scope="col"
+                                    class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                    {% trans "Фото" %}</th>
+                                <th scope="col"
+                                    class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                    <i class="fas fa-user mr-2 text-blue-600"></i>{% trans "ФИО" %}
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                    <i class="fas fa-briefcase mr-2 text-blue-600"></i>{% trans "Должность" %}
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                    <i class="fas fa-phone mr-2 text-blue-600"></i>{% trans "Телефоны" %}
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                    <i class="fas fa-envelope mr-2 text-blue-600"></i>{% trans "Email" %}
+                                </th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                    <i class="fas fa-door-open mr-2 text-blue-600"></i>{% trans "Кабинет" %}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-100">
+                            {% for contact in division.contacts_sorted %}
+                            <tr
+                                class="hover:bg-blue-50 transition-all duration-150 border-l-4 border-transparent hover:border-blue-400">
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    {% if contact.avatar %}
+                                    {% if contact.avatar_cropping %}
+                                    <img src="{% cropped_thumbnail contact 'avatar_cropping' %}"
+                                        alt="{{ contact.full_name }}"
+                                        class="w-12 h-12 rounded-full object-cover object-center border-2 border-blue-200 mx-auto block">
+                                    {% else %}
+                                    <img src="{{ contact.avatar.url }}" alt="{{ contact.full_name }}"
+                                        class="w-12 h-12 rounded-full object-cover object-center border-2 border-blue-200 mx-auto block">
+                                    {% endif %}
+                                    {% else %}
+                                    <div
+                                        class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-semibold text-lg border-2 border-blue-200 mx-auto">
+                                        {{ contact.full_name|first|upper }}
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-sm font-semibold text-gray-900">{{ contact.full_name }}</div>
+                                        {% if contact.employment_type != 'full_time' %}
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                                                    {% if contact.employment_type == 'external' %}bg-orange-100 text-orange-800{% endif %}
+                                                                    {% if contact.employment_type == 'part_time' %}bg-blue-100 text-blue-800{% endif %}
+                                                                    {% if contact.employment_type == 'contract' %}bg-purple-100 text-purple-800{% endif %}
+                                                                ">
+                                            {{ contact.get_employment_type_display }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-800">
+                                        {% if contact.position %}
+                                        {% if LANGUAGE_CODE|slice:":2" == 'kk' and contact.position.name_kk %}{{
+                                        contact.position.name_kk }}{% else %}{{ contact.position.name_ru }}{% endif %}
+                                        {% else %}<span class="text-gray-400 italic">—</span>{% endif %}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm">
+                                        {% if contact.work_phone %}
+                                        <div class="flex items-center mb-1"><i
+                                                class="fas fa-phone mr-2 text-green-600"></i><span
+                                                class="font-medium text-gray-900">{{ contact.work_phone }}</span><span
+                                                class="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{%
+                                                trans "раб." %}</span></div>
+                                        {% endif %}
+                                        {% if contact.mobile_phone %}
+                                        <div class="flex items-center"><i
+                                                class="fas fa-mobile-alt mr-2 text-blue-600"></i><span
+                                                class="font-medium text-gray-900">{{ contact.mobile_phone }}</span><span
+                                                class="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{%
+                                                trans "моб." %}</span></div>
+                                        {% endif %}
+                                        {% if not contact.work_phone and not contact.mobile_phone %}<span
+                                            class="text-gray-400 italic">—</span>{% endif %}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if contact.email %}
+                                    <a href="mailto:{{ contact.email }}"
+                                        class="text-sm text-blue-600 hover:text-blue-800 hover:underline flex items-center"><i
+                                            class="fas fa-envelope mr-2"></i>{{ contact.email }}</a>
+                                    {% else %}
+                                    <span class="text-gray-400 italic text-sm">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span
+                                        class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200 shadow-sm">
+                                        <i class="fas fa-door-open mr-1.5"></i>
+                                        {% if contact.room %}{{ contact.room.number }}{% else %}{% trans "Не указан"
+                                        %}{% endif %}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <!-- Сотрудники без отдела -->
+        {% if contacts_without_department %}
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100">
+            <div class="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-question-circle text-2xl mr-3"></i>
+                        <div>
+                            <h3 class="text-xl font-bold">{% trans "Сотрудники без отдела" %}</h3>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-bold">{{ paginator.count }}</div>
+                        <div class="text-sm text-gray-300">{% trans "сотрудников" %}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full min-w-[800px] divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                {% trans "Фото" %}
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                <i class="fas fa-user mr-2 text-blue-600"></i>
+                                {% trans "ФИО" %}
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                <i class="fas fa-briefcase mr-2 text-blue-600"></i>
+                                {% trans "Должность" %}
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                <i class="fas fa-phone mr-2 text-blue-600"></i>
+                                {% trans "Телефоны" %}
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                <i class="fas fa-envelope mr-2 text-blue-600"></i>
+                                {% trans "Email" %}
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                <i class="fas fa-door-open mr-2 text-blue-600"></i>
+                                {% trans "Кабинет" %}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-100">
+                        {% for contact in contacts_without_department %}
+                        <tr
+                            class="hover:bg-gray-50 transition-all duration-150 border-l-4 border-transparent hover:border-gray-400">
+                            <!-- Аватарка -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if contact.avatar %}
+                                <img src="{{ contact.avatar.url }}" alt="{{ contact.full_name }}"
+                                    class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
+                                {% else %}
+                                <div
+                                    class="w-12 h-12 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white font-semibold text-lg border-2 border-gray-200">
+                                    {{ contact.full_name|first|upper }}
+                                </div>
+                                {% endif %}
+                            </td>
+
+                            <!-- ФИО -->
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-sm font-semibold text-gray-900">
+                                        {{ contact.full_name }}
+                                    </div>
+                                    {% if contact.employment_type != 'full_time' %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                                    {% if contact.employment_type == 'external' %}bg-orange-100 text-orange-800{% endif %}
+                                                    {% if contact.employment_type == 'part_time' %}bg-blue-100 text-blue-800{% endif %}
+                                                    {% if contact.employment_type == 'contract' %}bg-purple-100 text-purple-800{% endif %}
+                                                ">
+                                        {{ contact.get_employment_type_display }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Должность -->
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-800">
+                                    {% if contact.position %}
+                                    {% if LANGUAGE_CODE|slice:":2" == 'kk' and contact.position.name_kk %}
+                                    {{ contact.position.name_kk }}
+                                    {% else %}
+                                    {{ contact.position.name_ru }}
+                                    {% endif %}
+                                    {% else %}
+                                    <span class="text-gray-400 italic">—</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Телефоны -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm">
+                                    {% if contact.work_phone %}
+                                    <div class="flex items-center mb-1">
+                                        <i class="fas fa-phone mr-2 text-green-600"></i>
+                                        <span class="font-medium text-gray-900">{{ contact.work_phone }}</span>
+                                        <span class="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{%
+                                            trans "раб." %}</span>
+                                    </div>
+                                    {% endif %}
+                                    {% if contact.mobile_phone %}
+                                    <div class="flex items-center">
+                                        <i class="fas fa-mobile-alt mr-2 text-blue-600"></i>
+                                        <span class="font-medium text-gray-900">{{ contact.mobile_phone }}</span>
+                                        <span class="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{%
+                                            trans "моб." %}</span>
+                                    </div>
+                                    {% endif %}
+                                    {% if not contact.work_phone and not contact.mobile_phone %}
+                                    <span class="text-gray-400 italic">—</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Email -->
+                            <td class="px-6 py-4">
+                                {% if contact.email %}
+                                <a href="mailto:{{ contact.email }}"
+                                    class="text-sm text-blue-600 hover:text-blue-800 hover:underline flex items-center">
+                                    <i class="fas fa-envelope mr-2"></i>
+                                    {{ contact.email }}
+                                </a>
+                                {% else %}
+                                <span class="text-gray-400 italic text-sm">—</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Номер кабинета -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span
+                                    class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-300 shadow-sm">
+                                    <i class="fas fa-door-open mr-1.5"></i>
+                                    {% if contact.room %}
+                                    {{ contact.room.number }}
+                                    {% else %}
+                                    {% trans "Не указан" %}
+                                    {% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Пагинация для сотрудников без отдела -->
+            {% if paginator.num_pages > 1 %}
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                <div class="flex items-center justify-center">
+                    <nav class="flex items-center space-x-2">
+                        {% if contacts_without_department.has_previous %}
+                        <a href="?page={{ contacts_without_department.previous_page_number }}"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 shadow-sm hover:shadow-md">
+                            <i class="fas fa-chevron-left mr-1"></i>
+                            {% trans "Предыдущая" %}
+                        </a>
+                        {% endif %}
+
+                        <span class="px-4 py-2 text-sm text-gray-700">
+                            {% trans "Страница" %} {{ contacts_without_department.number }} {% trans "из" %} {{
+                            paginator.num_pages }}
+                        </span>
+
+                        {% if contacts_without_department.has_next %}
+                        <a href="?page={{ contacts_without_department.next_page_number }}"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 shadow-sm hover:shadow-md">
+                            {% trans "Следующая" %}
+                            <i class="fas fa-chevron-right ml-1"></i>
+                        </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
