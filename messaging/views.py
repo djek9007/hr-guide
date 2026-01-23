@@ -13,6 +13,8 @@ from .serializers import ChatSerializer, MessageSerializer, MessageCreateSeriali
 from contacts.models import Contact
 from django.utils import timezone
 from datetime import timedelta
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 
 class ChatViewSet(viewsets.ModelViewSet):
@@ -142,6 +144,42 @@ class MessageViewSet(viewsets.ModelViewSet):
         
         # Перезагружаем сообщение с вложениями
         message.refresh_from_db()
+        
+        # Отправляем сообщение обоим участникам чата через WebSocket (channel_layer)
+        # Это гарантирует доставку сообщения, даже если WebSocket нестабилен
+        try:
+            channel_layer = get_channel_layer()
+            if channel_layer:
+                # Сериализуем сообщение для отправки
+                message_serializer = MessageSerializer(message, context={'request': self.request})
+                message_data = message_serializer.data
+                
+                # Отправляем сообщение обоим участникам чата
+                participant1_group = f"user_{message.chat.participant1_id}"
+                participant2_group = f"user_{message.chat.participant2_id}"
+                
+                async_to_sync(channel_layer.group_send)(
+                    participant1_group,
+                    {
+                        'type': 'chat_message',
+                        'message': message_data,
+                        'chat_id': message.chat.id
+                    }
+                )
+                async_to_sync(channel_layer.group_send)(
+                    participant2_group,
+                    {
+                        'type': 'chat_message',
+                        'message': message_data,
+                        'chat_id': message.chat.id
+                    }
+                )
+        except Exception as e:
+            # Если не удалось отправить через channel_layer, это не критично
+            # Сообщение уже сохранено в БД и будет загружено при следующем обновлении
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f'Не удалось отправить сообщение через channel_layer: {e}')
     
     def get_serializer_context(self):
         """Добавляет request в контекст сериализатора"""

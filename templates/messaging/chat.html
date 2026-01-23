@@ -113,8 +113,16 @@
                     x-ref="messagesContainer"
                     class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50"
                 >
+                    <!-- Отладочная информация (можно удалить позже) -->
+                    <template x-if="!messages || messages.length === 0">
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fas fa-comments text-4xl mb-2 opacity-30"></i>
+                            <p class="text-sm">{% trans "Нет сообщений" %}</p>
+                            <p class="text-xs mt-2" x-text="'Chat ID: ' + currentChatId"></p>
+                        </div>
+                    </template>
                     <template x-for="(message, index) in (messages || [])" :key="`msg-${message?.id || index}-${index}`">
-                        <template x-if="message">
+                        <template x-if="message && message.id">
                             <div>
                                 <div 
                                     :class="message.sender?.id === currentUser?.id ? 'flex justify-end' : 'flex justify-start'"
@@ -236,7 +244,7 @@ function chatApp() {
         currentChatId: null,
         selectedEmployeeId: null,
         selectedEmployee: null,
-        messages: [],
+        messages: [], // Массив сообщений текущего чата
         messageText: '',
         selectedFiles: [],
         searchQuery: '',
@@ -244,6 +252,8 @@ function chatApp() {
         ws: null,
         isTyping: false,
         typingTimeout: null,
+        messagePollInterval: null, // Интервал для периодической загрузки сообщений, если WebSocket не работает
+        wsConnected: false, // Флаг подключения WebSocket
 
         async init() {
             // Получаем текущего пользователя
@@ -257,6 +267,14 @@ function chatApp() {
             
             // Подключаемся к WebSocket
             this.connectWebSocket();
+            
+            // Если через 5 секунд WebSocket не подключился, запускаем polling
+            setTimeout(() => {
+                if (!this.wsConnected && this.currentChatId && !this.messagePollInterval) {
+                    console.log('WebSocket не подключился, запускаем периодическую загрузку сообщений');
+                    this.startMessagePolling();
+                }
+            }, 5000);
         },
 
         async loadCurrentUser() {
@@ -381,11 +399,22 @@ function chatApp() {
             
             this.currentChatId = chat.id;
             
+            // Останавливаем периодическую загрузку для предыдущего чата
+            if (this.messagePollInterval) {
+                clearInterval(this.messagePollInterval);
+                this.messagePollInterval = null;
+            }
+            
             // Загружаем сообщения
             await this.loadMessages(chat.id);
             
             // Отмечаем сообщения как прочитанные
             await this.markChatAsRead(chat.id);
+            
+            // Если WebSocket не подключен, запускаем периодическую загрузку сообщений
+            if (!this.wsConnected && !this.messagePollInterval) {
+                this.startMessagePolling();
+            }
         },
 
         getUnreadCount(employeeId) {
@@ -395,22 +424,35 @@ function chatApp() {
 
         async loadMessages(chatId) {
             try {
+                console.log('Загрузка сообщений для чата:', chatId);
                 const response = await fetch(`/api/messages/?chat_id=${chatId}`, {
                     credentials: 'include'
                 });
                 if (response.ok) {
                     const data = await response.json();
                     // Фильтруем null/undefined значения и гарантируем, что это массив
-                    this.messages = (Array.isArray(data) ? data : (data.results || [])).filter(msg => msg != null);
+                    const messagesArray = (Array.isArray(data) ? data : (data.results || [])).filter(msg => msg != null && msg.id);
+                    console.log('Загружено сообщений:', messagesArray.length, messagesArray);
+                    
+                    // Сортируем сообщения по дате создания (старые первыми)
+                    messagesArray.sort((a, b) => {
+                        const dateA = new Date(a.created_at || 0);
+                        const dateB = new Date(b.created_at || 0);
+                        return dateA - dateB;
+                    });
+                    
+                    this.messages = messagesArray;
                     this.$nextTick(() => {
                         this.scrollToBottom();
                     });
                 } else {
+                    const errorText = await response.text();
+                    console.error('Ошибка загрузки сообщений:', response.status, response.statusText, errorText);
                     // В случае ошибки устанавливаем пустой массив
                     this.messages = [];
                 }
             } catch (error) {
-                console.error('Error loading messages:', error);
+                console.error('Ошибка загрузки сообщений:', error);
                 // В случае ошибки устанавливаем пустой массив
                 this.messages = [];
             }
@@ -638,13 +680,32 @@ function chatApp() {
         },
 
         connectWebSocket() {
+            // Определяем правильный протокол и хост для WebSocket
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            // Используем тот же хост, что и для HTTP запросов
             const wsUrl = `${protocol}//${window.location.host}/ws/chat/`;
+            
+            console.log('Подключение к WebSocket:', wsUrl);
+            
+            // Закрываем предыдущее соединение, если оно есть
+            if (this.ws) {
+                try {
+                    this.ws.close();
+                } catch (e) {
+                    // Игнорируем ошибки при закрытии
+                }
+            }
             
             this.ws = new WebSocket(wsUrl);
 
             this.ws.onopen = () => {
                 console.log('WebSocket connected');
+                this.wsConnected = true;
+                // Останавливаем периодическую загрузку сообщений, если WebSocket работает
+                if (this.messagePollInterval) {
+                    clearInterval(this.messagePollInterval);
+                    this.messagePollInterval = null;
+                }
             };
 
             this.ws.onmessage = (event) => {
@@ -699,11 +760,24 @@ function chatApp() {
 
             this.ws.onerror = (error) => {
                 console.error('Ошибка WebSocket:', error);
+                this.wsConnected = false;
                 // При ошибке WebSocket, сообщения будут отправляться через API fallback
+                // Запускаем периодическую загрузку сообщений, если еще не запущена
+                if (this.currentChatId && !this.messagePollInterval) {
+                    this.startMessagePolling();
+                }
             };
 
             this.ws.onclose = (event) => {
                 console.log('WebSocket disconnected', event.code, event.reason);
+                this.wsConnected = false;
+                
+                // Если WebSocket не работает, запускаем периодическую загрузку сообщений
+                if (this.currentChatId && !this.messagePollInterval) {
+                    console.log('WebSocket недоступен, запускаем периодическую загрузку сообщений');
+                    this.startMessagePolling();
+                }
+                
                 // Переподключение через 3 секунды, но только если это не было намеренное закрытие
                 if (event.code !== 1000) {
                     setTimeout(() => {
@@ -767,6 +841,32 @@ function chatApp() {
                 }
             }
             return '';
+        },
+
+        startMessagePolling() {
+            // Периодически загружаем сообщения, если WebSocket не работает
+            if (this.messagePollInterval) {
+                return; // Уже запущена
+            }
+            
+            console.log('Запуск периодической загрузки сообщений (каждые 3 секунды)');
+            this.messagePollInterval = setInterval(async () => {
+                if (this.currentChatId && !this.wsConnected) {
+                    // Сохраняем количество сообщений до загрузки
+                    const previousCount = this.messages ? this.messages.length : 0;
+                    await this.loadMessages(this.currentChatId);
+                    // Если появились новые сообщения, прокручиваем вниз
+                    if (this.messages && this.messages.length > previousCount) {
+                        this.$nextTick(() => {
+                            this.scrollToBottom();
+                        });
+                    }
+                } else if (this.wsConnected) {
+                    // WebSocket подключен, останавливаем polling
+                    clearInterval(this.messagePollInterval);
+                    this.messagePollInterval = null;
+                }
+            }, 3000); // Загружаем каждые 3 секунды
         }
     }
 }
