@@ -1127,16 +1127,16 @@ function chatApp() {
                                     }).filter(id => id !== null)
                                 });
                                 
-                                // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Если чат есть в списке, но currentChatId null,
-                                // возможно чат открыт, но currentChatId сброшен. Попробуем восстановить.
-                                if (chatForMessage && !currentChatIdNum) {
+                                // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Если чат есть в списке, но currentChatId null или открыт другой чат,
+                                // возможно чат открыт, но currentChatId сброшен, или нужно переключиться на чат с новым сообщением.
+                                if (chatForMessage && currentChatIdNum !== receivedChatId) {
                                     // Находим сотрудника, для которого этот чат
                                     const employeeIdForChat = Object.keys(this.chatsByEmployeeId).find(empId => {
                                         const c = this.chatsByEmployeeId[empId];
                                         return c && c.id === receivedChatId;
                                     });
                                     
-                                    // Если чат есть в маппинге и selectedEmployeeId совпадает, значит чат открыт
+                                    // Если чат есть в маппинге и selectedEmployeeId совпадает, значит чат открыт, но currentChatId не совпадает
                                     if (employeeIdForChat && this.selectedEmployeeId === parseInt(employeeIdForChat)) {
                                         console.log('🔧 Обнаружен открытый чат! Восстанавливаем currentChatId и загружаем сообщения...');
                                         this.currentChatId = receivedChatId;
@@ -1152,7 +1152,7 @@ function chatApp() {
                                         return; // Выходим, так как уже обработали сообщение
                                     }
                                     
-                                    // ДОПОЛНИТЕЛЬНАЯ ПРОВЕРКА: Если чат есть в списке, но не открыт,
+                                    // ДОПОЛНИТЕЛЬНАЯ ПРОВЕРКА: Если чат есть в списке, но не открыт (или открыт другой чат),
                                     // но сообщение пришло - автоматически открываем чат для отображения сообщения
                                     if (chatForMessage.other_participant) {
                                         const otherParticipantId = chatForMessage.other_participant.id;
@@ -1160,6 +1160,8 @@ function chatApp() {
                                             otherParticipantId,
                                             currentUser: this.currentUser?.id,
                                             selectedEmployeeId: this.selectedEmployeeId,
+                                            currentChatId: currentChatIdNum,
+                                            receivedChatId: receivedChatId,
                                             employees_count: this.employees?.length || 0,
                                             chat_id: receivedChatId,
                                             other_participant: chatForMessage.other_participant
@@ -1169,7 +1171,7 @@ function chatApp() {
                                         const employee = this.employees.find(emp => emp.id === otherParticipantId);
                                         
                                         if (employee) {
-                                            console.log('🔧 Автоматически открываем чат для нового сообщения...');
+                                            console.log('🔧 Автоматически открываем чат для нового сообщения (переключаемся с чата', currentChatIdNum, 'на чат', receivedChatId, ')...');
                                             // Устанавливаем selectedEmployee и selectedEmployeeId
                                             this.selectedEmployee = employee;
                                             this.selectedEmployeeId = otherParticipantId;
