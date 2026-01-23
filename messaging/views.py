@@ -158,14 +158,19 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        """Возвращает всех пользователей, у которых есть Contact"""
-        queryset = User.objects.filter(contact__isnull=False).select_related('contact').order_by('username')
+        """Возвращает всех активных пользователей, у которых есть Contact"""
+        # Фильтруем только активных пользователей с связанным Contact
+        queryset = User.objects.filter(
+            contact__isnull=False,
+            is_active=True
+        ).select_related('contact').order_by('username')
         
-        # Поиск по имени или username
+        # Поиск по имени, username или email
         search = self.request.query_params.get('search', None)
         if search:
             queryset = queryset.filter(
                 Q(username__icontains=search) |
+                Q(email__icontains=search) |
                 Q(first_name__icontains=search) |
                 Q(last_name__icontains=search) |
                 Q(contact__full_name__icontains=search)

@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'channels',  # Django Channels для WebSocket
     'rest_framework',  # Django REST Framework для API
-    'contacts',  # Наше приложение для контактов
+    'contacts.apps.ContactsConfig',  # Наше приложение для контактов
     'messaging',  # Приложение для чата
     'image_cropping',  # Для обрезки изображений
     'easy_thumbnails',  # Для создания миниатюр
@@ -59,6 +59,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'contacts.middleware.RequirePasswordChangeMiddleware',  # Проверка стандартного пароля
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -417,3 +418,10 @@ CELERY_BEAT_SCHEDULE = {
 
 # Период хранения файлов в чате (в днях)
 CHAT_FILE_RETENTION_DAYS = 30
+
+# Настройки аутентификации
+# Поддержка входа по email или username
+AUTHENTICATION_BACKENDS = [
+    'contacts.backends.EmailBackend',  # Кастомный backend для входа по email
+    'django.contrib.auth.backends.ModelBackend',  # Стандартный backend Django
+]

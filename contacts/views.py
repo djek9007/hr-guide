@@ -1,8 +1,9 @@
-﻿from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q, F
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from .models import Contact, Department, Division, Position, Room, Vacancy
@@ -329,24 +330,77 @@ def login_view(request):
         return redirect('contacts:search')
 
     if request.method == 'POST':
-        username = request.POST.get('username', '').strip()
+        # Поле может содержать username или email
+        username_or_email = request.POST.get('username', '').strip()
         password = request.POST.get('password', '').strip()
 
-        if username and password:
-            user = authenticate(request, username=username, password=password)
+        if username_or_email and password:
+            # Аутентифицируем по username или email
+            user = authenticate(request, username=username_or_email, password=password)
             if user is not None:
                 login(request, user)
+                
+                # Проверяем, используется ли стандартный пароль Chat2026
+                if user.check_password('Chat2026'):
+                    # Если пароль стандартный, перенаправляем на смену пароля
+                    messages.warning(request, _('Для безопасности необходимо сменить стандартный пароль.'))
+                    return redirect('contacts:change_password')
+                
                 messages.success(request, _('Вы успешно вошли в систему.'))
                 next_url = request.GET.get('next', None)
                 if next_url:
                     return redirect(next_url)
                 return redirect('contacts:search')
             else:
-                messages.error(request, _('Неверное имя пользователя или пароль.'))
+                messages.error(request, _('Неверное имя пользователя, email или пароль.'))
         else:
             messages.error(request, _('Пожалуйста, заполните все поля.'))
 
     return render(request, 'accounts/login.html')
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def change_password_view(request):
+    """
+    Представление для смены пароля.
+    Обязательно для пользователей со стандартным паролем Chat2026.
+    """
+    if request.method == 'POST':
+        old_password = request.POST.get('old_password', '').strip()
+        new_password = request.POST.get('new_password', '').strip()
+        confirm_password = request.POST.get('confirm_password', '').strip()
+        
+        # Проверяем текущий пароль
+        if not request.user.check_password(old_password):
+            messages.error(request, _('Неверный текущий пароль.'))
+            return render(request, 'accounts/change_password.html')
+        
+        # Проверяем, что новый пароль не совпадает со стандартным
+        if new_password == 'Chat2026':
+            messages.error(request, _('Новый пароль не может совпадать со стандартным паролем.'))
+            return render(request, 'accounts/change_password.html')
+        
+        # Проверяем совпадение нового пароля и подтверждения
+        if new_password != confirm_password:
+            messages.error(request, _('Новые пароли не совпадают.'))
+            return render(request, 'accounts/change_password.html')
+        
+        # Проверяем минимальную длину пароля
+        if len(new_password) < 8:
+            messages.error(request, _('Пароль должен содержать минимум 8 символов.'))
+            return render(request, 'accounts/change_password.html')
+        
+        # Устанавливаем новый пароль
+        request.user.set_password(new_password)
+        request.user.save()
+        
+        messages.success(request, _('Пароль успешно изменен. Пожалуйста, войдите снова с новым паролем.'))
+        from django.contrib.auth import logout
+        logout(request)
+        return redirect('login')
+    
+    return render(request, 'accounts/change_password.html')
 
 
 def chat_view(request):
