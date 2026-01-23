@@ -169,7 +169,7 @@
 - **Аутентификация**: Django Session Authentication
 
 #### 3.1.2. Frontend
-- **Фреймворк**: Alpine.js 3.x
+- **Фреймворк**: Alpine.js 3.x все скрипты должны быть загружены локально
 - **HTTP клиент**: Fetch API
 - **Стили**: Tailwind CSS (уже используется в проекте)
 - **Иконки**: Font Awesome (уже используется)
