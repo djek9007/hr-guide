@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     gcc \
     python3-dev \
     libpq-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Копируем requirements.txt и устанавливаем зависимости

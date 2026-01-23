@@ -1,12 +1,66 @@
 # Настройка системы чата
 
-## Установка зависимостей
+## 🐳 Запуск в Docker (рекомендуется)
+
+Проект настроен для работы в Docker с полной поддержкой всех компонентов.
+
+### Быстрый старт:
+
+1. Убедитесь, что у вас установлены Docker и Docker Compose
+
+2. Запустите все сервисы:
+   ```bash
+   docker-compose up -d
+   ```
+
+3. Применение миграций (выполняется автоматически при старте):
+   ```bash
+   docker-compose exec hr-guide-web python manage.py migrate
+   ```
+
+4. Создание суперпользователя (если нужно):
+   ```bash
+   docker-compose exec hr-guide-web python manage.py createsuperuser
+   ```
+
+5. Откройте в браузере: http://localhost:8880
+
+### Структура сервисов в Docker:
+
+- **hr-guide-web** - Django приложение с ASGI (daphne) для поддержки WebSocket
+- **db-hr** - PostgreSQL база данных
+- **redis** - Redis для Celery и Channels
+- **celery-worker** - Celery worker для фоновых задач
+- **celery-beat** - Celery beat для периодических задач (автоудаление файлов)
+
+### Полезные команды:
+
+```bash
+# Просмотр логов
+docker-compose logs -f hr-guide-web
+docker-compose logs -f celery-worker
+docker-compose logs -f celery-beat
+
+# Остановка всех сервисов
+docker-compose down
+
+# Пересборка образов
+docker-compose build --no-cache
+
+# Выполнение команд в контейнере
+docker-compose exec hr-guide-web python manage.py shell
+docker-compose exec hr-guide-web python manage.py migrate
+```
+
+## 💻 Локальная разработка (без Docker)
+
+### Установка зависимостей
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Настройка базы данных
+### Настройка базы данных
 
 1. Создайте миграции:
 ```bash
@@ -14,11 +68,11 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-## Настройка Redis (для Celery и Channels)
+### Настройка Redis (для Celery и Channels)
 
-Для локальной разработки можно использовать InMemoryChannelLayer (уже настроено в settings.py).
+Для локальной разработки можно использовать InMemoryChannelLayer (автоматически используется если Redis недоступен).
 
-Для production рекомендуется использовать Redis:
+Для полной функциональности рекомендуется использовать Redis:
 
 1. Установите Redis:
    - Windows: скачайте с https://github.com/microsoftarchive/redis/releases
@@ -30,21 +84,11 @@ python manage.py migrate
    redis-server
    ```
 
-3. В `settings.py` раскомментируйте настройки Redis для Channels:
-   ```python
-   CHANNEL_LAYERS = {
-       'default': {
-           'BACKEND': 'channels_redis.core.RedisChannelLayer',
-           'CONFIG': {
-               "hosts": [('127.0.0.1', 6379)],
-           },
-       },
-   }
-   ```
+Настройки автоматически определят доступность Redis и переключатся на него.
 
-## Настройка Celery
+### Настройка Celery
 
-### Для локальной разработки (без Redis):
+#### Для локальной разработки (без Redis):
 
 Celery будет работать, но периодические задачи (автоудаление файлов) нужно запускать вручную:
 
@@ -54,7 +98,7 @@ python manage.py shell
 >>> delete_old_files()
 ```
 
-### Для production (с Redis):
+#### Для production (с Redis):
 
 1. Запустите Celery worker:
    ```bash
@@ -66,23 +110,21 @@ python manage.py shell
    celery -A hr_guide beat --loglevel=info
    ```
 
-## Запуск сервера
+### Запуск сервера
 
-### Обычный режим (HTTP):
+#### Обычный режим (HTTP, без WebSocket):
 ```bash
 python manage.py runserver
 ```
 
-### С поддержкой WebSocket (ASGI):
+#### С поддержкой WebSocket (ASGI):
 ```bash
-# Используйте daphne или uvicorn
-pip install daphne
+# Используйте daphne
 daphne -b 0.0.0.0 -p 8000 hr_guide.asgi:application
 ```
 
 Или с uvicorn:
 ```bash
-pip install uvicorn
 uvicorn hr_guide.asgi:application --host 0.0.0.0 --port 8000
 ```
 

@@ -28,6 +28,19 @@ done
 
 echo "База данных готова!"
 
+# Ожидаем Redis (опционально, не критично для старта)
+echo "Проверка Redis..."
+python -c "
+import sys
+try:
+    import redis
+    r = redis.Redis(host='${REDIS_HOST:-redis}', port=${REDIS_PORT:-6379}, socket_connect_timeout=2)
+    r.ping()
+    print('Redis доступен')
+except Exception:
+    print('Redis недоступен, будет использован InMemoryChannelLayer')
+" || echo "Redis недоступен, будет использован InMemoryChannelLayer"
+
 # Применяем миграции
 echo "Применение миграций..."
 python manage.py migrate --noinput

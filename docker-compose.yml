@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # База данных теперь внутри проекта
+  # База данных
   db-hr:
     image: postgres:17.2
     container_name: hr-guide-db
@@ -15,13 +15,26 @@ services:
     networks:
       - hr-guide-network
 
-  # Django приложение
+  # Redis для Celery и Channels
+  redis:
+    image: redis:7-alpine
+    container_name: hr-guide-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - hr-guide-network
+    command: redis-server --appendonly yes
+
+  # Django приложение (ASGI для WebSocket)
   hr-guide-web:
     build: .
     container_name: hr-guide-web
     restart: unless-stopped
-    # Используем Gunicorn для скорости
-    command: gunicorn hr_guide.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120 --keep-alive 5 --access-logfile /dev/null
+    # Используем daphne для поддержки WebSocket через ASGI
+    command: daphne -b 0.0.0.0 -p 8000 hr_guide.asgi:application
     volumes:
       - .:/app
       - ./media:/app/media
@@ -33,14 +46,73 @@ services:
     environment:
       - DEBUG=${DEBUG:-False}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
-      # Теперь подключаемся к соседнему контейнеру db-hr
+      # База данных
       - DATABASE_HOST=db-hr
       - DATABASE_PORT=5432
       - DATABASE_NAME=hr-guide
       - DATABASE_USER=admin
       - DATABASE_PASSWORD=Postgres9007
+      # Redis для Celery и Channels
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     depends_on:
       - db-hr
+      - redis
+    networks:
+      - hr-guide-network
+
+  # Celery Worker для фоновых задач
+  celery-worker:
+    build: .
+    container_name: hr-guide-celery-worker
+    restart: unless-stopped
+    command: celery -A hr_guide worker --loglevel=info --concurrency=2
+    volumes:
+      - .:/app
+      - ./media:/app/media
+    env_file:
+      - .env
+    environment:
+      - DEBUG=${DEBUG:-False}
+      - DATABASE_HOST=db-hr
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=hr-guide
+      - DATABASE_USER=admin
+      - DATABASE_PASSWORD=Postgres9007
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - db-hr
+      - redis
+      - hr-guide-web
+    networks:
+      - hr-guide-network
+
+  # Celery Beat для периодических задач
+  celery-beat:
+    build: .
+    container_name: hr-guide-celery-beat
+    restart: unless-stopped
+    command: celery -A hr_guide beat --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - DEBUG=${DEBUG:-False}
+      - DATABASE_HOST=db-hr
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=hr-guide
+      - DATABASE_USER=admin
+      - DATABASE_PASSWORD=Postgres9007
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - db-hr
+      - redis
+      - hr-guide-web
     networks:
       - hr-guide-network
 
@@ -49,4 +121,5 @@ networks:
     driver: bridge
 
 volumes:
-  hr-guide-db-data: # Данные БД будут храниться здесь
+  hr-guide-db-data: # Данные БД
+  redis-data: # Данные Redis

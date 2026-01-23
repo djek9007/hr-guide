@@ -342,23 +342,48 @@ LOGGING = {
 # Настройки Django Channels для WebSocket
 ASGI_APPLICATION = 'hr_guide.asgi.application'
 
-# Настройки Channels (используем InMemoryChannelLayer для локальной разработки)
-# Для production используйте Redis: channels_redis
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    },
-}
+# Настройки Channels
+# Используем Redis если доступен, иначе InMemoryChannelLayer для локальной разработки
+# В Docker используем имя сервиса 'redis', локально - 'localhost'
+REDIS_HOST = os.environ.get('REDIS_HOST', os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0').split('://')[1].split(':')[0] if '://' in os.environ.get('CELERY_BROKER_URL', '') else 'localhost')
+REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
 
-# Для production с Redis раскомментируйте:
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts": [('127.0.0.1', 6379)],
-#         },
-#     },
-# }
+# Если CELERY_BROKER_URL задан, извлекаем хост оттуда
+if 'CELERY_BROKER_URL' in os.environ:
+    broker_url = os.environ['CELERY_BROKER_URL']
+    if '://' in broker_url:
+        try:
+            parts = broker_url.split('://')[1].split(':')
+            REDIS_HOST = parts[0] if parts[0] else 'localhost'
+            if len(parts) > 1:
+                REDIS_PORT = int(parts[1].split('/')[0])
+        except (ValueError, IndexError):
+            pass
+
+try:
+    import redis
+    # Проверяем доступность Redis
+    r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0, socket_connect_timeout=2)
+    r.ping()
+    # Redis доступен - используем его
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                "hosts": [(REDIS_HOST, REDIS_PORT)],
+            },
+        },
+    }
+except (ImportError, redis.ConnectionError, redis.TimeoutError, Exception) as e:
+    # Redis недоступен - используем InMemoryChannelLayer
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning(f"Redis недоступен ({REDIS_HOST}:{REDIS_PORT}), используется InMemoryChannelLayer: {e}")
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        },
+    }
 
 # Настройки Django REST Framework
 REST_FRAMEWORK = {
@@ -373,6 +398,7 @@ REST_FRAMEWORK = {
 }
 
 # Настройки Celery
+# Используем переменные окружения или значения по умолчанию
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
