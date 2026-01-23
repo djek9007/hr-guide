@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 @receiver(pre_save, sender=Contact)
 def check_email_change(sender, instance, **kwargs):
     """
-    Сохраняем старый email перед сохранением для проверки изменений.
+    Сохраняем старый email и пользователя перед сохранением для проверки изменений.
     """
     if instance.pk:
         try:
@@ -41,14 +41,34 @@ def create_user_for_contact(sender, instance, created, **kwargs):
     if instance.user:
         return
     
-    # Проверяем, был ли добавлен email при обновлении
-    if not created:
-        old_email = getattr(instance, '_old_email', None)
-        # Если email не изменился или был удален, пропускаем
-        if not instance.email or (old_email and old_email == instance.email):
-            return
+    # Если у контакта нет email, пропускаем
+    if not instance.email or not instance.email.strip():
+        return
     
-    # Если у контакта есть email и нет связанного пользователя
+    # Проверяем, нужно ли создавать пользователя
+    # Если это обновление существующего контакта, проверяем изменения
+    if not created:
+        old_user = getattr(instance, '_old_user', None)
+        old_email = getattr(instance, '_old_email', None)
+        
+        # Если пользователь был удален (был, но теперь нет) - создаем нового
+        if old_user and not instance.user:
+            # Пользователь был удален - создаем нового
+            logger.info(f"Пользователь был удален для контакта {instance.full_name}, создаем нового")
+        # Если email был добавлен или изменился - создаем пользователя
+        elif (not old_email and instance.email) or (old_email and old_email != instance.email):
+            # Email был добавлен или изменился - создаем пользователя
+            logger.info(f"Email был добавлен или изменился для контакта {instance.full_name}, создаем пользователя")
+        # Если email не изменился и пользователя не было - пропускаем (чтобы не создавать при каждом сохранении)
+        elif old_email and old_email == instance.email and not old_user:
+            # Email не изменился и пользователя не было - пропускаем
+            logger.debug(f"Email не изменился и пользователя не было для контакта {instance.full_name}, пропускаем")
+            return
+        # В остальных случаях тоже создаем (на всякий случай)
+        else:
+            logger.info(f"Создаем пользователя для контакта {instance.full_name} (обновление)")
+    
+    # Если у контакта есть email и нет связанного пользователя - создаем
     if instance.email and not instance.user:
         email = instance.email.strip().lower()
         

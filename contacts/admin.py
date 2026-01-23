@@ -1,4 +1,4 @@
-﻿from django.contrib import admin
+from django.contrib import admin, messages
 from django import forms
 from django.db.models import Count
 from django.utils.translation import gettext_lazy as _
@@ -326,6 +326,10 @@ class ContactAdmin(ImageCroppingMixin, ImportExportModelAdmin):
         (_('Контакты'), {
             'fields': ('work_phone', 'mobile_phone', 'email')
         }),
+        (_('Учетная запись пользователя'), {
+            'fields': ('user', 'user_info'),
+            'description': _('Информация о пользователе для доступа к чату. Пользователь создается автоматически при указании email.')
+        }),
         (_('Дополнительно'), {
             'fields': ('notes',)
         }),
@@ -335,12 +339,105 @@ class ContactAdmin(ImageCroppingMixin, ImportExportModelAdmin):
         }),
     )
     
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at', 'user_info')
     resource_class = ContactResource
     
     # Автозаполнение для удобства
     autocomplete_fields = ['division', 'department', 'position', 'room']
     list_display_links = ('full_name',)
+    
+    def user_info(self, obj):
+        """Отображает информацию о связанном пользователе"""
+        if obj.user:
+            return format_html(
+                '<div style="padding: 10px; background-color: #e8f4f8; border-radius: 5px; border-left: 4px solid #2196F3;">'
+                '<strong>👤 Пользователь:</strong><br>'
+                '<span style="font-size: 14px;">'
+                '<strong>Username:</strong> <code style="background: white; padding: 2px 6px; border-radius: 3px;">{}</code><br>'
+                '<strong>Email:</strong> <code style="background: white; padding: 2px 6px; border-radius: 3px;">{}</code><br>'
+                '<strong>Активен:</strong> {}'
+                '</span>'
+                '</div>',
+                obj.user.username,
+                obj.user.email,
+                '✅ Да' if obj.user.is_active else '❌ Нет'
+            )
+        else:
+            if obj.email:
+                return format_html(
+                    '<div style="padding: 10px; background-color: #fff3cd; border-radius: 5px; border-left: 4px solid #ffc107;">'
+                    '<strong>⚠️ Пользователь не создан</strong><br>'
+                    '<span style="font-size: 12px; color: #856404;">'
+                    'Email указан: <code>{}</code><br>'
+                    'Пользователь будет создан автоматически при сохранении.'
+                    '</span>'
+                    '</div>',
+                    obj.email
+                )
+            else:
+                return format_html(
+                    '<div style="padding: 10px; background-color: #f8d7da; border-radius: 5px; border-left: 4px solid #dc3545;">'
+                    '<strong>❌ Пользователь не создан</strong><br>'
+                    '<span style="font-size: 12px; color: #721c24;">'
+                    'Для создания пользователя необходимо указать email.'
+                    '</span>'
+                    '</div>'
+                )
+    user_info.short_description = _('Информация о пользователе')
+    user_info.help_text = _('Информация о связанной учетной записи пользователя для доступа к чату')
+    
+    def save_model(self, request, obj, form, change):
+        """
+        Переопределяем сохранение для вывода сообщения о создании пользователя.
+        """
+        # Сохраняем информацию о том, был ли email до сохранения
+        if change and obj.pk:
+            try:
+                old_obj = Contact.objects.get(pk=obj.pk)
+                old_email = old_obj.email
+                old_user = old_obj.user
+            except Contact.DoesNotExist:
+                old_email = None
+                old_user = None
+        else:
+            old_email = None
+            old_user = None
+        
+        # Сохраняем объект
+        super().save_model(request, obj, form, change)
+        
+        # Обновляем объект из БД, чтобы получить актуальную информацию о пользователе
+        obj.refresh_from_db()
+        
+        # Проверяем, был ли создан или связан пользователь
+        if obj.email and obj.user:
+            # Проверяем, был ли это новый пользователь или существующий
+            if not change or not old_user:
+                # Новый пользователь был создан
+                messages.success(
+                    request,
+                    format_html(
+                        '✅ <strong>Пользователь создан!</strong><br>'
+                        '👤 <strong>Username:</strong> <code>{}</code><br>'
+                        '📧 <strong>Email:</strong> <code>{}</code><br>'
+                        '🔑 <strong>Стандартный пароль:</strong> <code style="background: #fff3cd; padding: 2px 6px; border-radius: 3px; font-weight: bold;">Chat2026</code><br>'
+                        '<small style="color: #856404;">⚠️ Пользователь должен сменить пароль при первом входе.</small>',
+                        obj.user.username,
+                        obj.user.email
+                    )
+                )
+            elif old_email != obj.email and old_user != obj.user:
+                # Email был изменен и пользователь был пересоздан или связан новый
+                messages.info(
+                    request,
+                    format_html(
+                        'ℹ️ <strong>Пользователь обновлен!</strong><br>'
+                        '👤 <strong>Username:</strong> <code>{}</code><br>'
+                        '📧 <strong>Email:</strong> <code>{}</code>',
+                        obj.user.username,
+                        obj.user.email
+                    )
+                )
     
     def avatar_thumbnail(self, obj):
         """Отображение миниатюры аватарки в списке"""
