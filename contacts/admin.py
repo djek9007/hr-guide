@@ -11,6 +11,10 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from import_export.widgets import ForeignKeyWidget
 from .models import Department, Division, Position, Room, Contact, Vacancy
+from django_admin_listfilter_dropdown.filters import (
+    DropdownFilter, RelatedDropdownFilter, ChoiceDropdownFilter
+)
+from rangefilter.filters import DateRangeFilter
 
 
 class SafeForeignKeyWidget(ForeignKeyWidget):
@@ -66,7 +70,7 @@ class DepartmentAdmin(ImportExportModelAdmin):
     """
     list_display = ('id', 'name_ru', 'name_kk', 'type', 'display_order', 'get_divisions_count', 'created_at')
     list_editable = ('display_order',)
-    list_filter = ('type', 'created_at')
+    list_filter = (('type', ChoiceDropdownFilter), ('created_at', DateRangeFilter))
     search_fields = ('name_ru', 'name_kk', 'description')
     list_per_page = 50
     list_display_links = ('name_ru', 'name_kk')
@@ -123,7 +127,7 @@ class DivisionAdmin(ImportExportModelAdmin):
     """
     list_display = ('id', 'name_ru', 'name_kk', 'department', 'display_order', 'get_contacts_count', 'created_at')
     list_editable = ('display_order',)
-    list_filter = ('department', 'created_at')
+    list_filter = (('department', RelatedDropdownFilter), ('created_at', DateRangeFilter))
     search_fields = ('name_ru', 'name_kk', 'description', 'department__name_ru', 'department__name_kk')
     list_per_page = 50
     list_display_links = ('name_ru', 'name_kk')
@@ -218,7 +222,11 @@ class RoomAdmin(ImportExportModelAdmin):
     Административный интерфейс для управления кабинетами.
     """
     list_display = ('id', 'number', 'description', 'floor', 'building', 'created_at')
-    list_filter = ('floor', 'building', 'created_at')
+    list_filter = (
+        ('floor', DropdownFilter),
+        ('building', DropdownFilter),
+        ('created_at', DateRangeFilter)
+    )
     search_fields = ('number', 'description', 'building')
     list_per_page = 50
     list_display_links = ('number',)
@@ -281,8 +289,15 @@ class ContactAdmin(ImageCroppingMixin, ImportExportModelAdmin):
     Административный интерфейс для управления сотрудниками.
     """
     list_display = ('id', 'avatar_thumbnail', 'full_name', 'room', 'position', 'division', 'department', 'employment_type', 'display_order', 'work_phone')
-    list_editable = ('display_order',)  # Позволяет редактировать порядок прямо в списке
-    list_filter = ('employment_type', 'division', 'department', 'position', 'room', 'created_at')
+    list_editable = ('display_order', 'division', 'department')  # Позволяет редактировать порядок прямо в списке
+    list_filter = (
+        ('employment_type', ChoiceDropdownFilter),
+        ('division', RelatedDropdownFilter),
+        ('department', RelatedDropdownFilter),
+        ('position', RelatedDropdownFilter),
+        ('room', RelatedDropdownFilter),
+        ('created_at', DateRangeFilter)
+    )
     list_select_related = ('room', 'position', 'division', 'department')
     list_display_links = ('full_name',)
     search_fields = (
@@ -430,7 +445,12 @@ class VacancyAdmin(ImportExportModelAdmin):
     """
     form = VacancyAdminForm
     list_display = ('id', 'position', 'department', 'is_active', 'display_order', 'created_at')
-    list_filter = ('is_active', 'department', 'position', 'created_at')
+    list_filter = (
+        'is_active',
+        ('department', RelatedDropdownFilter),
+        ('position', RelatedDropdownFilter),
+        ('created_at', DateRangeFilter)
+    )
     list_editable = ('is_active', 'display_order')
     search_fields = ('position__name_ru', 'position__name_kk', 'description_ru', 'description_kk')
     list_per_page = 50

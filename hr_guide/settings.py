@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'easy_thumbnails',  # Для создания миниатюр
     'import_export',  # Для импорта и экспорта данных в админке
     'ckeditor',  # Для редактора текста
+    'django_admin_listfilter_dropdown',  # Фильтры с выпадающим списком
+    'rangefilter',  # Фильтр по датам
 ]
 
 MIDDLEWARE = [
