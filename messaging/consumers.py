@@ -72,9 +72,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
         if message:
             logger.info(f'Сообщение создано: ID={message.id}, chat_id={chat_id}')
-            # Сериализуем сообщение
-            serializer = MessageSerializer(message, context={'request': None})
-            message_data = serializer.data
+            # Сериализуем сообщение в синхронном контексте
+            message_data = await self.serialize_message(message)
             
             # Отправляем сообщение обоим участникам чата
             chat = await self.get_chat(chat_id)
@@ -191,6 +190,35 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return message
         except Chat.DoesNotExist:
             return None
+    
+    @database_sync_to_async
+    def serialize_message(self, message):
+        """Сериализует сообщение в синхронном контексте"""
+        from .serializers import MessageSerializer
+        from .models import Message
+        from contacts.models import Contact
+        
+        # Перезагружаем сообщение со всеми связанными объектами
+        # чтобы избежать проблем с доступом к связанным полям в асинхронном контексте
+        message = Message.objects.select_related(
+            'sender',
+            'sender__contact',
+            'sender__contact__position',
+            'sender__contact__department',
+            'sender__contact__division',
+            'sender__contact__room',
+            'chat',
+            'chat__participant1',
+            'chat__participant2'
+        ).prefetch_related('attachments').get(id=message.id)
+        
+        # Убеждаемся, что contact загружен для sender
+        if hasattr(message.sender, 'contact'):
+            # Принудительно загружаем contact, если он есть
+            _ = message.sender.contact
+        
+        serializer = MessageSerializer(message, context={'request': None})
+        return serializer.data
     
     @database_sync_to_async
     def get_chat(self, chat_id):
