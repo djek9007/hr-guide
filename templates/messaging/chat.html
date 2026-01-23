@@ -300,7 +300,9 @@ function chatApp() {
                     credentials: 'include'
                 });
                 if (response.ok) {
-                    this.chats = await response.json();
+                    const data = await response.json();
+                    // Обрабатываем пагинацию: API может вернуть объект с results или массив напрямую
+                    this.chats = Array.isArray(data) ? data : (data.results || []);
                     // Создаем маппинг employee_id -> chat
                     this.chatsByEmployeeId = {};
                     this.chats.forEach(chat => {
@@ -312,6 +314,8 @@ function chatApp() {
                 }
             } catch (error) {
                 console.error('Error loading chats:', error);
+                // Устанавливаем пустой массив в случае ошибки
+                this.chats = [];
             }
         },
 
