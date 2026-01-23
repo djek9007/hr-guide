@@ -1130,29 +1130,58 @@ function chatApp() {
                                 // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Если чат есть в списке, но currentChatId null,
                                 // возможно чат открыт, но currentChatId сброшен. Попробуем восстановить.
                                 if (chatForMessage && !currentChatIdNum) {
-                                    // Проверяем, есть ли чат в chatsByEmployeeId для любого сотрудника
-                                    const chatInMapping = Object.values(this.chatsByEmployeeId).find(c => c && c.id === receivedChatId);
-                                    if (chatInMapping) {
-                                        // Находим сотрудника, для которого этот чат
-                                        const employeeId = Object.keys(this.chatsByEmployeeId).find(empId => {
-                                            const c = this.chatsByEmployeeId[empId];
-                                            return c && c.id === receivedChatId;
+                                    // Находим сотрудника, для которого этот чат
+                                    const employeeIdForChat = Object.keys(this.chatsByEmployeeId).find(empId => {
+                                        const c = this.chatsByEmployeeId[empId];
+                                        return c && c.id === receivedChatId;
+                                    });
+                                    
+                                    // Если чат есть в маппинге и selectedEmployeeId совпадает, значит чат открыт
+                                    if (employeeIdForChat && this.selectedEmployeeId === parseInt(employeeIdForChat)) {
+                                        console.log('🔧 Обнаружен открытый чат! Восстанавливаем currentChatId и загружаем сообщения...');
+                                        this.currentChatId = receivedChatId;
+                                        // Загружаем сообщения для этого чата
+                                        await this.loadMessages(receivedChatId);
+                                        // Добавляем сообщение в UI, если его еще нет
+                                        if (data.message && data.message.id && !this.messages.find(msg => msg && msg.id === data.message.id)) {
+                                            this.messages.push(data.message);
+                                            this.$nextTick(() => {
+                                                this.scrollToBottom();
+                                            });
+                                        }
+                                        return; // Выходим, так как уже обработали сообщение
+                                    }
+                                    
+                                    // ДОПОЛНИТЕЛЬНАЯ ПРОВЕРКА: Если чат есть в списке, но не открыт,
+                                    // но сообщение пришло - автоматически открываем чат для отображения сообщения
+                                    if (chatForMessage.other_participant) {
+                                        const otherParticipantId = chatForMessage.other_participant.id;
+                                        console.log('🔍 Проверка автоматического открытия чата:', {
+                                            otherParticipantId,
+                                            currentUser: this.currentUser?.id,
+                                            selectedEmployeeId: this.selectedEmployeeId,
+                                            employees_count: this.employees?.length || 0,
+                                            chat_id: receivedChatId
                                         });
                                         
-                                        if (employeeId && this.selectedEmployeeId === parseInt(employeeId)) {
-                                            console.log('🔧 Обнаружен открытый чат! Восстанавливаем currentChatId и загружаем сообщения...');
-                                            this.currentChatId = receivedChatId;
-                                            // Загружаем сообщения для этого чата
-                                            await this.loadMessages(receivedChatId);
-                                            // Добавляем сообщение в UI
-                                            if (data.message && data.message.id && !this.messages.find(msg => msg && msg.id === data.message.id)) {
-                                                this.messages.push(data.message);
-                                                this.$nextTick(() => {
-                                                    this.scrollToBottom();
-                                                });
-                                            }
-                                            return; // Выходим, так как уже обработали сообщение
+                                        // УПРОЩЕННАЯ ЛОГИКА: Просто устанавливаем currentChatId и загружаем сообщения
+                                        // Это проще и надежнее, чем искать сотрудника в списке
+                                        console.log('🔧 Автоматически открываем чат для нового сообщения (упрощенная логика)...');
+                                        this.currentChatId = receivedChatId;
+                                        // Устанавливаем selectedEmployeeId, если он не установлен
+                                        if (!this.selectedEmployeeId && otherParticipantId) {
+                                            this.selectedEmployeeId = otherParticipantId;
                                         }
+                                        // Загружаем сообщения для этого чата
+                                        await this.loadMessages(receivedChatId);
+                                        // Добавляем сообщение в UI, если его еще нет
+                                        if (data.message && data.message.id && !this.messages.find(msg => msg && msg.id === data.message.id)) {
+                                            this.messages.push(data.message);
+                                            this.$nextTick(() => {
+                                                this.scrollToBottom();
+                                            });
+                                        }
+                                        return; // Выходим, так как уже обработали сообщение
                                     }
                                 }
                                 
