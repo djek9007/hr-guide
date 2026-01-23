@@ -120,6 +120,9 @@ class MessageCreateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         """Проверяет, что есть либо текст, либо файлы"""
         request = self.context.get('request')
-        if not attrs.get('text', '').strip() and not (request and request.FILES):
+        text = attrs.get('text', '').strip() if attrs.get('text') else ''
+        has_files = request and request.FILES
+        
+        if not text and not has_files:
             raise serializers.ValidationError("Сообщение должно содержать текст или файлы")
         return attrs

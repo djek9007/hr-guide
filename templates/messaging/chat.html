@@ -424,32 +424,163 @@ function chatApp() {
             const chatId = this.currentChatId;
             const text = this.messageText.trim();
 
-            // Отправляем через WebSocket для real-time
-            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                this.ws.send(JSON.stringify({
-                    type: 'chat_message',
-                    chat_id: chatId,
-                    text: text
-                }));
-            }
-
-            // Отправляем файлы через API
-            if (this.selectedFiles.length > 0) {
-                await this.uploadFiles(chatId, text);
-            }
-
+            // Очищаем поля ввода сразу для лучшего UX
+            const messageTextToSend = this.messageText.trim();
             this.messageText = '';
+            const filesToSend = [...this.selectedFiles];
             this.selectedFiles = [];
+
+            // Если есть файлы, отправляем через API (файлы всегда через API)
+            if (filesToSend.length > 0) {
+                await this.uploadFiles(chatId, messageTextToSend, filesToSend);
+                return;
+            }
+
+            // Для текстовых сообщений: пробуем WebSocket, если недоступен - используем API
+            let messageSent = false;
+
+            // Пытаемся отправить через WebSocket
+            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                try {
+                    this.ws.send(JSON.stringify({
+                        type: 'chat_message',
+                        chat_id: chatId,
+                        text: messageTextToSend
+                    }));
+                    messageSent = true;
+                    // Сообщение будет добавлено в UI через WebSocket onmessage
+                    // Но на случай, если WebSocket не доставит сообщение, добавим временное
+                    const tempMessageId = 'temp_ws_' + Date.now();
+                    const tempMessage = {
+                        id: tempMessageId,
+                        chat: chatId,
+                        text: messageTextToSend,
+                        sender: this.currentUser,
+                        created_at: new Date().toISOString(),
+                        is_read: false,
+                        attachments: []
+                    };
+                    if (!Array.isArray(this.messages)) {
+                        this.messages = [];
+                    }
+                    this.messages.push(tempMessage);
+                    this.$nextTick(() => {
+                        this.scrollToBottom();
+                    });
+                    // Удалим временное сообщение через 5 секунд, если реальное не пришло
+                    setTimeout(() => {
+                        const tempIndex = this.messages.findIndex(msg => msg && msg.id === tempMessageId);
+                        if (tempIndex !== -1) {
+                            // Проверяем, не пришло ли уже реальное сообщение с таким текстом
+                            const realMessage = this.messages.find(msg => 
+                                msg && 
+                                msg.id !== tempMessageId && 
+                                msg.text === messageTextToSend && 
+                                msg.sender?.id === this.currentUser?.id
+                            );
+                            if (!realMessage) {
+                                // Реальное сообщение не пришло, возможно WebSocket не сработал
+                                // Отправляем через API
+                                this.sendMessageViaAPI(chatId, messageTextToSend);
+                            }
+                            // Удаляем временное сообщение в любом случае
+                            this.messages.splice(tempIndex, 1);
+                        }
+                    }, 5000);
+                } catch (error) {
+                    console.error('Ошибка отправки через WebSocket:', error);
+                    messageSent = false;
+                }
+            }
+
+            // Если WebSocket недоступен или произошла ошибка, отправляем через API
+            if (!messageSent) {
+                await this.sendMessageViaAPI(chatId, messageTextToSend);
+            }
         },
 
-        async uploadFiles(chatId, text) {
+        async sendMessageViaAPI(chatId, text) {
+            // Создаем временное сообщение для оптимистичного обновления UI
+            const tempMessageId = 'temp_' + Date.now();
+            const tempMessage = {
+                id: tempMessageId,
+                chat: chatId,
+                text: text,
+                sender: this.currentUser,
+                created_at: new Date().toISOString(),
+                is_read: false,
+                attachments: []
+            };
+
+            // Инициализируем messages как массив, если он undefined
+            if (!Array.isArray(this.messages)) {
+                this.messages = [];
+            }
+            
+            // Добавляем временное сообщение
+            this.messages.push(tempMessage);
+            this.$nextTick(() => {
+                this.scrollToBottom();
+            });
+
+            try {
+                const response = await fetch('/api/messages/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCsrfToken()
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        chat: chatId,
+                        text: text
+                    })
+                });
+
+                if (response.ok) {
+                    const message = await response.json();
+                    // Удаляем временное сообщение
+                    const tempIndex = this.messages.findIndex(msg => msg && msg.id === tempMessageId);
+                    if (tempIndex !== -1) {
+                        this.messages.splice(tempIndex, 1);
+                    }
+                    // Добавляем реальное сообщение, если его еще нет
+                    if (message && message.id && !this.messages.find(msg => msg && msg.id === message.id)) {
+                        this.messages.push(message);
+                        this.$nextTick(() => {
+                            this.scrollToBottom();
+                        });
+                    }
+                } else {
+                    console.error('Ошибка отправки сообщения через API:', response.status);
+                    // Удаляем временное сообщение при ошибке
+                    const tempIndex = this.messages.findIndex(msg => msg && msg.id === tempMessageId);
+                    if (tempIndex !== -1) {
+                        this.messages.splice(tempIndex, 1);
+                    }
+                    // Восстанавливаем текст сообщения для повторной попытки
+                    this.messageText = text;
+                }
+            } catch (error) {
+                console.error('Ошибка отправки сообщения через API:', error);
+                // Удаляем временное сообщение при ошибке
+                const tempIndex = this.messages.findIndex(msg => msg && msg.id === tempMessageId);
+                if (tempIndex !== -1) {
+                    this.messages.splice(tempIndex, 1);
+                }
+                // Восстанавливаем текст сообщения для повторной попытки
+                this.messageText = text;
+            }
+        },
+
+        async uploadFiles(chatId, text, files) {
             const formData = new FormData();
             formData.append('chat', chatId);
             if (text) {
                 formData.append('text', text);
             }
 
-            this.selectedFiles.forEach((file, index) => {
+            files.forEach((file, index) => {
                 formData.append(`file_${index}`, file);
             });
 
@@ -529,6 +660,19 @@ function chatApp() {
                             // Проверяем, что сообщение не null и не дублируется
                             const messageId = data.message.id;
                             if (messageId && !this.messages.find(msg => msg && msg.id === messageId)) {
+                                // Удаляем временные сообщения с таким же текстом от текущего пользователя
+                                const messageText = data.message.text || '';
+                                const senderId = data.message.sender?.id;
+                                if (senderId === this.currentUser?.id && messageText) {
+                                    this.messages = this.messages.filter(msg => {
+                                        // Удаляем временные сообщения (начинаются с temp_) с таким же текстом
+                                        if (msg && msg.id && msg.id.toString().startsWith('temp_')) {
+                                            return msg.text !== messageText;
+                                        }
+                                        return true;
+                                    });
+                                }
+                                // Добавляем реальное сообщение
                                 this.messages.push(data.message);
                                 this.$nextTick(() => {
                                     this.scrollToBottom();
@@ -549,20 +693,26 @@ function chatApp() {
                         }
                     }
                 } catch (error) {
-                    console.error('Error parsing WebSocket message:', error);
+                    console.error('Ошибка парсинга сообщения WebSocket:', error);
                 }
             };
 
             this.ws.onerror = (error) => {
-                console.error('WebSocket error:', error);
+                console.error('Ошибка WebSocket:', error);
+                // При ошибке WebSocket, сообщения будут отправляться через API fallback
             };
 
-            this.ws.onclose = () => {
-                console.log('WebSocket disconnected');
-                // Переподключение через 3 секунды
-                setTimeout(() => {
-                    this.connectWebSocket();
-                }, 3000);
+            this.ws.onclose = (event) => {
+                console.log('WebSocket disconnected', event.code, event.reason);
+                // Переподключение через 3 секунды, но только если это не было намеренное закрытие
+                if (event.code !== 1000) {
+                    setTimeout(() => {
+                        // Проверяем, что мы все еще на странице чата перед переподключением
+                        if (this.currentChatId !== null) {
+                            this.connectWebSocket();
+                        }
+                    }, 3000);
+                }
             };
         },
 
