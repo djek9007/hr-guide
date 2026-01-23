@@ -52,7 +52,7 @@
                     <p class="text-sm">{% trans "Сотрудники не найдены" %}</p>
                 </div>
             </template>
-            <template x-for="(employee, index) in (filteredEmployees || [])" :key="`emp-${employee?.id || index}-${index}`">
+            <template x-for="(employee, index) in (filteredEmployees || [])" :key="`emp-${employee?.id || index}-${employee?.hasUnread || false}-${employee?.isBlinking || false}-${employee?.unreadCount || 0}`">
                 <template x-if="employee">
                     <div 
                         @click="selectEmployee(employee)"
@@ -453,24 +453,24 @@ function chatApp() {
             console.log('📋 Отфильтровано сотрудников:', this.filteredEmployees.length);
             const withUnread = this.filteredEmployees.filter(e => e.hasUnread);
             if (withUnread.length > 0) {
-                console.log('🔔 Сотрудники с непрочитанными:', withUnread.map(e => ({
-                    name: e.contact_info?.full_name || e.username,
-                    empId: e.id,
-                    chatId: e.chat?.id,
-                    unread: e.unreadCount,
-                    blinking: e.isBlinking,
-                    lastMessageAt: e.lastMessageAt,
-                    inBlinkingChats: e.chat ? this.blinkingChats.has(e.chat.id) : false
-                })));
-                console.log('📊 Порядок в списке (первые 5):', this.filteredEmployees.slice(0, 5).map((e, idx) => ({
-                    position: idx + 1,
-                    name: e.contact_info?.full_name || e.username,
-                    empId: e.id,
-                    hasUnread: e.hasUnread,
-                    isBlinking: e.isBlinking,
-                    unreadCount: e.unreadCount,
-                    chatId: e.chat?.id
-                })));
+                console.log(`🔔 Сотрудники с непрочитанными (${withUnread.length}):`);
+                withUnread.forEach(e => {
+                    console.log(`  - ${e.contact_info?.full_name || e.username} (ID: ${e.id}, Chat: ${e.chat?.id})`, {
+                        unread: e.unreadCount,
+                        blinking: e.isBlinking,
+                        inBlinkingChats: e.chat ? this.blinkingChats.has(e.chat.id) : false,
+                        lastMessageAt: e.lastMessageAt
+                    });
+                });
+                console.log('📊 Порядок в списке (первые 5):');
+                this.filteredEmployees.slice(0, 5).forEach((e, idx) => {
+                    console.log(`  ${idx + 1}. ${e.contact_info?.full_name || e.username}`, {
+                        hasUnread: e.hasUnread,
+                        isBlinking: e.isBlinking,
+                        unreadCount: e.unreadCount,
+                        chatId: e.chat?.id
+                    });
+                });
             } else {
                 console.log('ℹ️ Нет сотрудников с непрочитанными сообщениями');
             }
@@ -1247,30 +1247,49 @@ function chatApp() {
                                     // Создаем новый массив для принудительного обновления
                                     this.filteredEmployees = [...this.filteredEmployees];
                                     console.log('✅ Список сотрудников обновлен после получения нового сообщения. Моргающих чатов:', Array.from(this.blinkingChats).length);
-                                    console.log('📋 Первые 5 сотрудников в списке:', this.filteredEmployees.slice(0, 5).map((e, idx) => ({
-                                        position: idx + 1,
-                                        name: e.contact_info?.full_name || e.username,
-                                        empId: e.id,
-                                        hasUnread: e.hasUnread,
-                                        isBlinking: e.isBlinking,
-                                        unreadCount: e.unreadCount,
-                                        lastMessageAt: e.lastMessageAt
-                                    })));
+                                    
+                                    // Выводим первые 5 сотрудников в читаемом формате
+                                    const firstFive = this.filteredEmployees.slice(0, 5);
+                                    console.log('📋 Первые 5 сотрудников в списке:');
+                                    firstFive.forEach((e, idx) => {
+                                        console.log(`  ${idx + 1}. ${e.contact_info?.full_name || e.username} (ID: ${e.id})`, {
+                                            hasUnread: e.hasUnread,
+                                            isBlinking: e.isBlinking,
+                                            unreadCount: e.unreadCount,
+                                            chatId: e.chat?.id,
+                                            lastMessageAt: e.lastMessageAt
+                                        });
+                                    });
                                     
                                     // Проверяем, есть ли чат с новым сообщением в первых позициях
                                     const chatWithNewMessage = this.filteredEmployees.find(e => e.chat?.id === chatIdToUpdate);
                                     if (chatWithNewMessage) {
                                         const position = this.filteredEmployees.indexOf(chatWithNewMessage) + 1;
-                                        console.log('📍 Чат с новым сообщением находится на позиции:', position, 'из', this.filteredEmployees.length);
+                                        console.log(`📍 Чат с новым сообщением находится на позиции: ${position} из ${this.filteredEmployees.length}`);
                                         console.log('🔍 Данные чата:', {
                                             name: chatWithNewMessage.contact_info?.full_name || chatWithNewMessage.username,
+                                            empId: chatWithNewMessage.id,
+                                            chatId: chatWithNewMessage.chat?.id,
                                             hasUnread: chatWithNewMessage.hasUnread,
                                             isBlinking: chatWithNewMessage.isBlinking,
                                             unreadCount: chatWithNewMessage.unreadCount,
-                                            blinkingChatsHasIt: this.blinkingChats.has(chatIdToUpdate)
+                                            blinkingChatsHasIt: this.blinkingChats.has(chatIdToUpdate),
+                                            lastMessageAt: chatWithNewMessage.lastMessageAt
                                         });
+                                        
+                                        // Проверяем визуальные индикаторы
+                                        console.log('🎨 Визуальные индикаторы должны быть:');
+                                        console.log('  - Фон:', chatWithNewMessage.isBlinking ? 'bg-yellow-200 animate-pulse' : (chatWithNewMessage.hasUnread ? 'bg-yellow-100' : 'обычный'));
+                                        console.log('  - Иконка:', chatWithNewMessage.hasUnread ? 'fas fa-envelope (конверт)' : 'fas fa-user (пользователь)');
+                                        console.log('  - Бейдж:', chatWithNewMessage.hasUnread ? `${chatWithNewMessage.unreadCount} (${chatWithNewMessage.isBlinking ? 'красный animate-pulse' : 'желтый'})` : 'нет');
                                     } else {
                                         console.warn('⚠️ Чат с новым сообщением не найден в списке сотрудников!');
+                                        console.log('🔍 Поиск чата в списке...');
+                                        this.filteredEmployees.forEach((e, idx) => {
+                                            if (e.chat?.id === chatIdToUpdate) {
+                                                console.log(`  Найден на позиции ${idx + 1}:`, e.contact_info?.full_name || e.username);
+                                            }
+                                        });
                                     }
                                 });
                             }
