@@ -25,12 +25,18 @@ class ChatViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        """Возвращает чаты текущего пользователя"""
+        """
+        Возвращает чаты текущего пользователя.
+        Только чаты между сотрудниками (пользователями с Contact).
+        """
         user = self.request.user
+        # Фильтруем чаты, где оба участника являются сотрудниками (имеют Contact)
         return Chat.objects.filter(
             Q(participant1=user) | Q(participant2=user),
-            is_active=True
-        ).annotate(
+            is_active=True,
+            participant1__contact__isnull=False,  # Участник 1 должен быть сотрудником
+            participant2__contact__isnull=False    # Участник 2 должен быть сотрудником
+        ).select_related('participant1__contact', 'participant2__contact').annotate(
             last_msg_time=Max('messages__created_at')
         ).order_by('-last_msg_time', '-created_at')
     
@@ -44,19 +50,29 @@ class ChatViewSet(viewsets.ModelViewSet):
     def get_or_create(self, request):
         """
         Получает существующий чат или создает новый с указанным пользователем.
+        Работает только с сотрудниками (пользователями с Contact).
         GET /api/chats/get_or_create/?user_id=123
         """
         user_id = request.query_params.get('user_id')
         if not user_id:
             return Response({'error': 'user_id is required'}, status=status.HTTP_400_BAD_REQUEST)
         
+        # Проверяем, что текущий пользователь является сотрудником
+        if not hasattr(request.user, 'contact') or request.user.contact is None:
+            return Response({'error': 'Только сотрудники могут создавать чаты'}, status=status.HTTP_403_FORBIDDEN)
+        
         try:
-            other_user = User.objects.get(id=user_id)
+            # Получаем пользователя и проверяем, что он является сотрудником (имеет Contact)
+            other_user = User.objects.select_related('contact').get(id=user_id, is_active=True)
         except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Проверяем, что другой пользователь является сотрудником
+        if not hasattr(other_user, 'contact') or other_user.contact is None:
+            return Response({'error': 'Можно создавать чаты только с сотрудниками'}, status=status.HTTP_400_BAD_REQUEST)
         
         if other_user == request.user:
-            return Response({'error': 'Cannot create chat with yourself'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Нельзя создать чат с самим собой'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Ищем существующий чат
         chat = Chat.objects.filter(
@@ -103,17 +119,22 @@ class MessageViewSet(viewsets.ModelViewSet):
     pagination_class = None  # Отключаем пагинацию для сообщений - нужно видеть все сообщения чата
     
     def get_queryset(self):
-        """Возвращает сообщения чата"""
+        """
+        Возвращает сообщения чата.
+        Только для чатов между сотрудниками (пользователями с Contact).
+        """
         chat_id = self.request.query_params.get('chat_id')
         if chat_id:
-            # Проверяем, что пользователь является участником чата
+            # Проверяем, что пользователь является участником чата и оба участника - сотрудники
             chat = get_object_or_404(
                 Chat.objects.filter(
-                    Q(participant1=self.request.user) | Q(participant2=self.request.user)
+                    Q(participant1=self.request.user) | Q(participant2=self.request.user),
+                    participant1__contact__isnull=False,  # Участник 1 должен быть сотрудником
+                    participant2__contact__isnull=False   # Участник 2 должен быть сотрудником
                 ),
                 id=chat_id
             )
-            return Message.objects.filter(chat=chat).select_related('sender').prefetch_related('attachments').order_by('created_at')
+            return Message.objects.filter(chat=chat).select_related('sender', 'sender__contact').prefetch_related('attachments').order_by('created_at')
         return Message.objects.none()
     
     def get_serializer_class(self):
@@ -123,7 +144,15 @@ class MessageViewSet(viewsets.ModelViewSet):
         return MessageSerializer
     
     def perform_create(self, serializer):
-        """Создает сообщение"""
+        """
+        Создает сообщение.
+        Только сотрудники (пользователи с Contact) могут отправлять сообщения.
+        """
+        # Проверяем, что отправитель является сотрудником
+        if not hasattr(self.request.user, 'contact') or self.request.user.contact is None:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Только сотрудники могут отправлять сообщения')
+        
         message = serializer.save(sender=self.request.user)
         
         # Обрабатываем загрузку файлов
@@ -210,17 +239,21 @@ class MessageViewSet(viewsets.ModelViewSet):
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    ViewSet для получения списка пользователей (сотрудников с Contact).
+    ViewSet для получения списка пользователей.
+    Возвращает только сотрудников (пользователей с Contact).
     """
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        """Возвращает всех активных пользователей, у которых есть Contact"""
-        # Фильтруем только активных пользователей с связанным Contact
+        """
+        Возвращает всех активных пользователей, у которых есть Contact.
+        Только сотрудники могут быть в списке для чата.
+        """
+        # Фильтруем только активных пользователей с связанным Contact (сотрудников)
         queryset = User.objects.filter(
-            contact__isnull=False,
-            is_active=True
+            contact__isnull=False,  # Только пользователи с Contact (сотрудники)
+            is_active=True          # Только активные пользователи
         ).select_related('contact').order_by('username')
         
         # Поиск по имени, username или email

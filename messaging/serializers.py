@@ -110,11 +110,22 @@ class MessageCreateSerializer(serializers.ModelSerializer):
         fields = ['chat', 'text']
     
     def validate_chat(self, value):
-        """Проверяет, что пользователь является участником чата"""
+        """
+        Проверяет, что пользователь является участником чата.
+        Оба участника должны быть сотрудниками (иметь Contact).
+        """
         request = self.context.get('request')
         if request and request.user.is_authenticated:
+            # Проверяем, что пользователь является участником чата
             if value.participant1 != request.user and value.participant2 != request.user:
                 raise serializers.ValidationError("Вы не являетесь участником этого чата")
+            
+            # Проверяем, что оба участника являются сотрудниками (имеют Contact)
+            # Чат работает только между сотрудниками
+            if not hasattr(value.participant1, 'contact') or value.participant1.contact is None:
+                raise serializers.ValidationError("Участник 1 не является сотрудником")
+            if not hasattr(value.participant2, 'contact') or value.participant2.contact is None:
+                raise serializers.ValidationError("Участник 2 не является сотрудником")
         return value
     
     def validate(self, attrs):

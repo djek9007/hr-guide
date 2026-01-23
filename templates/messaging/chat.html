@@ -347,9 +347,12 @@ function chatApp() {
                     // Фильтруем текущего пользователя из списка и null значения
                     this.employees = allEmployees.filter(emp => emp != null && emp.id !== this.currentUser?.id);
                     this.filteredEmployees = this.employees;
+                    console.log('👥 Загружено сотрудников:', this.employees.length, 'Текущий пользователь:', this.currentUser?.id);
+                    console.log('👥 ID всех сотрудников:', this.employees.map(e => e.id));
                 } else {
                     this.employees = [];
                     this.filteredEmployees = [];
+                    console.warn('⚠️ Ошибка загрузки сотрудников:', response.status);
                 }
             } catch (error) {
                 console.error('Error loading employees:', error);
@@ -387,6 +390,35 @@ function chatApp() {
 
         filterEmployees() {
             let employees = Array.isArray(this.employees) ? this.employees : [];
+            
+            // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Добавляем сотрудников из чатов, которых нет в списке employees
+            // Это нужно для случаев, когда сотрудник не загружается через API, но есть чат с ним
+            const employeesFromChats = [];
+            this.chats.forEach(chat => {
+                if (chat.other_participant) {
+                    const participantId = chat.other_participant.id;
+                    // Проверяем, есть ли уже этот сотрудник в списке
+                    const existsInEmployees = employees.find(e => e.id === participantId);
+                    if (!existsInEmployees) {
+                        // Создаем объект сотрудника из данных чата
+                        employeesFromChats.push({
+                            id: participantId,
+                            username: chat.other_participant.username,
+                            contact_info: chat.other_participant.contact_info || {}
+                        });
+                    }
+                }
+            });
+            
+            // Объединяем списки
+            employees = [...employees, ...employeesFromChats];
+            
+            if (employeesFromChats.length > 0) {
+                console.log('➕ Добавлено сотрудников из чатов:', employeesFromChats.length, employeesFromChats.map(e => ({
+                    id: e.id,
+                    name: e.contact_info?.full_name || e.username
+                })));
+            }
             
             // Применяем поиск, если есть запрос
             if (this.searchQuery.trim()) {
@@ -543,6 +575,22 @@ function chatApp() {
             
             console.log('Сообщения загружены. Всего в UI:', this.messages.length, 'currentChatId:', this.currentChatId, 'ожидаемый chat.id:', chat.id);
             
+            // Принудительно прокручиваем к последнему сообщению после загрузки
+            // Используем несколько попыток для гарантированной прокрутки
+            this.$nextTick(() => {
+                this.$nextTick(() => {
+                    const hasManyMessages = this.messages.length > 50;
+                    this.scrollToBottom(hasManyMessages);
+                    
+                    // Дополнительная прокрутка для больших списков
+                    if (hasManyMessages) {
+                        setTimeout(() => {
+                            this.scrollToBottom(true);
+                        }, 300);
+                    }
+                });
+            });
+            
             // Отмечаем сообщения как прочитанные
             await this.markChatAsRead(chat.id);
             
@@ -659,10 +707,20 @@ function chatApp() {
                     }
                     
                     // Используем двойной $nextTick для гарантии обновления DOM
+                    // Затем прокручиваем к последнему сообщению
                     this.$nextTick(() => {
                         this.$nextTick(() => {
-                            this.scrollToBottom();
+                            // Для большого количества сообщений используем принудительную прокрутку
+                            const hasManyMessages = this.messages.length > 50;
+                            this.scrollToBottom(hasManyMessages);
                             console.log('📜 Прокрутка выполнена после загрузки сообщений');
+                            
+                            // Дополнительная прокрутка через небольшую задержку для больших списков
+                            if (hasManyMessages) {
+                                setTimeout(() => {
+                                    this.scrollToBottom(true);
+                                }, 200);
+                            }
                         });
                     });
                 } else if (response.status >= 500 && retryCount < maxRetries) {
@@ -760,7 +818,10 @@ function chatApp() {
                     }
                     this.messages.push(tempMessage);
                     this.$nextTick(() => {
-                        this.scrollToBottom();
+                        this.$nextTick(() => {
+                            // Принудительная прокрутка для оптимистичного обновления
+                            this.scrollToBottom(true);
+                        });
                     });
                     // Удалим временное сообщение через 5 секунд, если реальное не пришло
                     setTimeout(() => {
@@ -825,7 +886,10 @@ function chatApp() {
             // Добавляем временное сообщение
             this.messages.push(tempMessage);
             this.$nextTick(() => {
-                this.scrollToBottom();
+                this.$nextTick(() => {
+                    // Принудительная прокрутка для оптимистичного обновления
+                    this.scrollToBottom(true);
+                });
             });
 
             try {
@@ -869,7 +933,10 @@ function chatApp() {
                     if (message && message.id && !this.messages.find(msg => msg && msg.id === message.id)) {
                         this.messages.push(message);
                         this.$nextTick(() => {
-                            this.scrollToBottom();
+                            this.$nextTick(() => {
+                                // Принудительная прокрутка для нового сообщения
+                                this.scrollToBottom(true);
+                            });
                         });
                     }
                 } else {
@@ -930,7 +997,10 @@ function chatApp() {
                     if (message && message.id && !this.messages.find(msg => msg && msg.id === message.id)) {
                         this.messages.push(message);
                         this.$nextTick(() => {
-                            this.scrollToBottom();
+                            this.$nextTick(() => {
+                                // Принудительная прокрутка для нового сообщения
+                                this.scrollToBottom(true);
+                            });
                         });
                     }
                 }
@@ -1138,7 +1208,10 @@ function chatApp() {
                                         // Прокручиваем вниз после обновления DOM
                                         // Используем двойной $nextTick для гарантии обновления DOM
                                         this.$nextTick(() => {
-                                            this.scrollToBottom();
+                                            this.$nextTick(() => {
+                                                // Принудительная прокрутка для нового сообщения
+                                                this.scrollToBottom(true);
+                                            });
                                         });
                                     });
                                 } else {
@@ -1236,8 +1309,38 @@ function chatApp() {
                                     chatId: chatIdToUpdate,
                                     updatedChat: !!updatedChat,
                                     otherParticipantId: updatedChat?.other_participant?.id,
-                                    inMapping: updatedChat?.other_participant ? !!this.chatsByEmployeeId[updatedChat.other_participant.id] : false
+                                    currentUserId: this.currentUser?.id,
+                                    inMapping: updatedChat?.other_participant ? !!this.chatsByEmployeeId[updatedChat.other_participant.id] : false,
+                                    allMappedIds: Object.keys(this.chatsByEmployeeId),
+                                    allEmployeeIds: this.employees.map(e => e.id)
                                 });
+                                
+                                    // Проверяем, есть ли сотрудник с ID other_participant в списке
+                                    if (updatedChat?.other_participant) {
+                                        const otherParticipantId = updatedChat.other_participant.id;
+                                        const employeeExists = this.employees.find(e => e.id === otherParticipantId);
+                                        console.log('🔍 Проверка сотрудника:', {
+                                            otherParticipantId,
+                                            employeeExists: !!employeeExists,
+                                            employeeName: employeeExists?.contact_info?.full_name || employeeExists?.username,
+                                            currentUserId: this.currentUser?.id,
+                                            totalEmployees: this.employees.length
+                                        });
+                                        
+                                        if (!employeeExists) {
+                                            console.warn('⚠️ Сотрудник с ID', otherParticipantId, 'не найден в списке employees!');
+                                            console.log('📋 Все ID сотрудников:', this.employees.map(e => e.id));
+                                            console.log('📋 Все ID сотрудников (детально):', this.employees.map(e => ({
+                                                id: e.id,
+                                                name: e.contact_info?.full_name || e.username
+                                            })));
+                                            
+                                            // Попробуем перезагрузить список сотрудников
+                                            console.log('🔄 Попытка перезагрузки списка сотрудников...');
+                                            await this.loadEmployees();
+                                            await this.filterEmployees();
+                                        }
+                                    }
                                 
                                 // Обновляем отфильтрованный список, чтобы чат с новым сообщением был сверху
                                 this.filterEmployees();
@@ -1381,17 +1484,74 @@ function chatApp() {
             }
         },
 
-        scrollToBottom() {
+        scrollToBottom(force = false) {
             const container = this.$refs.messagesContainer;
-            if (container) {
-                // Используем requestAnimationFrame для более плавной прокрутки
-                requestAnimationFrame(() => {
-                    container.scrollTop = container.scrollHeight;
-                    console.log('📜 Прокрутка вниз выполнена. scrollTop:', container.scrollTop, 'scrollHeight:', container.scrollHeight);
-                });
-            } else {
+            if (!container) {
                 console.warn('⚠️ Контейнер сообщений не найден для прокрутки');
+                return;
             }
+            
+            // Функция для выполнения прокрутки
+            const doScroll = () => {
+                const scrollHeight = container.scrollHeight;
+                const clientHeight = container.clientHeight;
+                const maxScroll = scrollHeight - clientHeight;
+                
+                // Прокручиваем к самому низу
+                container.scrollTop = scrollHeight;
+                
+                // Проверяем, что прокрутка действительно произошла
+                const actualScroll = container.scrollTop;
+                const isAtBottom = Math.abs(actualScroll - maxScroll) < 5; // Допуск 5px
+                
+                console.log('📜 Прокрутка вниз:', {
+                    scrollTop: actualScroll,
+                    scrollHeight,
+                    clientHeight,
+                    maxScroll,
+                    isAtBottom,
+                    messagesCount: this.messages?.length || 0
+                });
+                
+                // Если прокрутка не произошла и требуется принудительная прокрутка, пробуем еще раз
+                if (force && !isAtBottom && actualScroll < maxScroll - 10) {
+                    console.log('🔄 Повторная попытка прокрутки...');
+                    setTimeout(() => {
+                        container.scrollTop = container.scrollHeight;
+                    }, 50);
+                }
+            };
+            
+            // Используем несколько методов для гарантированной прокрутки
+            // 1. requestAnimationFrame для синхронизации с рендерингом
+            requestAnimationFrame(() => {
+                const isAtBottom = doScroll();
+                
+                // 2. Дополнительная проверка через небольшую задержку для больших списков
+                if (this.messages && this.messages.length > 50) {
+                    setTimeout(() => {
+                        const stillAtBottom = doScroll();
+                        // 3. Еще одна попытка для очень больших списков или если прокрутка не сработала
+                        if (!stillAtBottom || this.messages.length > 100) {
+                            setTimeout(() => {
+                                container.scrollTop = container.scrollHeight;
+                                // Финальная проверка для гарантии
+                                setTimeout(() => {
+                                    if (container.scrollTop < container.scrollHeight - container.clientHeight - 10) {
+                                        container.scrollTop = container.scrollHeight;
+                                        console.log('✅ Финальная прокрутка выполнена для большого списка');
+                                    }
+                                }, 50);
+                            }, force ? 100 : 200);
+                        }
+                    }, 150);
+                } else if (force && !isAtBottom) {
+                    // Для небольших списков тоже делаем повторную попытку, если требуется принудительная прокрутка
+                    setTimeout(() => {
+                        doScroll();
+                    }, 100);
+                }
+            });
         },
 
         formatTime(dateString) {
@@ -1444,7 +1604,10 @@ function chatApp() {
                         // Если появились новые сообщения, прокручиваем вниз
                         if (this.messages && this.messages.length > previousCount) {
                             this.$nextTick(() => {
-                                this.scrollToBottom();
+                                this.$nextTick(() => {
+                                    // Принудительная прокрутка для нового сообщения
+                                    this.scrollToBottom(true);
+                                });
                             });
                         }
                     } finally {
