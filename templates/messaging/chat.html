@@ -1161,27 +1161,57 @@ function chatApp() {
                                             currentUser: this.currentUser?.id,
                                             selectedEmployeeId: this.selectedEmployeeId,
                                             employees_count: this.employees?.length || 0,
-                                            chat_id: receivedChatId
+                                            chat_id: receivedChatId,
+                                            other_participant: chatForMessage.other_participant
                                         });
                                         
-                                        // УПРОЩЕННАЯ ЛОГИКА: Просто устанавливаем currentChatId и загружаем сообщения
-                                        // Это проще и надежнее, чем искать сотрудника в списке
-                                        console.log('🔧 Автоматически открываем чат для нового сообщения (упрощенная логика)...');
-                                        this.currentChatId = receivedChatId;
-                                        // Устанавливаем selectedEmployeeId, если он не установлен
-                                        if (!this.selectedEmployeeId && otherParticipantId) {
+                                        // Находим сотрудника в списке по other_participant
+                                        const employee = this.employees.find(emp => emp.id === otherParticipantId);
+                                        
+                                        if (employee) {
+                                            console.log('🔧 Автоматически открываем чат для нового сообщения...');
+                                            // Устанавливаем selectedEmployee и selectedEmployeeId
+                                            this.selectedEmployee = employee;
                                             this.selectedEmployeeId = otherParticipantId;
+                                            this.currentChatId = receivedChatId;
+                                            
+                                            // Загружаем сообщения для этого чата
+                                            await this.loadMessages(receivedChatId);
+                                            // Добавляем сообщение в UI, если его еще нет
+                                            if (data.message && data.message.id && !this.messages.find(msg => msg && msg.id === data.message.id)) {
+                                                this.messages.push(data.message);
+                                                this.$nextTick(() => {
+                                                    this.scrollToBottom();
+                                                });
+                                            }
+                                            return; // Выходим, так как уже обработали сообщение
+                                        } else {
+                                            console.warn('⚠️ Сотрудник не найден в списке для автоматического открытия чата:', otherParticipantId);
+                                            // Если сотрудник не найден, но есть other_participant, создаем объект сотрудника из данных чата
+                                            if (chatForMessage.other_participant) {
+                                                console.log('🔧 Создаем объект сотрудника из данных чата...');
+                                                // Создаем объект сотрудника из other_participant
+                                                const employeeFromChat = {
+                                                    id: chatForMessage.other_participant.id,
+                                                    username: chatForMessage.other_participant.username,
+                                                    contact_info: chatForMessage.other_participant.contact_info || {}
+                                                };
+                                                this.selectedEmployee = employeeFromChat;
+                                                this.selectedEmployeeId = otherParticipantId;
+                                                this.currentChatId = receivedChatId;
+                                                
+                                                // Загружаем сообщения для этого чата
+                                                await this.loadMessages(receivedChatId);
+                                                // Добавляем сообщение в UI, если его еще нет
+                                                if (data.message && data.message.id && !this.messages.find(msg => msg && msg.id === data.message.id)) {
+                                                    this.messages.push(data.message);
+                                                    this.$nextTick(() => {
+                                                        this.scrollToBottom();
+                                                    });
+                                                }
+                                                return; // Выходим, так как уже обработали сообщение
+                                            }
                                         }
-                                        // Загружаем сообщения для этого чата
-                                        await this.loadMessages(receivedChatId);
-                                        // Добавляем сообщение в UI, если его еще нет
-                                        if (data.message && data.message.id && !this.messages.find(msg => msg && msg.id === data.message.id)) {
-                                            this.messages.push(data.message);
-                                            this.$nextTick(() => {
-                                                this.scrollToBottom();
-                                            });
-                                        }
-                                        return; // Выходим, так как уже обработали сообщение
                                     }
                                 }
                                 
