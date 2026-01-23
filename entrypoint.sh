@@ -1,3 +1,5 @@
+#!/bin/sh
+# или
 #!/bin/bash
 set -e
 
