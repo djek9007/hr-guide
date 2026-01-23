@@ -422,12 +422,24 @@ function chatApp() {
             return chat ? (chat.unread_count || 0) : 0;
         },
 
-        async loadMessages(chatId) {
+        async loadMessages(chatId, retryCount = 0) {
+            const maxRetries = 3;
+            const retryDelay = 1000; // 1 секунда
+            
             try {
                 console.log('Загрузка сообщений для чата:', chatId);
+                
+                // Создаем AbortController для таймаута
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 секунд таймаут
+                
                 const response = await fetch(`/api/messages/?chat_id=${chatId}`, {
-                    credentials: 'include'
+                    credentials: 'include',
+                    signal: controller.signal
                 });
+                
+                clearTimeout(timeoutId);
+                
                 if (response.ok) {
                     const data = await response.json();
                     // Фильтруем null/undefined значения и гарантируем, что это массив
@@ -445,16 +457,37 @@ function chatApp() {
                     this.$nextTick(() => {
                         this.scrollToBottom();
                     });
+                } else if (response.status >= 500 && retryCount < maxRetries) {
+                    // Повторяем запрос при серверных ошибках
+                    console.log(`Повторная попытка загрузки сообщений (${retryCount + 1}/${maxRetries})...`);
+                    await new Promise(resolve => setTimeout(resolve, retryDelay * (retryCount + 1)));
+                    return this.loadMessages(chatId, retryCount + 1);
                 } else {
-                    const errorText = await response.text();
+                    const errorText = await response.text().catch(() => 'Не удалось прочитать ответ');
                     console.error('Ошибка загрузки сообщений:', response.status, response.statusText, errorText);
-                    // В случае ошибки устанавливаем пустой массив
-                    this.messages = [];
+                    // В случае ошибки не очищаем сообщения, оставляем существующие
                 }
             } catch (error) {
-                console.error('Ошибка загрузки сообщений:', error);
-                // В случае ошибки устанавливаем пустой массив
-                this.messages = [];
+                if (error.name === 'AbortError') {
+                    console.error('Таймаут загрузки сообщений');
+                    // Повторяем при таймауте
+                    if (retryCount < maxRetries) {
+                        console.log(`Повторная попытка загрузки сообщений после таймаута (${retryCount + 1}/${maxRetries})...`);
+                        await new Promise(resolve => setTimeout(resolve, retryDelay * (retryCount + 1)));
+                        return this.loadMessages(chatId, retryCount + 1);
+                    }
+                } else if (error.name === 'TypeError' && (error.message.includes('Failed to fetch') || error.message.includes('ERR_EMPTY_RESPONSE'))) {
+                    console.error('Ошибка сети при загрузке сообщений:', error);
+                    // Повторяем при сетевых ошибках
+                    if (retryCount < maxRetries) {
+                        console.log(`Повторная попытка загрузки сообщений после сетевой ошибки (${retryCount + 1}/${maxRetries})...`);
+                        await new Promise(resolve => setTimeout(resolve, retryDelay * (retryCount + 1)));
+                        return this.loadMessages(chatId, retryCount + 1);
+                    }
+                } else {
+                    console.error('Ошибка загрузки сообщений:', error);
+                }
+                // В случае ошибки не очищаем сообщения, оставляем существующие
             }
         },
 
@@ -778,14 +811,17 @@ function chatApp() {
                     this.startMessagePolling();
                 }
                 
-                // Переподключение через 3 секунды, но только если это не было намеренное закрытие
-                if (event.code !== 1000) {
+                // Переподключение через 5 секунд, но только если это не было намеренное закрытие
+                // И только если код ошибки указывает на проблему (не 1000 - нормальное закрытие)
+                if (event.code !== 1000 && event.code !== 1001) {
                     setTimeout(() => {
                         // Проверяем, что мы все еще на странице чата перед переподключением
-                        if (this.currentChatId !== null) {
+                        // И что WebSocket еще не подключен
+                        if (this.currentChatId !== null && !this.wsConnected) {
+                            console.log('Попытка переподключения WebSocket...');
                             this.connectWebSocket();
                         }
-                    }, 3000);
+                    }, 5000); // Увеличено с 3 до 5 секунд
                 }
             };
         },
@@ -849,24 +885,38 @@ function chatApp() {
                 return; // Уже запущена
             }
             
-            console.log('Запуск периодической загрузки сообщений (каждые 3 секунды)');
+            console.log('Запуск периодической загрузки сообщений (каждые 5 секунд)');
+            let isPolling = false; // Флаг для предотвращения параллельных запросов
+            
             this.messagePollInterval = setInterval(async () => {
+                // Предотвращаем параллельные запросы
+                if (isPolling) {
+                    console.log('Загрузка сообщений уже выполняется, пропускаем...');
+                    return;
+                }
+                
                 if (this.currentChatId && !this.wsConnected) {
-                    // Сохраняем количество сообщений до загрузки
-                    const previousCount = this.messages ? this.messages.length : 0;
-                    await this.loadMessages(this.currentChatId);
-                    // Если появились новые сообщения, прокручиваем вниз
-                    if (this.messages && this.messages.length > previousCount) {
-                        this.$nextTick(() => {
-                            this.scrollToBottom();
-                        });
+                    isPolling = true;
+                    try {
+                        // Сохраняем количество сообщений до загрузки
+                        const previousCount = this.messages ? this.messages.length : 0;
+                        await this.loadMessages(this.currentChatId);
+                        // Если появились новые сообщения, прокручиваем вниз
+                        if (this.messages && this.messages.length > previousCount) {
+                            this.$nextTick(() => {
+                                this.scrollToBottom();
+                            });
+                        }
+                    } finally {
+                        isPolling = false;
                     }
                 } else if (this.wsConnected) {
                     // WebSocket подключен, останавливаем polling
                     clearInterval(this.messagePollInterval);
                     this.messagePollInterval = null;
+                    console.log('WebSocket подключен, периодическая загрузка остановлена');
                 }
-            }, 3000); // Загружаем каждые 3 секунды
+            }, 5000); // Загружаем каждые 5 секунд (увеличено с 3 до 5 для снижения нагрузки)
         }
     }
 }

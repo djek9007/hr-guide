@@ -158,22 +158,38 @@ class MessageViewSet(viewsets.ModelViewSet):
                 participant1_group = f"user_{message.chat.participant1_id}"
                 participant2_group = f"user_{message.chat.participant2_id}"
                 
-                async_to_sync(channel_layer.group_send)(
-                    participant1_group,
-                    {
-                        'type': 'chat_message',
-                        'message': message_data,
-                        'chat_id': message.chat.id
-                    }
-                )
-                async_to_sync(channel_layer.group_send)(
-                    participant2_group,
-                    {
-                        'type': 'chat_message',
-                        'message': message_data,
-                        'chat_id': message.chat.id
-                    }
-                )
+                # Отправляем асинхронно, чтобы не блокировать ответ API
+                try:
+                    async_to_sync(channel_layer.group_send)(
+                        participant1_group,
+                        {
+                            'type': 'chat_message',
+                            'message': message_data,
+                            'chat_id': message.chat.id
+                        }
+                    )
+                except Exception as e1:
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.warning(f'Не удалось отправить сообщение участнику 1 ({participant1_group}): {e1}')
+                
+                try:
+                    async_to_sync(channel_layer.group_send)(
+                        participant2_group,
+                        {
+                            'type': 'chat_message',
+                            'message': message_data,
+                            'chat_id': message.chat.id
+                        }
+                    )
+                except Exception as e2:
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.warning(f'Не удалось отправить сообщение участнику 2 ({participant2_group}): {e2}')
+            else:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.warning('Channel layer недоступен, сообщение не будет отправлено через WebSocket')
         except Exception as e:
             # Если не удалось отправить через channel_layer, это не критично
             # Сообщение уже сохранено в БД и будет загружено при следующем обновлении
