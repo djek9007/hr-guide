@@ -404,13 +404,27 @@ function chatApp() {
                 const chat = this.chatsByEmployeeId[emp.id];
                 const isBlinking = chat && this.blinkingChats.has(chat.id);
                 const unreadCount = chat?.unread_count || 0;
+                const hasUnread = unreadCount > 0 || isBlinking;
+                
+                // Логируем для отладки
+                if (hasUnread) {
+                    console.log('🔔 Сотрудник с непрочитанными:', {
+                        name: emp.contact_info?.full_name || emp.username,
+                        empId: emp.id,
+                        chatId: chat?.id,
+                        unreadCount,
+                        isBlinking,
+                        lastMessageAt: chat?.last_message_at
+                    });
+                }
+                
                 return {
                     ...emp,
                     chat: chat,
                     lastMessageAt: chat?.last_message_at || null,
                     unreadCount: unreadCount,
                     isBlinking: isBlinking,
-                    hasUnread: unreadCount > 0 || isBlinking
+                    hasUnread: hasUnread
                 };
             }).sort((a, b) => {
                 // Сначала чаты с непрочитанными сообщениями или моргающие
@@ -436,13 +450,21 @@ function chatApp() {
                 return nameA.localeCompare(nameB);
             });
             
-            console.log('Отфильтровано сотрудников:', this.filteredEmployees.length);
+            console.log('📋 Отфильтровано сотрудников:', this.filteredEmployees.length);
             const withUnread = this.filteredEmployees.filter(e => e.hasUnread);
             if (withUnread.length > 0) {
-                console.log('Сотрудники с непрочитанными:', withUnread.map(e => ({
+                console.log('🔔 Сотрудники с непрочитанными:', withUnread.map(e => ({
                     name: e.contact_info?.full_name || e.username,
                     unread: e.unreadCount,
-                    blinking: e.isBlinking
+                    blinking: e.isBlinking,
+                    lastMessageAt: e.lastMessageAt
+                })));
+                console.log('📊 Порядок в списке (первые 5):', this.filteredEmployees.slice(0, 5).map((e, idx) => ({
+                    position: idx + 1,
+                    name: e.contact_info?.full_name || e.username,
+                    hasUnread: e.hasUnread,
+                    isBlinking: e.isBlinking,
+                    unreadCount: e.unreadCount
                 })));
             }
         },
@@ -480,8 +502,13 @@ function chatApp() {
             
             // Убираем чат из моргающих, так как он теперь открыт
             if (this.blinkingChats.has(chat.id)) {
-                this.blinkingChats.delete(chat.id);
+                // Создаем новый Set без этого чата для реактивности Alpine.js
+                const newBlinkingChats = new Set(this.blinkingChats);
+                newBlinkingChats.delete(chat.id);
+                this.blinkingChats = newBlinkingChats;
                 console.log('Убран чат из моргающих при открытии:', chat.id);
+                // Обновляем список, чтобы убрать моргание из UI
+                this.filterEmployees();
             }
             
             // Останавливаем периодическую загрузку для предыдущего чата
@@ -1160,23 +1187,30 @@ function chatApp() {
                                 // Если чат не открыт, но сообщение пришло - добавляем в моргающие чаты (как в Bitrix24)
                                 // Моргание будет до тех пор, пока пользователь не откроет чат
                                 if (currentChatIdNum !== receivedChatId) {
-                                    this.blinkingChats.add(receivedChatId);
+                                    // Создаем новый Set для реактивности Alpine.js
+                                    this.blinkingChats = new Set([...this.blinkingChats, receivedChatId]);
                                     console.log('💬 Новое сообщение! Чат добавлен в моргающие:', data.chat_id, 'Всего моргающих:', Array.from(this.blinkingChats));
                                 }
                                 
-                                // Обновляем счетчик непрочитанных для этого чата вручную
-                                if (chatForMessage) {
-                                    // Увеличиваем счетчик непрочитанных
-                                    if (!chatForMessage.unread_count) chatForMessage.unread_count = 0;
-                                    chatForMessage.unread_count += 1;
-                                    chatForMessage.last_message_at = data.message.created_at;
-                                    console.log('📊 Обновлен счетчик для чата:', data.chat_id, 'непрочитанных:', chatForMessage.unread_count);
-                                }
+                                // Сохраняем ID чата для обновления после loadChats
+                                const chatIdToUpdate = receivedChatId;
+                                const messageCreatedAt = data.message.created_at;
                                 
-                                // НЕ убираем моргание автоматически - только когда пользователь откроет чат (в selectEmployee)
-                                
-                                // Обновляем список чатов, чтобы показать непрочитанное сообщение и переместить чат наверх
+                                // Обновляем список чатов, чтобы получить актуальные данные
                                 await this.loadChats();
+                                
+                                // После loadChats обновляем данные для чата с новым сообщением
+                                const updatedChat = this.chats.find(c => c.id === chatIdToUpdate);
+                                if (updatedChat) {
+                                    // Увеличиваем счетчик непрочитанных
+                                    if (!updatedChat.unread_count) updatedChat.unread_count = 0;
+                                    updatedChat.unread_count += 1;
+                                    updatedChat.last_message_at = messageCreatedAt;
+                                    console.log('📊 Обновлен счетчик для чата:', chatIdToUpdate, 'непрочитанных:', updatedChat.unread_count);
+                                    
+                                    // Убеждаемся, что чат в моргающих (создаем новый Set для реактивности)
+                                    this.blinkingChats = new Set([...this.blinkingChats, chatIdToUpdate]);
+                                }
                                 
                                 // Принудительно обновляем маппинг после загрузки чатов
                                 this.chatsByEmployeeId = {};
@@ -1189,7 +1223,19 @@ function chatApp() {
                                 
                                 // Обновляем отфильтрованный список, чтобы чат с новым сообщением был сверху
                                 this.filterEmployees();
-                                console.log('Список сотрудников обновлен после получения нового сообщения. Моргающих чатов:', Array.from(this.blinkingChats).length);
+                                
+                                // Принудительно обновляем реактивность Alpine.js
+                                this.$nextTick(() => {
+                                    // Создаем новый массив для принудительного обновления
+                                    this.filteredEmployees = [...this.filteredEmployees];
+                                    console.log('✅ Список сотрудников обновлен после получения нового сообщения. Моргающих чатов:', Array.from(this.blinkingChats).length);
+                                    console.log('📋 Первые 3 сотрудника в списке:', this.filteredEmployees.slice(0, 3).map(e => ({
+                                        name: e.contact_info?.full_name || e.username,
+                                        hasUnread: e.hasUnread,
+                                        isBlinking: e.isBlinking,
+                                        unreadCount: e.unreadCount
+                                    })));
+                                });
                             }
                         }
                         // Обновляем список чатов для обновления счетчиков непрочитанных
