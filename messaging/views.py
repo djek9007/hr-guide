@@ -100,6 +100,7 @@ class MessageViewSet(viewsets.ModelViewSet):
     """
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = None  # Отключаем пагинацию для сообщений - нужно видеть все сообщения чата
     
     def get_queryset(self):
         """Возвращает сообщения чата"""
