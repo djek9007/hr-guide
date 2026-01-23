@@ -32,7 +32,7 @@ else:
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',  # Современная админ-панель (должна быть перед django.contrib.admin)
+    # 'jazzmin',  # Современная админ-панель (должна быть перед django.contrib.admin)
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -100,19 +100,13 @@ if DATABASE_HOST and DATABASE_NAME and DATABASE_USER:
             'PASSWORD': DATABASE_PASSWORD,
             'HOST': DATABASE_HOST,
             'PORT': DATABASE_PORT,
+            'CONN_MAX_AGE': 600,
             'OPTIONS': {
                 'connect_timeout': 10,
             },
         }
     }
-else:
-    # Используем SQLite для локальной разработки
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+
 
 
 # Password validation
@@ -191,6 +185,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Дополнительные настройки WhiteNoise (опционально, можно настроить кэширование и сжатие)
 WHITENOISE_USE_FINDERS = True  # Позволяет обслуживать статику из STATICFILES_DIRS в режиме разработки
 WHITENOISE_AUTOREFRESH = DEBUG  # Автообновление при изменениях в режиме разработки
+WHITENOISE_MAX_AGE = 31536000  # 1 год в секундах
 
 # Настройки для easy-thumbnails
 THUMBNAIL_DEBUG = DEBUG
@@ -225,85 +220,85 @@ LOGIN_REDIRECT_URL = '/search/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Настройки Jazzmin (современная админ-панель)
-JAZZMIN_SETTINGS = {
-    "site_title": "Телефонный справочник",
-    "site_header": "Телефонный справочник",
-    "site_brand": "HR Guide",
-    "site_logo": None,
-    "login_logo": None,
-    "login_logo_dark": None,
-    "site_logo_classes": "img-circle",
-    "site_icon": None,
-    "welcome_sign": "Добро пожаловать в админ-панель",
-    "copyright": "HR Guide",
-    "search_model": ["contacts.Contact", "contacts.Department", "contacts.Vacancy"],
-    "user_avatar": None,
-    "topmenu_links": [
-        {"name": "Главная", "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "Сайт", "url": "/", "new_window": True},
-    ],
-    "usermenu_links": [
-        {"name": "Сайт", "url": "/", "new_window": True},
-    ],
-    "show_sidebar": True,
-    "navigation_expanded": True,
-    "hide_apps": [],
-    "hide_models": [],
-    "order_with_respect_to": ["contacts", "contacts.Department", "contacts.Position", "contacts.Room", "contacts.Contact", "contacts.Vacancy"],
-    "custom_links": {},
-    "icons": {
-        "auth": "fas fa-users-cog",
-        "auth.user": "fas fa-user",
-        "auth.Group": "fas fa-users",
-        "contacts.Department": "fas fa-building",
-        "contacts.Position": "fas fa-briefcase",
-        "contacts.Room": "fas fa-door-open",
-        "contacts.Contact": "fas fa-address-card",
-        "contacts.Vacancy": "fas fa-briefcase",
-    },
-    "default_icon_parents": "fas fa-chevron-circle-right",
-    "default_icon_children": "fas fa-circle",
-    "related_modal_active": False,
-    "custom_css": None,
-    "custom_js": None,
-    "use_google_fonts_cdn": True,
-    "show_ui_builder": False,
-    "changeform_format": "horizontal_tabs",
-    "changeform_format_overrides": {"contacts.contact": "collapsible"},
-    "language_chooser": True,
-}
+# JAZZMIN_SETTINGS = {
+#     "site_title": "Телефонный справочник",
+#     "site_header": "Телефонный справочник",
+#     "site_brand": "HR Guide",
+#     "site_logo": None,
+#     "login_logo": None,
+#     "login_logo_dark": None,
+#     "site_logo_classes": "img-circle",
+#     "site_icon": None,
+#     "welcome_sign": "Добро пожаловать в админ-панель",
+#     "copyright": "HR Guide",
+#     "search_model": ["contacts.Contact", "contacts.Department", "contacts.Vacancy"],
+#     "user_avatar": None,
+#     "topmenu_links": [
+#         {"name": "Главная", "url": "admin:index", "permissions": ["auth.view_user"]},
+#         {"name": "Сайт", "url": "/", "new_window": True},
+#     ],
+#     "usermenu_links": [
+#         {"name": "Сайт", "url": "/", "new_window": True},
+#     ],
+#     "show_sidebar": True,
+#     "navigation_expanded": True,
+#     "hide_apps": [],
+#     "hide_models": [],
+#     "order_with_respect_to": ["contacts", "contacts.Department", "contacts.Position", "contacts.Room", "contacts.Contact", "contacts.Vacancy"],
+#     "custom_links": {},
+#     "icons": {
+#         "auth": "fas fa-users-cog",
+#         "auth.user": "fas fa-user",
+#         "auth.Group": "fas fa-users",
+#         "contacts.Department": "fas fa-building",
+#         "contacts.Position": "fas fa-briefcase",
+#         "contacts.Room": "fas fa-door-open",
+#         "contacts.Contact": "fas fa-address-card",
+#         "contacts.Vacancy": "fas fa-briefcase",
+#     },
+#     "default_icon_parents": "fas fa-chevron-circle-right",
+#     "default_icon_children": "fas fa-circle",
+#     "related_modal_active": False,
+#     "custom_css": None,
+#     "custom_js": None,
+#     "use_google_fonts_cdn": True,
+#     "show_ui_builder": False,
+#     "changeform_format": "horizontal_tabs",
+#     "changeform_format_overrides": {"contacts.contact": "collapsible"},
+#     "language_chooser": True,
+# }
 
-JAZZMIN_UI_TWEAKS = {
-    "navbar_small_text": False,
-    "footer_small_text": False,
-    "body_small_text": False,
-    "brand_small_text": False,
-    "brand_colour": "navbar-primary",
-    "accent": "accent-primary",
-    "navbar": "navbar-dark",
-    "no_navbar_border": False,
-    "navbar_fixed": False,
-    "layout_boxed": False,
-    "footer_fixed": False,
-    "sidebar_fixed": False,
-    "sidebar": "sidebar-dark-primary",
-    "sidebar_nav_small_text": False,
-    "sidebar_disable_expand": False,
-    "sidebar_nav_child_indent": False,
-    "sidebar_nav_compact_style": False,
-    "sidebar_nav_legacy_style": False,
-    "sidebar_nav_flat_style": False,
-    "theme": "default",
-    "dark_mode_theme": None,
-    "button_classes": {
-        "primary": "btn-primary",
-        "secondary": "btn-secondary",
-        "info": "btn-info",
-        "warning": "btn-warning",
-        "danger": "btn-danger",
-        "success": "btn-success"
-    }
-}
+# JAZZMIN_UI_TWEAKS = {
+#     "navbar_small_text": False,
+#     "footer_small_text": False,
+#     "body_small_text": False,
+#     "brand_small_text": False,
+#     "brand_colour": "navbar-primary",
+#     "accent": "accent-primary",
+#     "navbar": "navbar-dark",
+#     "no_navbar_border": False,
+#     "navbar_fixed": False,
+#     "layout_boxed": False,
+#     "footer_fixed": False,
+#     "sidebar_fixed": False,
+#     "sidebar": "sidebar-dark-primary",
+#     "sidebar_nav_small_text": False,
+#     "sidebar_disable_expand": False,
+#     "sidebar_nav_child_indent": False,
+#     "sidebar_nav_compact_style": False,
+#     "sidebar_nav_legacy_style": False,
+#     "sidebar_nav_flat_style": False,
+#     "theme": "default",
+#     "dark_mode_theme": None,
+#     "button_classes": {
+#         "primary": "btn-primary",
+#         "secondary": "btn-secondary",
+#         "info": "btn-info",
+#         "warning": "btn-warning",
+#         "danger": "btn-danger",
+#         "success": "btn-success"
+#     }
+# }
 
 # Настройки для CKEditor
 CKEDITOR_CONFIGS = {

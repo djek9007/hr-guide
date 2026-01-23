@@ -1,5 +1,6 @@
 ﻿from django.contrib import admin
 from django import forms
+from django.db.models import Count
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import format_html
 from django.http import JsonResponse
@@ -91,10 +92,18 @@ class DepartmentAdmin(ImportExportModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
     resource_class = DepartmentResource
     
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.annotate(
+            _divisions_count=Count('divisions', distinct=True)
+        )
+        return queryset
+
     def get_divisions_count(self, obj):
         """Количество управлений в департаменте"""
-        return obj.divisions.count()
+        return obj._divisions_count
     get_divisions_count.short_description = _('Количество управлений')
+    get_divisions_count.admin_order_field = '_divisions_count'
 
 
 class DivisionResource(resources.ModelResource):
@@ -140,11 +149,20 @@ class DivisionAdmin(ImportExportModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
     autocomplete_fields = ['department']
     resource_class = DivisionResource
+    list_select_related = ('department',)
+    
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.annotate(
+            _contacts_count=Count('contacts', distinct=True)
+        )
+        return queryset
     
     def get_contacts_count(self, obj):
         """Количество сотрудников в управлении"""
-        return obj.contacts.count()
+        return obj._contacts_count
     get_contacts_count.short_description = _('Количество сотрудников')
+    get_contacts_count.admin_order_field = '_contacts_count'
 
 
 class PositionResource(resources.ModelResource):
@@ -265,6 +283,7 @@ class ContactAdmin(ImageCroppingMixin, ImportExportModelAdmin):
     list_display = ('id', 'avatar_thumbnail', 'full_name', 'room', 'position', 'division', 'department', 'employment_type', 'display_order', 'work_phone')
     list_editable = ('display_order',)  # Позволяет редактировать порядок прямо в списке
     list_filter = ('employment_type', 'division', 'department', 'position', 'room', 'created_at')
+    list_select_related = ('room', 'position', 'division', 'department')
     list_display_links = ('full_name',)
     search_fields = (
         'full_name', 
@@ -278,7 +297,7 @@ class ContactAdmin(ImageCroppingMixin, ImportExportModelAdmin):
         'department__name_ru',
         'department__name_kk'
     )
-    list_per_page = 50
+    list_per_page = 100
     
     fieldsets = (
         (_('Основная информация'), {
@@ -416,6 +435,7 @@ class VacancyAdmin(ImportExportModelAdmin):
     search_fields = ('position__name_ru', 'position__name_kk', 'description_ru', 'description_kk')
     list_per_page = 50
     list_display_links = ('position',)
+    list_select_related = ('position', 'department', 'division')
 
     fieldsets = (
         (_('Основная информация'), {

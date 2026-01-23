@@ -33,8 +33,9 @@ echo "Применение миграций..."
 python manage.py migrate --noinput
 
 # Собираем статические файлы
-echo "Сборка статических файлов..."
-python manage.py collectstatic --noinput --clear
+# echo "Сборка статических файлов..."
+# python manage.py collectstatic 
+#python manage.py collectstatic --noinput --clear
 
 # Создаем суперпользователя, если его нет (опционально)
 echo "Проверка суперпользователя..."

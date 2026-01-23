@@ -1,41 +1,52 @@
 version: '3.8'
 
 services:
+  # База данных теперь внутри проекта
+  db-hr:
+    image: postgres:17.2
+    container_name: hr-guide-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hr-guide
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: Postgres9007
+    volumes:
+      - hr-guide-db-data:/var/lib/postgresql/data
+    networks:
+      - hr-guide-network
+
+  # Django приложение
   hr-guide-web:
     build: .
     container_name: hr-guide-web
     restart: unless-stopped
-    # Добавлен --noreload для скорости в локальной сети
-    command: python manage.py runserver 0.0.0.0:8000 --noreload
+    # Используем Gunicorn для скорости
+    command: gunicorn hr_guide.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120 --keep-alive 5 --access-logfile /dev/null
     volumes:
       - .:/app
       - ./media:/app/media
-      # Поменяйте эту строку:
       - ./staticfiles:/app/staticfiles
     ports:
       - "8880:8000"
     env_file:
       - .env
     environment:
-      - DEBUG=${DEBUG:-True}
-      - SECRET_KEY=${SECRET_KEY:-django-insecure-change-this-in-production}
+      - DEBUG=${DEBUG:-False}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
-      - DATABASE_HOST=${DATABASE_HOST:-postgres}
-      - DATABASE_PORT=${DATABASE_PORT:-5432}
-      - DATABASE_NAME=${DATABASE_NAME:-hr-guide}
-      - DATABASE_USER=${DATABASE_USER:-admin}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD:-Postgres9007}
+      # Теперь подключаемся к соседнему контейнеру db-hr
+      - DATABASE_HOST=db-hr
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=hr-guide
+      - DATABASE_USER=admin
+      - DATABASE_PASSWORD=Postgres9007
+    depends_on:
+      - db-hr
     networks:
       - hr-guide-network
-      - database_network
-
-volumes:
-  hr-guide-staticfiles:
-    driver: local
 
 networks:
   hr-guide-network:
     driver: bridge
-  database_network:
-    external: true
-    name: database_network
+
+volumes:
+  hr-guide-db-data: # Данные БД будут храниться здесь
