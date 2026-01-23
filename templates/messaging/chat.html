@@ -997,13 +997,16 @@ function chatApp() {
                             // Но если currentChatId null, а сообщения есть - значит чат открыт
                             
                             // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Проверяем, открыт ли чат с этим ID в UI
-                            // Если selectedEmployeeId соответствует участнику чата, значит чат открыт
+                            // Если selectedEmployeeId установлен и есть чат с этим ID, значит чат открыт
                             const chat = this.chats.find(c => c.id === receivedChatId);
+                            // Проверяем: есть ли чат в chatsByEmployeeId для selectedEmployeeId
+                            // ИЛИ selectedEmployeeId соответствует other_participant чата
+                            // ИЛИ currentChatId совпадает с receivedChatId (даже если null, но чат есть в списке)
+                            const chatForSelectedEmployee = this.chatsByEmployeeId[this.selectedEmployeeId];
                             const isChatOpenInUI = chat && (
-                                this.selectedEmployeeId && (
-                                    chat.other_participant?.id === this.selectedEmployeeId ||
-                                    (chat.participant1?.id === this.selectedEmployeeId || chat.participant2?.id === this.selectedEmployeeId)
-                                )
+                                (this.selectedEmployeeId && chatForSelectedEmployee && chatForSelectedEmployee.id === receivedChatId) ||
+                                (this.selectedEmployeeId && chat.other_participant?.id === this.selectedEmployeeId) ||
+                                (chat.participant1?.id === this.selectedEmployeeId || chat.participant2?.id === this.selectedEmployeeId)
                             );
                             
                             console.log('🔍 Проверка сообщения:', {
@@ -1111,11 +1114,44 @@ function chatApp() {
                                     shouldAddToCurrentChat,
                                     hasMessagesForThisChat,
                                     messages_count: this.messages.length,
+                                    selectedEmployeeId: this.selectedEmployeeId,
+                                    isChatOpenInUI,
+                                    chat_found: !!chat,
                                     messages_chat_ids: this.messages.map(m => {
                                         const msgChatId = m.chat ? (typeof m.chat === 'object' ? m.chat.id : parseInt(m.chat)) : null;
                                         return msgChatId;
                                     }).filter(id => id !== null)
                                 });
+                                
+                                // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Если чат есть в списке, но currentChatId null,
+                                // возможно чат открыт, но currentChatId сброшен. Попробуем восстановить.
+                                if (chat && !currentChatIdNum) {
+                                    // Проверяем, есть ли чат в chatsByEmployeeId для любого сотрудника
+                                    const chatInMapping = Object.values(this.chatsByEmployeeId).find(c => c && c.id === receivedChatId);
+                                    if (chatInMapping) {
+                                        // Находим сотрудника, для которого этот чат
+                                        const employeeId = Object.keys(this.chatsByEmployeeId).find(empId => {
+                                            const c = this.chatsByEmployeeId[empId];
+                                            return c && c.id === receivedChatId;
+                                        });
+                                        
+                                        if (employeeId && this.selectedEmployeeId === parseInt(employeeId)) {
+                                            console.log('🔧 Обнаружен открытый чат! Восстанавливаем currentChatId и загружаем сообщения...');
+                                            this.currentChatId = receivedChatId;
+                                            // Загружаем сообщения для этого чата
+                                            await this.loadMessages(receivedChatId);
+                                            // Добавляем сообщение в UI
+                                            if (data.message && data.message.id && !this.messages.find(msg => msg && msg.id === data.message.id)) {
+                                                this.messages.push(data.message);
+                                                this.$nextTick(() => {
+                                                    this.scrollToBottom();
+                                                });
+                                            }
+                                            return; // Выходим, так как уже обработали сообщение
+                                        }
+                                    }
+                                }
+                                
                                 // Если чат не открыт, но сообщение пришло - добавляем в моргающие чаты
                                 this.blinkingChats.add(receivedChatId);
                                 console.log('Добавлен чат в моргающие:', data.chat_id, 'Всего моргающих:', Array.from(this.blinkingChats));
