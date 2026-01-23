@@ -43,6 +43,7 @@ except Exception:
 
 # Применяем миграции
 echo "Применение миграций..."
+python manage.py makemigrations --noinput || true
 python manage.py migrate --noinput
 
 # Собираем статические файлы

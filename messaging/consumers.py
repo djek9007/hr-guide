@@ -2,10 +2,10 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from django.contrib.auth.models import User
-from .models import Chat, Message, FileAttachment
-from .serializers import MessageSerializer
+from django.contrib.auth import get_user_model
 from django.utils import timezone
+
+User = get_user_model()
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -53,6 +53,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     async def handle_chat_message(self, data):
         """Обработка нового сообщения"""
+        from .serializers import MessageSerializer
+        
         chat_id = data.get('chat_id')
         text = data.get('text', '').strip()
         
@@ -134,6 +136,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def create_message(self, chat_id, text):
         """Создает сообщение в базе данных"""
+        from .models import Chat, Message
+        from .serializers import MessageSerializer
+        
         try:
             chat = Chat.objects.get(id=chat_id)
             # Проверяем, что пользователь является участником чата
@@ -159,6 +164,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_chat(self, chat_id):
         """Получает чат из базы данных"""
+        from .models import Chat
+        
         try:
             return Chat.objects.select_related('participant1', 'participant2').get(id=chat_id)
         except Chat.DoesNotExist:

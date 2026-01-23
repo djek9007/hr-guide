@@ -64,6 +64,7 @@ db.sqlite3-journal
 # Media files (user uploaded content)
 media/
 
+
 # Flask stuff:
 instance/
 .webassets-cache
@@ -218,5 +219,3 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-
-*__pycache__*/
