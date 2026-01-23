@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
-{% load i18n %}
+{% load i18n static%}
 {% get_current_language as LANGUAGE_CODE %}
 
 {% block title %}{% trans "Поиск контактов" %} - {% trans "Справочник Министерства культуры и информации Республики Казахстан" %}{% endblock %}
 
 {% block extra_js %}
 <!-- jQuery (требуется для Select2) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
 <!-- Select2 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="{% static 'css/select2.min.css' %}" rel="stylesheet" />
 <!-- Select2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="{% static 'js/select2.min.js' %}"></script>
 
 <script>
     // Инициализация Select2 после загрузки страницы
