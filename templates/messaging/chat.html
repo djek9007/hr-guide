@@ -891,27 +891,21 @@ function chatApp() {
                                 text: data.message?.text?.substring(0, 30),
                                 messages_count: this.messages?.length || 0
                             });
+                            
                             // Проверяем, есть ли этот чат в списке открытых чатов пользователя
-                            const chatExists = this.chats.find(c => c.id === data.chat_id);
+                            const chatExists = this.chats.find(c => c.id === receivedChatId);
                             
-                            // Нормализуем ID для сравнения (могут быть строки или числа)
-                            const receivedChatId = parseInt(data.chat_id);
-                            const currentChatIdNum = this.currentChatId ? parseInt(this.currentChatId) : null;
-                            
-                            // Если currentChatId не установлен, но есть загруженные сообщения для этого чата,
-                            // значит чат был открыт, но currentChatId по какой-то причине сброшен
-                            const shouldAddToCurrentChat = currentChatIdNum === null && this.messages.length > 0 && 
-                                                          this.messages.some(m => {
-                                                              const msgChatId = m.chat ? (typeof m.chat === 'object' ? m.chat.id : parseInt(m.chat)) : null;
-                                                              return msgChatId === receivedChatId;
-                                                          });
-                            
-                            // Дополнительная проверка: если сообщения для этого чата уже есть, значит чат открыт
+                            // Проверяем, есть ли сообщения для этого чата (независимо от currentChatId)
+                            // Это основной способ определить, открыт ли чат
                             const hasMessagesForThisChat = this.messages.length > 0 && 
                                                           this.messages.some(m => {
                                                               const msgChatId = m.chat ? (typeof m.chat === 'object' ? m.chat.id : parseInt(m.chat)) : null;
                                                               return msgChatId === receivedChatId;
                                                           });
+                            
+                            // Если currentChatId не установлен, но есть загруженные сообщения для этого чата,
+                            // значит чат был открыт, но currentChatId по какой-то причине сброшен
+                            const shouldAddToCurrentChat = currentChatIdNum === null && hasMessagesForThisChat;
                             
                             console.log('🔍 Проверка сообщения:', {
                                 receivedChatId,
@@ -923,14 +917,20 @@ function chatApp() {
                             
                             // Если это сообщение для текущего открытого чата, добавляем его
                             // Проверяем: currentChatId совпадает ИЛИ есть сообщения для этого чата
-                            if (receivedChatId === currentChatIdNum || shouldAddToCurrentChat || hasMessagesForThisChat) {
+                            const shouldAdd = receivedChatId === currentChatIdNum || shouldAddToCurrentChat || hasMessagesForThisChat;
+                            
+                            if (shouldAdd) {
                                 // Если currentChatId был null, но сообщения для этого чата уже есть, восстанавливаем currentChatId
                                 if (this.currentChatId === null && (shouldAddToCurrentChat || hasMessagesForThisChat)) {
                                     console.log('🔧 Восстанавливаем currentChatId:', receivedChatId, '(найдены сообщения для этого чата)');
                                     this.currentChatId = receivedChatId;
                                 }
                                 
-                                console.log('✅ Сообщение для открытого чата, добавляем в UI');
+                                console.log('✅ Сообщение для открытого чата, добавляем в UI. Причина:', {
+                                    currentChatIdMatch: receivedChatId === currentChatIdNum,
+                                    shouldAddToCurrentChat,
+                                    hasMessagesForThisChat
+                                });
                                 // Инициализируем messages как массив, если он undefined
                                 if (!Array.isArray(this.messages)) {
                                     this.messages = [];
@@ -968,6 +968,17 @@ function chatApp() {
                             } else {
                                 console.log('⚠️ Сообщение для другого чата (текущий:', currentChatIdNum, ', получен:', receivedChatId, ')');
                                 console.log('💡 Это означает, что чат не открыт. Сообщение будет показано при открытии чата или через периодическую загрузку.');
+                                console.log('🔍 Детали проверки:', {
+                                    receivedChatId,
+                                    currentChatIdNum,
+                                    shouldAddToCurrentChat,
+                                    hasMessagesForThisChat,
+                                    messages_count: this.messages.length,
+                                    messages_chat_ids: this.messages.map(m => {
+                                        const msgChatId = m.chat ? (typeof m.chat === 'object' ? m.chat.id : parseInt(m.chat)) : null;
+                                        return msgChatId;
+                                    }).filter(id => id !== null)
+                                });
                                 // Если чат не открыт, но сообщение пришло - добавляем в моргающие чаты
                                 this.blinkingChats.add(receivedChatId);
                                 console.log('Добавлен чат в моргающие:', data.chat_id, 'Всего моргающих:', Array.from(this.blinkingChats));
