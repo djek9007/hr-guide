@@ -455,18 +455,28 @@ function chatApp() {
             if (withUnread.length > 0) {
                 console.log('🔔 Сотрудники с непрочитанными:', withUnread.map(e => ({
                     name: e.contact_info?.full_name || e.username,
+                    empId: e.id,
+                    chatId: e.chat?.id,
                     unread: e.unreadCount,
                     blinking: e.isBlinking,
-                    lastMessageAt: e.lastMessageAt
+                    lastMessageAt: e.lastMessageAt,
+                    inBlinkingChats: e.chat ? this.blinkingChats.has(e.chat.id) : false
                 })));
                 console.log('📊 Порядок в списке (первые 5):', this.filteredEmployees.slice(0, 5).map((e, idx) => ({
                     position: idx + 1,
                     name: e.contact_info?.full_name || e.username,
+                    empId: e.id,
                     hasUnread: e.hasUnread,
                     isBlinking: e.isBlinking,
-                    unreadCount: e.unreadCount
+                    unreadCount: e.unreadCount,
+                    chatId: e.chat?.id
                 })));
+            } else {
+                console.log('ℹ️ Нет сотрудников с непрочитанными сообщениями');
             }
+            
+            // Принудительно обновляем реактивность, создавая новый массив
+            this.filteredEmployees = [...this.filteredEmployees];
         },
 
         async selectEmployee(employee) {
@@ -1221,6 +1231,14 @@ function chatApp() {
                                     }
                                 });
                                 
+                                console.log('🔍 Маппинг чатов обновлен. Всего чатов:', this.chats.length, 'в маппинге:', Object.keys(this.chatsByEmployeeId).length);
+                                console.log('🔍 Чат с новым сообщением в маппинге:', {
+                                    chatId: chatIdToUpdate,
+                                    updatedChat: !!updatedChat,
+                                    otherParticipantId: updatedChat?.other_participant?.id,
+                                    inMapping: updatedChat?.other_participant ? !!this.chatsByEmployeeId[updatedChat.other_participant.id] : false
+                                });
+                                
                                 // Обновляем отфильтрованный список, чтобы чат с новым сообщением был сверху
                                 this.filterEmployees();
                                 
@@ -1229,12 +1247,31 @@ function chatApp() {
                                     // Создаем новый массив для принудительного обновления
                                     this.filteredEmployees = [...this.filteredEmployees];
                                     console.log('✅ Список сотрудников обновлен после получения нового сообщения. Моргающих чатов:', Array.from(this.blinkingChats).length);
-                                    console.log('📋 Первые 3 сотрудника в списке:', this.filteredEmployees.slice(0, 3).map(e => ({
+                                    console.log('📋 Первые 5 сотрудников в списке:', this.filteredEmployees.slice(0, 5).map((e, idx) => ({
+                                        position: idx + 1,
                                         name: e.contact_info?.full_name || e.username,
+                                        empId: e.id,
                                         hasUnread: e.hasUnread,
                                         isBlinking: e.isBlinking,
-                                        unreadCount: e.unreadCount
+                                        unreadCount: e.unreadCount,
+                                        lastMessageAt: e.lastMessageAt
                                     })));
+                                    
+                                    // Проверяем, есть ли чат с новым сообщением в первых позициях
+                                    const chatWithNewMessage = this.filteredEmployees.find(e => e.chat?.id === chatIdToUpdate);
+                                    if (chatWithNewMessage) {
+                                        const position = this.filteredEmployees.indexOf(chatWithNewMessage) + 1;
+                                        console.log('📍 Чат с новым сообщением находится на позиции:', position, 'из', this.filteredEmployees.length);
+                                        console.log('🔍 Данные чата:', {
+                                            name: chatWithNewMessage.contact_info?.full_name || chatWithNewMessage.username,
+                                            hasUnread: chatWithNewMessage.hasUnread,
+                                            isBlinking: chatWithNewMessage.isBlinking,
+                                            unreadCount: chatWithNewMessage.unreadCount,
+                                            blinkingChatsHasIt: this.blinkingChats.has(chatIdToUpdate)
+                                        });
+                                    } else {
+                                        console.warn('⚠️ Чат с новым сообщением не найден в списке сотрудников!');
+                                    }
                                 });
                             }
                         }
