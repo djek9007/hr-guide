@@ -58,21 +58,22 @@
                         @click="selectEmployee(employee)"
                         :class="{
                             'bg-blue-50 border-l-4 border-blue-600': selectedEmployeeId === employee?.id,
-                            'bg-yellow-50 border-l-4 border-yellow-500 animate-pulse': selectedEmployeeId !== employee?.id && employee.hasUnread,
+                            'bg-yellow-100 border-l-4 border-yellow-500': selectedEmployeeId !== employee?.id && employee.hasUnread && !employee.isBlinking,
+                            'bg-yellow-200 border-l-4 border-yellow-600 animate-pulse': selectedEmployeeId !== employee?.id && employee.hasUnread && employee.isBlinking,
                             'hover:bg-gray-50': selectedEmployeeId !== employee?.id && !employee.hasUnread
                         }"
                         class="p-3 border-b border-gray-100 cursor-pointer transition-colors"
                     >
                         <div class="flex items-center gap-3">
                             <div 
-                                :class="employee.hasUnread && selectedEmployeeId !== employee?.id ? 'bg-yellow-200' : 'bg-blue-100'"
-                                class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                                :class="employee.hasUnread && selectedEmployeeId !== employee?.id ? (employee.isBlinking ? 'bg-yellow-400 animate-pulse' : 'bg-yellow-300') : 'bg-blue-100'"
+                                class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
                             >
-                                <i :class="employee.hasUnread && selectedEmployeeId !== employee?.id ? 'fas fa-envelope text-yellow-700' : 'fas fa-user text-blue-600'"></i>
+                                <i :class="employee.hasUnread && selectedEmployeeId !== employee?.id ? 'fas fa-envelope text-yellow-900' : 'fas fa-user text-blue-600'"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <h3 
-                                    :class="employee.hasUnread && selectedEmployeeId !== employee?.id ? 'font-bold text-yellow-900' : 'font-semibold text-gray-800'"
+                                    :class="employee.hasUnread && selectedEmployeeId !== employee?.id ? (employee.isBlinking ? 'font-bold text-red-700' : 'font-bold text-yellow-900') : 'font-semibold text-gray-800'"
                                     class="truncate"
                                     x-text="employee.contact_info?.full_name || employee.username || 'Пользователь'"
                                 ></h3>
@@ -80,9 +81,9 @@
                             </div>
                             <template x-if="employee?.id && employee.hasUnread">
                                 <span 
-                                    :class="selectedEmployeeId === employee?.id ? 'bg-blue-600' : 'bg-yellow-600 animate-pulse'"
-                                    class="px-2 py-0.5 text-white text-xs rounded-full font-bold"
-                                    x-text="employee.unreadCount || (employee.isBlinking ? '!' : '')"
+                                    :class="selectedEmployeeId === employee?.id ? 'bg-blue-600' : (employee.isBlinking ? 'bg-red-600 animate-pulse' : 'bg-yellow-600')"
+                                    class="px-2.5 py-1 text-white text-xs rounded-full font-bold min-w-[24px] text-center shadow-md"
+                                    x-text="employee.unreadCount || '!'"
                                 ></span>
                             </template>
                         </div>
@@ -1127,8 +1128,8 @@ function chatApp() {
                                     }).filter(id => id !== null)
                                 });
                                 
-                                // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Если чат есть в списке, но currentChatId null или открыт другой чат,
-                                // возможно чат открыт, но currentChatId сброшен, или нужно переключиться на чат с новым сообщением.
+                                // ВОССТАНОВЛЕНИЕ: Если чат уже открыт, но currentChatId не совпадает - восстанавливаем
+                                // НО НЕ ПЕРЕКЛЮЧАЕМСЯ автоматически на другой чат (как в Bitrix24)
                                 if (chatForMessage && currentChatIdNum !== receivedChatId) {
                                     // Находим сотрудника, для которого этот чат
                                     const employeeIdForChat = Object.keys(this.chatsByEmployeeId).find(empId => {
@@ -1152,74 +1153,16 @@ function chatApp() {
                                         return; // Выходим, так как уже обработали сообщение
                                     }
                                     
-                                    // ДОПОЛНИТЕЛЬНАЯ ПРОВЕРКА: Если чат есть в списке, но не открыт (или открыт другой чат),
-                                    // но сообщение пришло - автоматически открываем чат для отображения сообщения
-                                    if (chatForMessage.other_participant) {
-                                        const otherParticipantId = chatForMessage.other_participant.id;
-                                        console.log('🔍 Проверка автоматического открытия чата:', {
-                                            otherParticipantId,
-                                            currentUser: this.currentUser?.id,
-                                            selectedEmployeeId: this.selectedEmployeeId,
-                                            currentChatId: currentChatIdNum,
-                                            receivedChatId: receivedChatId,
-                                            employees_count: this.employees?.length || 0,
-                                            chat_id: receivedChatId,
-                                            other_participant: chatForMessage.other_participant
-                                        });
-                                        
-                                        // Находим сотрудника в списке по other_participant
-                                        const employee = this.employees.find(emp => emp.id === otherParticipantId);
-                                        
-                                        if (employee) {
-                                            console.log('🔧 Автоматически открываем чат для нового сообщения (переключаемся с чата', currentChatIdNum, 'на чат', receivedChatId, ')...');
-                                            // Устанавливаем selectedEmployee и selectedEmployeeId
-                                            this.selectedEmployee = employee;
-                                            this.selectedEmployeeId = otherParticipantId;
-                                            this.currentChatId = receivedChatId;
-                                            
-                                            // Загружаем сообщения для этого чата
-                                            await this.loadMessages(receivedChatId);
-                                            // Добавляем сообщение в UI, если его еще нет
-                                            if (data.message && data.message.id && !this.messages.find(msg => msg && msg.id === data.message.id)) {
-                                                this.messages.push(data.message);
-                                                this.$nextTick(() => {
-                                                    this.scrollToBottom();
-                                                });
-                                            }
-                                            return; // Выходим, так как уже обработали сообщение
-                                        } else {
-                                            console.warn('⚠️ Сотрудник не найден в списке для автоматического открытия чата:', otherParticipantId);
-                                            // Если сотрудник не найден, но есть other_participant, создаем объект сотрудника из данных чата
-                                            if (chatForMessage.other_participant) {
-                                                console.log('🔧 Создаем объект сотрудника из данных чата...');
-                                                // Создаем объект сотрудника из other_participant
-                                                const employeeFromChat = {
-                                                    id: chatForMessage.other_participant.id,
-                                                    username: chatForMessage.other_participant.username,
-                                                    contact_info: chatForMessage.other_participant.contact_info || {}
-                                                };
-                                                this.selectedEmployee = employeeFromChat;
-                                                this.selectedEmployeeId = otherParticipantId;
-                                                this.currentChatId = receivedChatId;
-                                                
-                                                // Загружаем сообщения для этого чата
-                                                await this.loadMessages(receivedChatId);
-                                                // Добавляем сообщение в UI, если его еще нет
-                                                if (data.message && data.message.id && !this.messages.find(msg => msg && msg.id === data.message.id)) {
-                                                    this.messages.push(data.message);
-                                                    this.$nextTick(() => {
-                                                        this.scrollToBottom();
-                                                    });
-                                                }
-                                                return; // Выходим, так как уже обработали сообщение
-                                            }
-                                        }
-                                    }
+                                    // НЕ открываем чат автоматически - пользователь сам решит, когда его открыть (как в Bitrix24)
+                                    // Просто добавляем в моргающие и обновляем счетчик
                                 }
                                 
-                                // Если чат не открыт, но сообщение пришло - добавляем в моргающие чаты
-                                this.blinkingChats.add(receivedChatId);
-                                console.log('Добавлен чат в моргающие:', data.chat_id, 'Всего моргающих:', Array.from(this.blinkingChats));
+                                // Если чат не открыт, но сообщение пришло - добавляем в моргающие чаты (как в Bitrix24)
+                                // Моргание будет до тех пор, пока пользователь не откроет чат
+                                if (currentChatIdNum !== receivedChatId) {
+                                    this.blinkingChats.add(receivedChatId);
+                                    console.log('💬 Новое сообщение! Чат добавлен в моргающие:', data.chat_id, 'Всего моргающих:', Array.from(this.blinkingChats));
+                                }
                                 
                                 // Обновляем счетчик непрочитанных для этого чата вручную
                                 if (chatForMessage) {
@@ -1227,14 +1170,10 @@ function chatApp() {
                                     if (!chatForMessage.unread_count) chatForMessage.unread_count = 0;
                                     chatForMessage.unread_count += 1;
                                     chatForMessage.last_message_at = data.message.created_at;
-                                    console.log('Обновлен счетчик для чата:', data.chat_id, 'непрочитанных:', chatForMessage.unread_count);
+                                    console.log('📊 Обновлен счетчик для чата:', data.chat_id, 'непрочитанных:', chatForMessage.unread_count);
                                 }
                                 
-                                // Через 10 секунд убираем моргание (пользователь должен был заметить)
-                                setTimeout(() => {
-                                    this.blinkingChats.delete(data.chat_id);
-                                    console.log('Убрано моргание для чата:', data.chat_id);
-                                }, 10000);
+                                // НЕ убираем моргание автоматически - только когда пользователь откроет чат (в selectEmployee)
                                 
                                 // Обновляем список чатов, чтобы показать непрочитанное сообщение и переместить чат наверх
                                 await this.loadChats();
