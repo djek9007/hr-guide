@@ -58,31 +58,31 @@
                         @click="selectEmployee(employee)"
                         :class="{
                             'bg-blue-50 border-l-4 border-blue-600': selectedEmployeeId === employee?.id,
-                            'bg-yellow-50 border-l-4 border-yellow-500 animate-pulse': selectedEmployeeId !== employee?.id && getUnreadCount(employee.id) > 0,
-                            'hover:bg-gray-50': selectedEmployeeId !== employee?.id && getUnreadCount(employee.id) === 0
+                            'bg-yellow-50 border-l-4 border-yellow-500 animate-pulse': selectedEmployeeId !== employee?.id && employee.hasUnread,
+                            'hover:bg-gray-50': selectedEmployeeId !== employee?.id && !employee.hasUnread
                         }"
                         class="p-3 border-b border-gray-100 cursor-pointer transition-colors"
                     >
                         <div class="flex items-center gap-3">
                             <div 
-                                :class="(getUnreadCount(employee.id) > 0 || (employee.chat && blinkingChats.has(employee.chat.id))) && selectedEmployeeId !== employee?.id ? 'bg-yellow-200' : 'bg-blue-100'"
+                                :class="employee.hasUnread && selectedEmployeeId !== employee?.id ? 'bg-yellow-200' : 'bg-blue-100'"
                                 class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
                             >
-                                <i :class="(getUnreadCount(employee.id) > 0 || (employee.chat && blinkingChats.has(employee.chat.id))) && selectedEmployeeId !== employee?.id ? 'fas fa-envelope text-yellow-700' : 'fas fa-user text-blue-600'"></i>
+                                <i :class="employee.hasUnread && selectedEmployeeId !== employee?.id ? 'fas fa-envelope text-yellow-700' : 'fas fa-user text-blue-600'"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <h3 
-                                    :class="(getUnreadCount(employee.id) > 0 || (employee.chat && blinkingChats.has(employee.chat.id))) && selectedEmployeeId !== employee?.id ? 'font-bold text-yellow-900' : 'font-semibold text-gray-800'"
+                                    :class="employee.hasUnread && selectedEmployeeId !== employee?.id ? 'font-bold text-yellow-900' : 'font-semibold text-gray-800'"
                                     class="truncate"
                                     x-text="employee.contact_info?.full_name || employee.username || 'Пользователь'"
                                 ></h3>
                                 <p class="text-xs text-gray-500 truncate" x-text="employee.contact_info?.position || ''"></p>
                             </div>
-                            <template x-if="employee?.id && (getUnreadCount(employee.id) > 0 || (employee.chat && blinkingChats.has(employee.chat.id)))">
+                            <template x-if="employee?.id && employee.hasUnread">
                                 <span 
                                     :class="selectedEmployeeId === employee?.id ? 'bg-blue-600' : 'bg-yellow-600 animate-pulse'"
                                     class="px-2 py-0.5 text-white text-xs rounded-full font-bold"
-                                    x-text="getUnreadCount(employee.id) || '!'"
+                                    x-text="employee.unreadCount || (employee.isBlinking ? '!' : '')"
                                 ></span>
                             </template>
                         </div>
@@ -270,6 +270,11 @@ function chatApp() {
         messagePollInterval: null, // Интервал для периодической загрузки сообщений, если WebSocket не работает
         wsConnected: false, // Флаг подключения WebSocket
         blinkingChats: new Set(), // Множество ID чатов, которые должны моргать
+        
+        // Метод для проверки, должен ли чат моргать
+        isChatBlinking(chatId) {
+            return this.blinkingChats.has(chatId);
+        }
 
         async init() {
             // Получаем текущего пользователя
@@ -389,16 +394,26 @@ function chatApp() {
             // Сортируем сотрудников: сначала с непрочитанными сообщениями, затем по дате последнего сообщения
             this.filteredEmployees = employees.map(emp => {
                 const chat = this.chatsByEmployeeId[emp.id];
+                const isBlinking = chat && this.blinkingChats.has(chat.id);
+                const unreadCount = chat?.unread_count || 0;
                 return {
                     ...emp,
                     chat: chat,
                     lastMessageAt: chat?.last_message_at || null,
-                    unreadCount: chat?.unread_count || 0
+                    unreadCount: unreadCount,
+                    isBlinking: isBlinking,
+                    hasUnread: unreadCount > 0 || isBlinking
                 };
             }).sort((a, b) => {
-                // Сначала чаты с непрочитанными сообщениями
-                if (a.unreadCount > 0 && b.unreadCount === 0) return -1;
-                if (a.unreadCount === 0 && b.unreadCount > 0) return 1;
+                // Сначала чаты с непрочитанными сообщениями или моргающие
+                if (a.hasUnread && !b.hasUnread) return -1;
+                if (!a.hasUnread && b.hasUnread) return 1;
+                
+                // Если оба имеют непрочитанные, сначала моргающие
+                if (a.hasUnread && b.hasUnread) {
+                    if (a.isBlinking && !b.isBlinking) return -1;
+                    if (!a.isBlinking && b.isBlinking) return 1;
+                }
                 
                 // Затем по дате последнего сообщения (новые сверху)
                 if (a.lastMessageAt && b.lastMessageAt) {
@@ -412,6 +427,16 @@ function chatApp() {
                 const nameB = (b.contact_info?.full_name || b.username || '').toLowerCase();
                 return nameA.localeCompare(nameB);
             });
+            
+            console.log('Отфильтровано сотрудников:', this.filteredEmployees.length);
+            const withUnread = this.filteredEmployees.filter(e => e.hasUnread);
+            if (withUnread.length > 0) {
+                console.log('Сотрудники с непрочитанными:', withUnread.map(e => ({
+                    name: e.contact_info?.full_name || e.username,
+                    unread: e.unreadCount,
+                    blinking: e.isBlinking
+                })));
+            }
         },
 
         async selectEmployee(employee) {
@@ -844,19 +869,54 @@ function chatApp() {
                                 console.log('Сообщение для другого чата (текущий:', this.currentChatId, ', получен:', data.chat_id, ')');
                                 // Если чат не открыт, но сообщение пришло - добавляем в моргающие чаты
                                 this.blinkingChats.add(data.chat_id);
+                                console.log('Добавлен чат в моргающие:', data.chat_id, 'Всего моргающих:', Array.from(this.blinkingChats));
+                                
+                                // Обновляем счетчик непрочитанных для этого чата вручную
+                                const chat = this.chats.find(c => c.id === data.chat_id);
+                                if (chat) {
+                                    // Увеличиваем счетчик непрочитанных
+                                    if (!chat.unread_count) chat.unread_count = 0;
+                                    chat.unread_count += 1;
+                                    chat.last_message_at = data.message.created_at;
+                                    console.log('Обновлен счетчик для чата:', data.chat_id, 'непрочитанных:', chat.unread_count);
+                                }
+                                
                                 // Через 10 секунд убираем моргание (пользователь должен был заметить)
                                 setTimeout(() => {
                                     this.blinkingChats.delete(data.chat_id);
+                                    console.log('Убрано моргание для чата:', data.chat_id);
                                 }, 10000);
+                                
                                 // Обновляем список чатов, чтобы показать непрочитанное сообщение и переместить чат наверх
                                 await this.loadChats();
+                                
+                                // Принудительно обновляем маппинг после загрузки чатов
+                                this.chatsByEmployeeId = {};
+                                this.chats.forEach(chat => {
+                                    const otherParticipant = chat.other_participant;
+                                    if (otherParticipant) {
+                                        this.chatsByEmployeeId[otherParticipant.id] = chat;
+                                    }
+                                });
+                                
                                 // Обновляем отфильтрованный список, чтобы чат с новым сообщением был сверху
                                 this.filterEmployees();
+                                console.log('Список сотрудников обновлен после получения нового сообщения. Моргающих чатов:', Array.from(this.blinkingChats).length);
                             }
                         }
                         // Обновляем список чатов для обновления счетчиков непрочитанных
                         // Это нужно делать всегда, чтобы обновить счетчики
                         await this.loadChats();
+                        
+                        // Принудительно обновляем маппинг после загрузки чатов
+                        this.chatsByEmployeeId = {};
+                        this.chats.forEach(chat => {
+                            const otherParticipant = chat.other_participant;
+                            if (otherParticipant) {
+                                this.chatsByEmployeeId[otherParticipant.id] = chat;
+                            }
+                        });
+                        
                         // Обновляем отфильтрованный список сотрудников
                         this.filterEmployees();
                     } else if (data.type === 'typing_indicator') {
