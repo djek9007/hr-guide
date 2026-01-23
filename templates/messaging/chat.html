@@ -475,7 +475,7 @@ function chatApp() {
             }
             
             this.currentChatId = chat.id;
-            console.log('Открыт чат с ID:', chat.id, 'для сотрудника:', employee.id);
+            console.log('✅ Открыт чат с ID:', chat.id, 'для сотрудника:', employee.id, 'currentChatId установлен:', this.currentChatId);
             
             // Останавливаем периодическую загрузку для предыдущего чата
             if (this.messagePollInterval) {
@@ -490,13 +490,15 @@ function chatApp() {
             // Загружаем сообщения (все, включая новые)
             await this.loadMessages(chat.id);
             
-            console.log('Сообщения загружены. Всего в UI:', this.messages.length);
+            console.log('Сообщения загружены. Всего в UI:', this.messages.length, 'currentChatId:', this.currentChatId);
             
             // Отмечаем сообщения как прочитанные
             await this.markChatAsRead(chat.id);
             
             // Обновляем список чатов после открытия, чтобы обновить счетчики
+            console.log('Обновляем список чатов... currentChatId до loadChats:', this.currentChatId);
             await this.loadChats();
+            console.log('Список чатов обновлен. currentChatId после loadChats:', this.currentChatId);
             
             // Если WebSocket не подключен, запускаем периодическую загрузку сообщений
             if (!this.wsConnected && !this.messagePollInterval) {
@@ -899,11 +901,19 @@ function chatApp() {
                                                               return msgChatId === receivedChatId;
                                                           });
                             
+                            // Дополнительная проверка: если сообщения для этого чата уже есть, значит чат открыт
+                            const hasMessagesForThisChat = this.messages.length > 0 && 
+                                                          this.messages.some(m => {
+                                                              const msgChatId = m.chat ? (typeof m.chat === 'object' ? m.chat.id : parseInt(m.chat)) : null;
+                                                              return msgChatId === receivedChatId;
+                                                          });
+                            
                             // Если это сообщение для текущего открытого чата, добавляем его
-                            if (receivedChatId === currentChatIdNum || shouldAddToCurrentChat) {
+                            // Проверяем: currentChatId совпадает ИЛИ есть сообщения для этого чата
+                            if (receivedChatId === currentChatIdNum || shouldAddToCurrentChat || hasMessagesForThisChat) {
                                 // Если currentChatId был null, но сообщения для этого чата уже есть, восстанавливаем currentChatId
-                                if (this.currentChatId === null && shouldAddToCurrentChat) {
-                                    console.log('🔧 Восстанавливаем currentChatId:', receivedChatId);
+                                if (this.currentChatId === null && (shouldAddToCurrentChat || hasMessagesForThisChat)) {
+                                    console.log('🔧 Восстанавливаем currentChatId:', receivedChatId, '(найдены сообщения для этого чата)');
                                     this.currentChatId = receivedChatId;
                                 }
                                 
