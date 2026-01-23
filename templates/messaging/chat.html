@@ -876,16 +876,21 @@ function chatApp() {
                     const data = JSON.parse(event.data);
                     
                     if (data.type === 'chat_message') {
-                        console.log('📨 Получено сообщение через WebSocket:', {
-                            chat_id: data.chat_id,
-                            currentChatId: this.currentChatId,
-                            message_id: data.message?.id,
-                            sender_id: data.message?.sender?.id,
-                            sender_username: data.message?.sender?.username,
-                            text: data.message?.text?.substring(0, 30)
-                        });
                         // Проверяем, относится ли сообщение к текущему чату или любому чату пользователя
                         if (data.chat_id && data.message) {
+                            // Нормализуем ID для сравнения (могут быть строки или числа)
+                            const receivedChatId = parseInt(data.chat_id);
+                            const currentChatIdNum = this.currentChatId ? parseInt(this.currentChatId) : null;
+                            
+                            console.log('📨 Получено сообщение через WebSocket:', {
+                                chat_id: receivedChatId,
+                                currentChatId: currentChatIdNum,
+                                message_id: data.message?.id,
+                                sender_id: data.message?.sender?.id,
+                                sender_username: data.message?.sender?.username,
+                                text: data.message?.text?.substring(0, 30),
+                                messages_count: this.messages?.length || 0
+                            });
                             // Проверяем, есть ли этот чат в списке открытых чатов пользователя
                             const chatExists = this.chats.find(c => c.id === data.chat_id);
                             
@@ -907,6 +912,14 @@ function chatApp() {
                                                               const msgChatId = m.chat ? (typeof m.chat === 'object' ? m.chat.id : parseInt(m.chat)) : null;
                                                               return msgChatId === receivedChatId;
                                                           });
+                            
+                            console.log('🔍 Проверка сообщения:', {
+                                receivedChatId,
+                                currentChatIdNum,
+                                shouldAddToCurrentChat,
+                                hasMessagesForThisChat,
+                                messages_count: this.messages.length
+                            });
                             
                             // Если это сообщение для текущего открытого чата, добавляем его
                             // Проверяем: currentChatId совпадает ИЛИ есть сообщения для этого чата
