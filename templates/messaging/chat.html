@@ -17,10 +17,9 @@
 <div x-data="chatApp()" x-init="init()" class="h-[calc(100vh-200px)] flex overflow-hidden">
     <!-- Левая панель со списком сотрудников -->
     <div class="w-80 bg-white border-r border-gray-200 flex flex-col overflow-hidden">
-        <!-- Заголовок с ФИО пользователя и выходом -->
+        {% comment %}Заголовок с ФИО и аватаром пользователя; Выход вынесен в base.html{% endcomment %}
         <div class="p-4 border-b border-gray-200 bg-gray-50">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-3 flex-1 min-w-0">
+            <div class="flex items-center gap-3 mb-3">
                     {% comment %}Аватар текущего пользователя: клик или "Изменить фото" открывают окно смены фото и кропа{% endcomment %}
                     <div class="relative flex-shrink-0">
                         <button
@@ -45,19 +44,6 @@
                         <p class="text-xs text-gray-500 truncate" x-text="currentUser?.contact_info?.position || ''"></p>
                         <button type="button" @click="openAvatarModal()" class="text-xs text-blue-600 hover:underline mt-0.5">{% trans "Изменить фото" %}</button>
                     </div>
-                </div>
-                {% comment %}Django 5.x LogoutView принимает только POST — используем форму вместо ссылки GET{% endcomment %}
-                <form method="post" action="{% url 'logout' %}" class="inline">
-                    {% csrf_token %}
-                    <button 
-                        type="submit"
-                        class="ml-2 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-1.5 border-0 bg-transparent cursor-pointer"
-                        title="{% trans 'Выход' %}"
-                    >
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span class="hidden sm:inline">{% trans "Выход" %}</span>
-                    </button>
-                </form>
             </div>
             <!-- Поиск сотрудников (серверный поиск по ФИО по всей БД при вводе) -->
             <input 
