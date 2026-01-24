@@ -17,8 +17,14 @@
         <div class="p-4 border-b border-gray-200 bg-gray-50">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3 flex-1 min-w-0">
-                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-user text-blue-600"></i>
+                    {% comment %}Аватар текущего пользователя: фото из контакта или иконка по умолчанию{% endcomment %}
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-blue-100">
+                        <template x-if="currentUser?.contact_info?.avatar_url">
+                            <img :src="currentUser?.contact_info?.avatar_url" alt="" class="w-full h-full object-cover">
+                        </template>
+                        <template x-if="!currentUser?.contact_info?.avatar_url">
+                            <i class="fas fa-user text-blue-600"></i>
+                        </template>
                     </div>
                     <div class="flex-1 min-w-0">
                         <h3 class="font-semibold text-gray-800 truncate" x-text="currentUser?.contact_info?.full_name || currentUser?.username || 'Пользователь'"></h3>
@@ -69,11 +75,17 @@
                         class="p-3 border-b border-gray-100 cursor-pointer transition-colors"
                     >
                         <div class="flex items-center gap-3">
+                            {% comment %}Аватар сотрудника в списке: фото или иконка (конверт при непрочитанных){% endcomment %}
                             <div 
                                 :class="employee.hasUnread && selectedEmployeeId !== employee?.id ? (employee.isBlinking ? 'bg-yellow-400 animate-pulse' : 'bg-yellow-300') : 'bg-blue-100'"
-                                class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
+                                class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-colors overflow-hidden"
                             >
-                                <i :class="employee.hasUnread && selectedEmployeeId !== employee?.id ? 'fas fa-envelope text-yellow-900' : 'fas fa-user text-blue-600'"></i>
+                                <template x-if="employee?.contact_info?.avatar_url && !(employee.hasUnread && selectedEmployeeId !== employee?.id)">
+                                    <img :src="employee?.contact_info?.avatar_url" alt="" class="w-full h-full object-cover">
+                                </template>
+                                <template x-if="!employee?.contact_info?.avatar_url || (employee.hasUnread && selectedEmployeeId !== employee?.id)">
+                                    <i :class="employee.hasUnread && selectedEmployeeId !== employee?.id ? 'fas fa-envelope text-yellow-900' : 'fas fa-user text-blue-600'"></i>
+                                </template>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <h3 
@@ -113,8 +125,14 @@
                 <!-- Заголовок чата -->
                 <div class="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <i class="fas fa-user text-blue-600"></i>
+                        {% comment %}Аватар выбранного сотрудника в заголовке чата{% endcomment %}
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden bg-blue-100">
+                            <template x-if="selectedEmployee?.contact_info?.avatar_url">
+                                <img :src="selectedEmployee?.contact_info?.avatar_url" alt="" class="w-full h-full object-cover">
+                            </template>
+                            <template x-if="!selectedEmployee?.contact_info?.avatar_url">
+                                <i class="fas fa-user text-blue-600"></i>
+                            </template>
                         </div>
                         <div>
                             <h3 class="font-semibold text-gray-800" x-text="selectedEmployee?.contact_info?.full_name || selectedEmployee?.username || 'Пользователь'"></h3>
@@ -151,11 +169,24 @@
                     <template x-for="(message, index) in (messages || [])" :key="`msg-${message?.id || index}-${message?.created_at || index}`">
                         <template x-if="message && message.id && (message.text || (message.attachments && message.attachments.length > 0))">
                             <div>
+                                {% comment %}Сообщение: аватар отправителя слева (входящие) или справа (исходящие){% endcomment %}
                                 <div 
-                                    :class="message.sender?.id === currentUser?.id ? 'flex justify-end' : 'flex justify-start'"
+                                    :class="(message.sender?.id === currentUser?.id ? 'flex justify-end' : 'flex justify-start') + ' gap-2 items-end'"
                                 >
+                                    {% comment %}Аватар: order-1 для входящих (слева), order-2 для исходящих (справа){% endcomment %}
                                     <div 
-                                        :class="message.sender?.id === currentUser?.id ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border border-gray-200'"
+                                        :class="message.sender?.id === currentUser?.id ? 'order-2' : 'order-1'"
+                                        class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-blue-100"
+                                    >
+                                        <template x-if="message.sender?.contact_info?.avatar_url">
+                                            <img :src="message.sender?.contact_info?.avatar_url" alt="" class="w-full h-full object-cover">
+                                        </template>
+                                        <template x-if="!message.sender?.contact_info?.avatar_url">
+                                            <i class="fas fa-user text-blue-600 text-xs"></i>
+                                        </template>
+                                    </div>
+                                    <div 
+                                        :class="(message.sender?.id === currentUser?.id ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border border-gray-200') + (message.sender?.id === currentUser?.id ? ' order-1' : ' order-2')"
                                         class="rounded-lg p-3 max-w-[70%] shadow-sm"
                                     >
                                         <p class="text-sm whitespace-pre-wrap" x-text="message.text || '(пустое сообщение)'"></p>

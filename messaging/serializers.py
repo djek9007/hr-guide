@@ -14,15 +14,21 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'first_name', 'last_name', 'email', 'contact_info']
     
     def get_contact_info(self, obj):
-        """Возвращает информацию о контакте пользователя"""
+        """Возвращает информацию о контакте пользователя, включая URL аватара"""
         try:
             contact = obj.contact
+            # URL аватара (обрезанный) для отображения в чате, списке сотрудников и т.д.
+            avatar_url = contact.get_cropped_avatar_url(size=(80, 80)) if hasattr(contact, 'get_cropped_avatar_url') else None
+            request = self.context.get('request')
+            if avatar_url and request:
+                avatar_url = request.build_absolute_uri(avatar_url)
             return {
                 'full_name': contact.full_name,
                 'position': contact.position.name_ru if contact.position else None,
                 'department': contact.department.name_ru if contact.department else None,
                 'division': contact.division.name_ru if contact.division else None,
                 'room': contact.room.number if contact.room else None,
+                'avatar_url': avatar_url,
             }
         except Contact.DoesNotExist:
             return None
