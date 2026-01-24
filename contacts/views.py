@@ -22,7 +22,7 @@ class LogoutViewGetAllowed(auth_views.LogoutView):
 def list_contacts(request):
     """
     Представление для отображения списка всех сотрудников с иерархией.
-    Показывает структуру: Департаменты -> Управления -> Сотрудники.
+    Показывает структуру: Департаменты/Комитеты -> Управления -> Сотрудники.
     Сортировка: сначала по display_order (если указан), потом по названию/ФИО.
     Оптимизация: Используем 3 запроса вместо N+1.
     """
@@ -172,8 +172,8 @@ def search_contacts(request):
     phone = request.GET.get('phone', '').strip()
     employment_type = request.GET.get('employment_type', '').strip()
 
-    # Базовый queryset с оптимизацией запросов
-    contacts = Contact.objects.select_related('room', 'position', 'department').all()
+    # Базовый queryset с оптимизацией запросов (division — для вывода управления или департамента/комитета при его отсутствии)
+    contacts = Contact.objects.select_related('room', 'position', 'department', 'division').all()
 
     # Применяем фильтры
     filters = Q()
