@@ -182,6 +182,7 @@
                                                 <template x-if="attachment">
                                                     <a 
                                                         :href="attachment.file_url || '#'"
+                                                        :download="attachment.original_filename || ''"
                                                         target="_blank"
                                                         class="block p-2 bg-white rounded border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm"
                                                     >
