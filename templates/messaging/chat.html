@@ -5,10 +5,14 @@
 {% block title %}{% trans "Чат" %} - {% trans "Справочник Министерства культуры и информации Республики Казахстан" %}{% endblock %}
 
 {% block extra_js %}
+{# Cropper.js для обрезки аватарки при загрузке #}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 <script src="{% static 'vendor/alpine.min.js' %}" defer></script>
 {% endblock %}
 
 {% block content %}
+<style>[x-cloak] { display: none !important; }</style>
 <script id="current-user-data" type="application/json">{{ current_user|safe }}</script>
 <div x-data="chatApp()" x-init="init()" class="h-[calc(100vh-200px)] flex overflow-hidden">
     <!-- Левая панель со списком сотрудников -->
@@ -17,15 +21,20 @@
         <div class="p-4 border-b border-gray-200 bg-gray-50">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3 flex-1 min-w-0">
-                    {% comment %}Аватар текущего пользователя: фото из контакта или иконка по умолчанию{% endcomment %}
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-blue-100">
+                    {% comment %}Аватар текущего пользователя: клик открывает окно смены фото и кропа{% endcomment %}
+                    <button
+                        type="button"
+                        @click="openAvatarModal()"
+                        class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-blue-100 cursor-pointer hover:ring-2 hover:ring-blue-400 transition-shadow border-0 p-0"
+                        title="{% trans 'Изменить фото' %}"
+                    >
                         <template x-if="currentUser?.contact_info?.avatar_url">
                             <img :src="currentUser?.contact_info?.avatar_url" alt="" class="w-full h-full object-cover">
                         </template>
                         <template x-if="!currentUser?.contact_info?.avatar_url">
                             <i class="fas fa-user text-blue-600"></i>
                         </template>
-                    </div>
+                    </button>
                     <div class="flex-1 min-w-0">
                         <h3 class="font-semibold text-gray-800 truncate" x-text="currentUser?.contact_info?.full_name || currentUser?.username || 'Пользователь'"></h3>
                         <p class="text-xs text-gray-500 truncate" x-text="currentUser?.contact_info?.position || ''"></p>
@@ -299,6 +308,86 @@
             </div>
         </template>
     </div>
+
+    <!-- Модальное окно смены аватарки с кропом -->
+    <div
+        x-show="showAvatarModal"
+        x-cloak
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @keydown.escape.window="closeAvatarModal()"
+    >
+        <div
+            class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 max-h-[90vh] flex flex-col"
+            @click.stop
+        >
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="font-semibold text-gray-800">{% trans "Изменить фото" %}</h3>
+                <button type="button" @click="closeAvatarModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4 flex-1 overflow-auto">
+                <input
+                    type="file"
+                    x-ref="avatarFileInput"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    @change="onAvatarFileSelect($event)"
+                    class="hidden"
+                >
+                <template x-if="!avatarObjectUrl">
+                    <button
+                        type="button"
+                        @click="$refs.avatarFileInput?.click()"
+                        class="w-full py-8 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-500 hover:text-blue-600 transition-colors"
+                    >
+                        <i class="fas fa-cloud-upload-alt text-3xl mb-2 block"></i>
+                        {% trans "Выберите изображение" %}
+                    </button>
+                </template>
+                <template x-if="avatarObjectUrl">
+                    <div class="max-h-80 bg-gray-100 rounded overflow-hidden">
+                        <img
+                            x-ref="avatarCropperImg"
+                            :src="avatarObjectUrl"
+                            alt=""
+                            class="max-w-full block"
+                            style="max-height: 320px"
+                        >
+                    </div>
+                </template>
+                <p class="text-xs text-gray-500 mt-2">{% trans "Перетащите рамку для выбора области. Рекомендуется квадратное фото." %}</p>
+                <template x-if="avatarError">
+                    <p class="mt-2 text-sm text-red-600" x-text="avatarError"></p>
+                </template>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end gap-2">
+                <button
+                    type="button"
+                    @click="closeAvatarModal()"
+                    class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                >
+                    {% trans "Отмена" %}
+                </button>
+                <button
+                    type="button"
+                    @click="saveAvatar()"
+                    :disabled="!avatarFile || avatarUploading"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                    <template x-if="avatarUploading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </template>
+                    {% trans "Сохранить" %}
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -325,6 +414,13 @@ function chatApp() {
         blinkingChats: new Set(), // Множество ID чатов, которые должны моргать
         hasOlderMessages: false, // Есть ли более старые сообщения для подгрузки (ленивая загрузка)
         loadingOlder: false, // Идёт загрузка более старых сообщений при прокрутке вверх
+        // Модальное окно смены аватарки с кропом
+        showAvatarModal: false,
+        avatarFile: null,
+        avatarObjectUrl: null,
+        avatarCropper: null,
+        avatarUploading: false,
+        avatarError: null,
         
         // Метод для проверки, должен ли чат моргать
         isChatBlinking(chatId) {
@@ -1650,6 +1746,104 @@ function chatApp() {
             }
             return '';
         },
+
+        // Открытие модального окна смены аватарки
+        openAvatarModal() {
+            this.showAvatarModal = true;
+            this.avatarFile = null;
+            this.avatarError = null;
+            if (this.avatarObjectUrl) {
+                URL.revokeObjectURL(this.avatarObjectUrl);
+                this.avatarObjectUrl = null;
+            }
+            if (this.avatarCropper) {
+                this.avatarCropper.destroy();
+                this.avatarCropper = null;
+            }
+            this.$nextTick(() => { if (this.$refs.avatarFileInput) this.$refs.avatarFileInput.value = ''; });
+        },
+
+        // Закрытие модального окна смены аватарки
+        closeAvatarModal() {
+            this.showAvatarModal = false;
+            this.avatarFile = null;
+            this.avatarError = null;
+            if (this.avatarObjectUrl) {
+                URL.revokeObjectURL(this.avatarObjectUrl);
+                this.avatarObjectUrl = null;
+            }
+            if (this.avatarCropper) {
+                this.avatarCropper.destroy();
+                this.avatarCropper = null;
+            }
+        },
+
+        // Выбор файла для аватарки: показ превью и инициализация Cropper
+        onAvatarFileSelect(event) {
+            const input = event.target;
+            const file = input?.files?.[0];
+            if (!file || !file.type.startsWith('image/')) {
+                this.avatarError = '{% trans "Выберите файл изображения (JPG, PNG, GIF или WebP)." %}';
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                this.avatarError = '{% trans "Размер файла не должен превышать 5 МБ." %}';
+                return;
+            }
+            this.avatarError = null;
+            if (this.avatarObjectUrl) URL.revokeObjectURL(this.avatarObjectUrl);
+            if (this.avatarCropper) {
+                this.avatarCropper.destroy();
+                this.avatarCropper = null;
+            }
+            this.avatarFile = file;
+            this.avatarObjectUrl = URL.createObjectURL(file);
+            this.$nextTick(() => {
+                const img = this.$refs.avatarCropperImg;
+                if (!img || !window.Cropper) return;
+                this.avatarCropper = new Cropper(img, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: 'move'
+                });
+            });
+        },
+
+        // Отправка аватарки и координат кропа на сервер
+        async saveAvatar() {
+            if (!this.avatarFile) return;
+            if (!this.avatarCropper) {
+                this.avatarError = '{% trans "Дождитесь загрузки изображения." %}';
+                return;
+            }
+            this.avatarUploading = true;
+            this.avatarError = null;
+            try {
+                const d = this.avatarCropper.getData(true);
+                const crop = [Math.round(d.x), Math.round(d.y), Math.round(d.x + d.width), Math.round(d.y + d.height)].join(',');
+                const formData = new FormData();
+                formData.append('avatar', this.avatarFile);
+                formData.append('crop', crop);
+                const response = await fetch('/api/users/me/avatar/', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include',
+                    headers: { 'X-CSRFToken': this.getCsrfToken() }
+                });
+                const data = await response.json().catch(() => ({}));
+                if (response.ok && data.avatar_url) {
+                    this.currentUser = { ...this.currentUser, contact_info: { ...(this.currentUser?.contact_info || {}), avatar_url: data.avatar_url } };
+                    this.closeAvatarModal();
+                } else {
+                    this.avatarError = data.error || '{% trans "Ошибка загрузки. Попробуйте снова." %}';
+                }
+            } catch (e) {
+                this.avatarError = '{% trans "Ошибка загрузки. Попробуйте снова." %}';
+            } finally {
+                this.avatarUploading = false;
+            }
+        },
+
 
         startMessagePolling() {
             // Периодически загружаем сообщения, если WebSocket не работает

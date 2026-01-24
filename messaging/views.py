@@ -328,6 +328,70 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['post'], url_path='me/avatar')
+    def update_avatar(self, request):
+        """
+        Загрузка и обновление аватарки текущего сотрудника.
+        Принимает: avatar (файл изображения), crop (строка "x1,y1,x2,y2" — опционально).
+        Сотрудник должен иметь связанный Contact.
+        """
+        # Проверяем, что у пользователя есть контакт (он сотрудник)
+        if not hasattr(request.user, 'contact') or request.user.contact is None:
+            return Response(
+                {'error': 'Только сотрудники с записью в справочнике могут менять аватарку.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        contact = request.user.contact
+
+        # Проверяем наличие файла
+        avatar_file = request.FILES.get('avatar')
+        if not avatar_file:
+            return Response(
+                {'error': 'Выберите изображение для загрузки.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Проверка типа файла (только изображения)
+        allowed_types = ('image/jpeg', 'image/png', 'image/gif', 'image/webp')
+        if avatar_file.content_type and avatar_file.content_type not in allowed_types:
+            return Response(
+                {'error': 'Допустимы только форматы: JPG, PNG, GIF, WebP.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Ограничение размера (5 МБ)
+        if avatar_file.size > 5 * 1024 * 1024:
+            return Response(
+                {'error': 'Размер файла не должен превышать 5 МБ.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        crop = (request.POST.get('crop') or '').strip()
+
+        try:
+            # Удаляем старый файл аватарки с диска (если был)
+            if contact.avatar:
+                contact.avatar.delete(save=False)
+            # Сохраняем новое изображение
+            contact.avatar = avatar_file
+            # Записываем координаты кропа в формате x1,y1,x2,y2 (лево, верх, право, низ)
+            if crop:
+                contact.avatar_cropping = crop
+            else:
+                contact.avatar_cropping = ''
+            contact.save()
+        except Exception as e:
+            return Response(
+                {'error': f'Ошибка при сохранении: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        # Формируем абсолютный URL новой аватарки для ответа
+        avatar_url = contact.get_cropped_avatar_url(size=(80, 80))
+        if avatar_url and request:
+            avatar_url = request.build_absolute_uri(avatar_url)
+        return Response({'avatar_url': avatar_url})
+
 
 @login_required
 def chat_view(request):
