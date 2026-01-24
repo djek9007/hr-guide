@@ -33,25 +33,25 @@
                     </span>
                 </a>
                 
-                <!-- Навигация -->
-                <nav class="hidden md:flex items-center space-x-2 ml-8">
+                <!-- Навигация (десктоп): flex-wrap — при 5+ пунктах переносятся на новую строку, без переполнения -->
+                <nav class="hidden md:flex md:flex-wrap md:items-center md:gap-2 ml-4 lg:ml-8" aria-label="{% trans 'Основное меню' %}">
                     <a 
                         href="{% url 'contacts:list' %}" 
-                        class="px-4 py-2 rounded-lg text-sm font-medium transition-all {% if request.resolver_match.url_name == 'list' %}bg-white bg-opacity-20 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-10{% endif %}"
+                        class="px-3 py-2 rounded-lg text-sm font-medium transition-all {% if request.resolver_match.url_name == 'list' %}bg-white bg-opacity-20 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-10{% endif %}"
                     >
                         <i class="fas fa-list mr-1"></i>
                         {% trans "Список" %}
                     </a>
                     <a 
                         href="{% url 'contacts:search' %}" 
-                        class="px-4 py-2 rounded-lg text-sm font-medium transition-all {% if request.resolver_match.url_name == 'search' %}bg-white bg-opacity-20 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-10{% endif %}"
+                        class="px-3 py-2 rounded-lg text-sm font-medium transition-all {% if request.resolver_match.url_name == 'search' %}bg-white bg-opacity-20 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-10{% endif %}"
                     >
                         <i class="fas fa-search mr-1"></i>
                         {% trans "Поиск" %}
                     </a>
                     <a 
                         href="{% url 'contacts:vacancies' %}" 
-                        class="px-4 py-2 rounded-lg text-sm font-medium transition-all {% if request.resolver_match.url_name == 'vacancies' %}bg-white bg-opacity-20 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-10{% endif %}"
+                        class="px-3 py-2 rounded-lg text-sm font-medium transition-all {% if request.resolver_match.url_name == 'vacancies' %}bg-white bg-opacity-20 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-10{% endif %}"
                     >
                         <i class="fas fa-briefcase mr-1"></i>
                         {% trans "Вакансии" %}
@@ -59,16 +59,32 @@
                     <a 
                         href="{% url 'messaging:chat' %}" 
                         target="_blank"
-                        class="px-4 py-2 rounded-lg text-sm font-medium transition-all {% if request.resolver_match.app_name == 'messaging' %}bg-white bg-opacity-20 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-10{% endif %}"
+                        class="px-3 py-2 rounded-lg text-sm font-medium transition-all {% if request.resolver_match.app_name == 'messaging' %}bg-white bg-opacity-20 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-10{% endif %}"
                     >
                         <i class="fas fa-comments mr-1"></i>
                         {% trans "Чат" %}
                     </a>
                 </nav>
+
+                <!-- Кнопка «Меню» для экранов < md: все пункты уходят в выпадающую панель -->
+                <button
+                    type="button"
+                    id="nav-toggle"
+                    class="md:hidden p-2 rounded-lg text-blue-100 hover:bg-white hover:bg-opacity-10 transition-colors"
+                    aria-expanded="false"
+                    aria-controls="nav-mobile"
+                    aria-label="{% trans 'Открыть меню' %}"
+                >
+                    <i class="fas fa-bars text-lg" id="nav-toggle-icon" aria-hidden="true"></i>
+                </button>
                 
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
                     {% comment %}Вход/Выход в шапке — единая точка авторизации на всех страницах{% endcomment %}
                     {% if user.is_authenticated %}
+                    <span class="flex items-center gap-1.5 text-blue-100 text-sm min-w-0" title="{% trans 'Авторизован' %}">
+                        <i class="fas fa-user flex-shrink-0"></i>
+                        <span class="truncate max-w-[140px] sm:max-w-[200px] md:max-w-none">{{ user_display_name }}</span>
+                    </span>
                     <form method="post" action="{% url 'logout' %}" class="inline">
                         {% csrf_token %}
                         <button
@@ -116,6 +132,22 @@
                     </form>
                 </div>
             </div>
+
+            <!-- Мобильное меню: раскрывается по клику на гамбургер; на десктопе (md+) всегда скрыто -->
+            <div id="nav-mobile" class="hidden flex flex-col md:hidden mt-2 pt-2 border-t border-white/20" role="navigation" aria-label="{% trans 'Меню' %}">
+                <a href="{% url 'contacts:list' %}" class="block px-4 py-3 rounded-lg text-blue-100 hover:bg-white hover:bg-opacity-10 {% if request.resolver_match.url_name == 'list' %}bg-white bg-opacity-20 font-semibold{% endif %}">
+                    <i class="fas fa-list mr-2"></i>{% trans "Список" %}
+                </a>
+                <a href="{% url 'contacts:search' %}" class="block px-4 py-3 rounded-lg text-blue-100 hover:bg-white hover:bg-opacity-10 {% if request.resolver_match.url_name == 'search' %}bg-white bg-opacity-20 font-semibold{% endif %}">
+                    <i class="fas fa-search mr-2"></i>{% trans "Поиск" %}
+                </a>
+                <a href="{% url 'contacts:vacancies' %}" class="block px-4 py-3 rounded-lg text-blue-100 hover:bg-white hover:bg-opacity-10 {% if request.resolver_match.url_name == 'vacancies' %}bg-white bg-opacity-20 font-semibold{% endif %}">
+                    <i class="fas fa-briefcase mr-2"></i>{% trans "Вакансии" %}
+                </a>
+                <a href="{% url 'messaging:chat' %}" target="_blank" class="block px-4 py-3 rounded-lg text-blue-100 hover:bg-white hover:bg-opacity-10 {% if request.resolver_match.app_name == 'messaging' %}bg-white bg-opacity-20 font-semibold{% endif %}">
+                    <i class="fas fa-comments mr-2"></i>{% trans "Чат" %}
+                </a>
+            </div>
         </div>
     </header>
     
@@ -158,16 +190,27 @@
     {% endblock %}
     
     <script>
-        // Обновление Select2 после переключения языка
-        // При переключении языка страница перезагружается, но Select2 может не обновиться
-        // Поэтому мы принудительно перезагружаем страницу после переключения языка
         document.addEventListener('DOMContentLoaded', function() {
-            // Находим форму переключения языка
-            const langForm = document.querySelector('form[action*="set_language"]');
+            // Гамбургер-меню: открытие/закрытие мобильной навигации
+            var navToggle = document.getElementById('nav-toggle');
+            var navMobile = document.getElementById('nav-mobile');
+            var navIcon = document.getElementById('nav-toggle-icon');
+            if (navToggle && navMobile && navIcon) {
+                navToggle.addEventListener('click', function() {
+                    var isOpen = !navMobile.classList.contains('hidden');
+                    navMobile.classList.toggle('hidden');
+                    navToggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+                    navToggle.setAttribute('aria-label', isOpen ? '{% trans "Открыть меню" %}' : '{% trans "Закрыть меню" %}');
+                    navIcon.classList.toggle('fa-bars', isOpen);
+                    navIcon.classList.toggle('fa-times', !isOpen);
+                });
+            }
+
+            // Обновление Select2 после переключения языка
+            var langForm = document.querySelector('form[action*="set_language"]');
             if (langForm) {
-                langForm.addEventListener('submit', function(e) {
+                langForm.addEventListener('submit', function() {
                     // После отправки формы переключения языка страница перезагрузится автоматически
-                    // Select2 будет инициализирован заново с правильными данными
                 });
             }
         });

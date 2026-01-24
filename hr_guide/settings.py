@@ -78,6 +78,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',  # Для локализации
+                'contacts.context_processors.user_display_name',  # ФИО пользователя в шапке
             ],
         },
     },
