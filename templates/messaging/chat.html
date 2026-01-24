@@ -5,9 +5,9 @@
 {% block title %}{% trans "Чат" %} - {% trans "Справочник Министерства культуры и информации Республики Казахстан" %}{% endblock %}
 
 {% block extra_js %}
-{# Cropper.js для обрезки аватарки при загрузке #}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+{# Cropper.js для обрезки аватарки (локально в static/vendor/cropper/) #}
+<link rel="stylesheet" href="{% static 'vendor/cropper/cropper.min.css' %}">
+<script src="{% static 'vendor/cropper/cropper.min.js' %}"></script>
 <script src="{% static 'vendor/alpine.min.js' %}" defer></script>
 {% endblock %}
 
@@ -21,23 +21,29 @@
         <div class="p-4 border-b border-gray-200 bg-gray-50">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3 flex-1 min-w-0">
-                    {% comment %}Аватар текущего пользователя: клик открывает окно смены фото и кропа{% endcomment %}
-                    <button
-                        type="button"
-                        @click="openAvatarModal()"
-                        class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-blue-100 cursor-pointer hover:ring-2 hover:ring-blue-400 transition-shadow border-0 p-0"
-                        title="{% trans 'Изменить фото' %}"
-                    >
-                        <template x-if="currentUser?.contact_info?.avatar_url">
-                            <img :src="currentUser?.contact_info?.avatar_url" alt="" class="w-full h-full object-cover">
-                        </template>
-                        <template x-if="!currentUser?.contact_info?.avatar_url">
-                            <i class="fas fa-user text-blue-600"></i>
-                        </template>
-                    </button>
+                    {% comment %}Аватар текущего пользователя: клик или "Изменить фото" открывают окно смены фото и кропа{% endcomment %}
+                    <div class="relative flex-shrink-0">
+                        <button
+                            type="button"
+                            @click="openAvatarModal()"
+                            class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden bg-blue-100 cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all border-0 p-0"
+                            title="{% trans 'Изменить фото' %}"
+                        >
+                            <template x-if="currentUser?.contact_info?.avatar_url">
+                                <img :src="currentUser?.contact_info?.avatar_url" alt="" class="w-full h-full object-cover">
+                            </template>
+                            <template x-if="!currentUser?.contact_info?.avatar_url">
+                                <i class="fas fa-user text-blue-600"></i>
+                            </template>
+                        </button>
+                        <button type="button" @click="openAvatarModal()" class="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center cursor-pointer border-0 p-0 hover:bg-blue-700" title="{% trans 'Изменить фото' %}">
+                            <i class="fas fa-camera text-white text-[8px]"></i>
+                        </button>
+                    </div>
                     <div class="flex-1 min-w-0">
                         <h3 class="font-semibold text-gray-800 truncate" x-text="currentUser?.contact_info?.full_name || currentUser?.username || 'Пользователь'"></h3>
                         <p class="text-xs text-gray-500 truncate" x-text="currentUser?.contact_info?.position || ''"></p>
+                        <button type="button" @click="openAvatarModal()" class="text-xs text-blue-600 hover:underline mt-0.5">{% trans "Изменить фото" %}</button>
                     </div>
                 </div>
                 {% comment %}Django 5.x LogoutView принимает только POST — используем форму вместо ссылки GET{% endcomment %}
