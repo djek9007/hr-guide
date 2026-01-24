@@ -149,8 +149,16 @@
                 <!-- Сообщения -->
                 <div 
                     x-ref="messagesContainer"
+                    @scroll="onMessagesScroll()"
                     class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50"
                 >
+                    <!-- Индикатор загрузки старых сообщений при прокрутке вверх (ленивая загрузка) -->
+                    <template x-if="loadingOlder">
+                        <div class="flex justify-center py-3 text-gray-500 text-sm">
+                            <i class="fas fa-spinner fa-spin mr-2"></i>
+                            <span>{% trans "Загрузка старых сообщений..." %}</span>
+                        </div>
+                    </template>
                     <!-- Отладочная информация (можно удалить позже) -->
                     <template x-if="!messages || messages.length === 0">
                         <div class="text-center text-gray-500 py-8">
@@ -315,6 +323,8 @@ function chatApp() {
         messagePollInterval: null, // Интервал для периодической загрузки сообщений, если WebSocket не работает
         wsConnected: false, // Флаг подключения WebSocket
         blinkingChats: new Set(), // Множество ID чатов, которые должны моргать
+        hasOlderMessages: false, // Есть ли более старые сообщения для подгрузки (ленивая загрузка)
+        loadingOlder: false, // Идёт загрузка более старых сообщений при прокрутке вверх
         
         // Метод для проверки, должен ли чат моргать
         isChatBlinking(chatId) {
@@ -609,8 +619,10 @@ function chatApp() {
                 this.messagePollInterval = null;
             }
             
-            // Очищаем текущие сообщения перед загрузкой новых
+            // Очищаем текущие сообщения и флаги ленивой загрузки перед загрузкой новых
             this.messages = [];
+            this.hasOlderMessages = false;
+            this.loadingOlder = false;
             console.log('Сообщения очищены, начинаем загрузку...');
             
             // Загружаем сообщения (все, включая новые)
@@ -691,57 +703,22 @@ function chatApp() {
                 
                 if (response.ok) {
                     const data = await response.json();
-                    // Фильтруем null/undefined значения и гарантируем, что это массив
+                    // API возвращает { results: [...], has_older: bool } (ленивая загрузка)
                     const messagesArray = (Array.isArray(data) ? data : (data.results || [])).filter(msg => msg != null && msg.id);
-                    console.log(`Загружено сообщений для чата ${chatId}:`, messagesArray.length);
-                    console.log('📦 Структура ответа API:', {
-                        is_array: Array.isArray(data),
-                        has_results: !!(data.results),
-                        results_count: data.results?.length || 0,
-                        total_count: data.count || messagesArray.length,
-                        has_next: !!data.next,
-                        has_previous: !!data.previous
-                    });
+                    this.hasOlderMessages = !!(data.has_older);
+                    this.loadingOlder = false;
+                    console.log(`Загружено сообщений для чата ${chatId}: ${messagesArray.length}, has_older: ${this.hasOlderMessages}`);
                     
-                    // Логируем информацию о сообщениях
-                    if (messagesArray.length > 0) {
-                        console.log('📋 Первое сообщение:', {
-                            id: messagesArray[0].id,
-                            sender: messagesArray[0].sender?.username || messagesArray[0].sender?.id,
-                            sender_id: messagesArray[0].sender?.id,
-                            text: messagesArray[0].text?.substring(0, 30),
-                            created_at: messagesArray[0].created_at
-                        });
-                        console.log('📋 Последнее сообщение:', {
-                            id: messagesArray[messagesArray.length - 1].id,
-                            sender: messagesArray[messagesArray.length - 1].sender?.username || messagesArray[messagesArray.length - 1].sender?.id,
-                            sender_id: messagesArray[messagesArray.length - 1].sender?.id,
-                            text: messagesArray[messagesArray.length - 1].text?.substring(0, 30),
-                            created_at: messagesArray[messagesArray.length - 1].created_at
-                        });
-                        
-                        // Подсчитываем сообщения от текущего пользователя и от других
-                        const fromCurrentUser = messagesArray.filter(m => m.sender?.id === this.currentUser?.id).length;
-                        const fromOthers = messagesArray.length - fromCurrentUser;
-                        console.log(`📊 Статистика: от текущего пользователя (ID: ${this.currentUser?.id}): ${fromCurrentUser}, от других: ${fromOthers}`);
-                        
-                        // Показываем все отправители
-                        const senders = [...new Set(messagesArray.map(m => m.sender?.id).filter(id => id))];
-                        console.log('👥 Уникальные отправители в чате:', senders);
-                    } else {
-                        console.warn('⚠️ Нет сообщений в ответе API для чата', chatId);
-                    }
-                    
-                    // Сортируем сообщения по дате создания (старые первыми)
+                    // Сортируем по дате (старые первыми); API уже в хронологическом порядке, сортировка для надёжности
                     messagesArray.sort((a, b) => {
                         const dateA = new Date(a.created_at || 0);
                         const dateB = new Date(b.created_at || 0);
                         return dateA - dateB;
                     });
                     
-                    // Заменяем все сообщения новыми (не добавляем, а заменяем)
+                    // Заменяем все сообщения (первая загрузка или переключение чата)
                     this.messages = messagesArray;
-                    console.log(`✅ Сообщения установлены в UI для чата ${chatId}. Всего: ${this.messages.length}`);
+                    console.log(`✅ Сообщения в UI: ${this.messages.length}`);
                     
                     // Проверяем, что сообщения действительно установлены
                     if (this.messages.length === 0) {
@@ -805,6 +782,51 @@ function chatApp() {
                 }
                 // В случае ошибки не очищаем сообщения, оставляем существующие
             }
+        },
+
+        /**
+         * Подгрузка более старых сообщений при прокрутке вверх (ленивая загрузка).
+         * Добавляет порцию в начало списка и сохраняет позицию прокрутки.
+         */
+        async loadOlderMessages() {
+            if (this.loadingOlder || !this.hasOlderMessages || !this.currentChatId) return;
+            const oldest = this.messages[0];
+            if (!oldest || !oldest.id) return;
+            const chatId = this.currentChatId;
+            this.loadingOlder = true;
+            const container = this.$refs.messagesContainer;
+            const oldScrollHeight = container ? container.scrollHeight : 0;
+            const oldScrollTop = container ? container.scrollTop : 0;
+            try {
+                const url = `/api/messages/?chat_id=${chatId}&before_id=${oldest.id}`;
+                const response = await fetch(url, { credentials: 'include' });
+                if (!response.ok) return;
+                const data = await response.json();
+                const older = (data.results || []).filter(m => m != null && m.id);
+                this.hasOlderMessages = !!(data.has_older);
+                // Не добавляем, если за время запроса пользователь переключил чат
+                if (this.currentChatId !== chatId) return;
+                if (older.length > 0) {
+                    older.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+                    this.messages = [...older, ...this.messages];
+                    this.$nextTick(() => {
+                        if (container && this.currentChatId === chatId) {
+                            const newScrollHeight = container.scrollHeight;
+                            const delta = newScrollHeight - oldScrollHeight;
+                            container.scrollTop = oldScrollTop + delta;
+                        }
+                    });
+                }
+            } finally {
+                this.loadingOlder = false;
+            }
+        },
+
+        /** При прокрутке вверх — подгружать старые сообщения (ленивая загрузка). */
+        onMessagesScroll() {
+            const container = this.$refs.messagesContainer;
+            if (!container || this.loadingOlder || !this.hasOlderMessages) return;
+            if (container.scrollTop < 150) this.loadOlderMessages();
         },
 
         async sendMessage() {

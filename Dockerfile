@@ -4,13 +4,14 @@ FROM python:3.11-slim
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Устанавливаем системные зависимости
+# Устанавливаем системные зависимости (gettext — для makemessages/compilemessages)
 RUN apt-get update && apt-get install -y \
     postgresql-client \
     gcc \
     python3-dev \
     libpq-dev \
     curl \
+    gettext \
     && rm -rf /var/lib/apt/lists/*
 
 # Копируем requirements.txt и устанавливаем зависимости

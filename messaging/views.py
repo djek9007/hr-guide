@@ -114,10 +114,49 @@ class ChatViewSet(viewsets.ModelViewSet):
 class MessageViewSet(viewsets.ModelViewSet):
     """
     ViewSet для работы с сообщениями.
+    Ленивая загрузка: при GET list — последние 50 сообщений; при ?before_id=ID — более старые 50.
     """
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
-    pagination_class = None  # Отключаем пагинацию для сообщений - нужно видеть все сообщения чата
+    pagination_class = None  # Используем кастомную пагинацию в list()
+    
+    # Размер страницы для ленивой загрузки (сообщений за один запрос)
+    MESSAGES_PAGE_SIZE = 50
+
+    def list(self, request, *args, **kwargs):
+        """
+        Список сообщений чата с ленивой загрузкой.
+        - GET /api/messages/?chat_id=X — последние MESSAGES_PAGE_SIZE сообщений (хронологический порядок).
+        - GET /api/messages/?chat_id=X&before_id=ID — более старые 50 сообщений (id < before_id).
+        Ответ: { "results": [...], "has_older": bool }.
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+        chat_id = request.query_params.get('chat_id')
+        if not chat_id:
+            return Response({'results': [], 'has_older': False})
+        
+        before_id = request.query_params.get('before_id')
+        limit = self.MESSAGES_PAGE_SIZE
+        
+        if before_id:
+            try:
+                before_id = int(before_id)
+            except (TypeError, ValueError):
+                return Response({'error': 'Некорректный before_id'}, status=status.HTTP_400_BAD_REQUEST)
+            # Более старые сообщения: id < before_id, выбираем limit+1 для проверки has_older
+            msgs = list(queryset.filter(id__lt=before_id).order_by('-id')[:limit + 1])
+        else:
+            # Первая загрузка: последние (новейшие) limit сообщений
+            msgs = list(queryset.order_by('-id')[:limit + 1])
+        
+        has_older = len(msgs) > limit
+        if has_older:
+            msgs = msgs[:limit]
+        # msgs: от новых к старым; для отображения (хронология) — реверс
+        msgs = list(reversed(msgs))
+        
+        serializer = self.get_serializer(msgs, many=True)
+        return Response({'results': serializer.data, 'has_older': has_older})
     
     def get_queryset(self):
         """
