@@ -6,6 +6,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth.models import User
 from django.db.models import Q, Max
 from .models import Chat, Message, FileAttachment
@@ -237,14 +238,27 @@ class MessageViewSet(viewsets.ModelViewSet):
         return context
 
 
+class UserListPagination(PageNumberPagination):
+    """
+    Пагинация для списка пользователей в чате.
+    Позволяет запрашивать больше 20 записей через page_size для полного списка
+    и серверного поиска по ФИО.
+    """
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 2000
+
+
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet для получения списка пользователей.
     Возвращает только сотрудников (пользователей с Contact).
+    Поддерживает ?search= для поиска по ФИО, username, email по всей БД.
     """
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
-    
+    pagination_class = UserListPagination
+
     def get_queryset(self):
         """
         Возвращает всех активных пользователей, у которых есть Contact.

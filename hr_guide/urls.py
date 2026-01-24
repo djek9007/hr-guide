@@ -2,7 +2,6 @@
 URL configuration for hr_guide project.
 """
 from django.contrib import admin
-from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
@@ -12,9 +11,9 @@ from contacts import views as contacts_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    # Авторизация
+    # Авторизация (LogoutViewGetAllowed: поддержка GET для /logout/ — закладки, адресная строка, «Обновить»)
     path('login/', contacts_views.login_view, name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('logout/', contacts_views.LogoutViewGetAllowed.as_view(), name='logout'),
     
     # Переключение языка
     path('i18n/setlang/', set_language, name='set_language'),

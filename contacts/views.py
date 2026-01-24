@@ -4,9 +4,19 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import views as auth_views
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from .models import Contact, Department, Division, Position, Room, Vacancy
+
+
+# Кастомный LogoutView: разрешаем GET для /logout/ (переход по адресу, закладка, «Обновить» на странице ошибки).
+# Django 5.x по умолчанию принимает только POST; GET делегируем в post().
+class LogoutViewGetAllowed(auth_views.LogoutView):
+    http_method_names = ['get', 'head', 'post', 'options']
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
 
 
 def list_contacts(request):

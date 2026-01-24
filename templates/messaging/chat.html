@@ -25,20 +25,24 @@
                         <p class="text-xs text-gray-500 truncate" x-text="currentUser?.contact_info?.position || ''"></p>
                     </div>
                 </div>
-                <a 
-                    href="{% url 'logout' %}"
-                    class="ml-2 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-1.5"
-                    title="{% trans 'Выход' %}"
-                >
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span class="hidden sm:inline">{% trans "Выход" %}</span>
-                </a>
+                {% comment %}Django 5.x LogoutView принимает только POST — используем форму вместо ссылки GET{% endcomment %}
+                <form method="post" action="{% url 'logout' %}" class="inline">
+                    {% csrf_token %}
+                    <button 
+                        type="submit"
+                        class="ml-2 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-1.5 border-0 bg-transparent cursor-pointer"
+                        title="{% trans 'Выход' %}"
+                    >
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="hidden sm:inline">{% trans "Выход" %}</span>
+                    </button>
+                </form>
             </div>
-            <!-- Поиск сотрудников -->
+            <!-- Поиск сотрудников (серверный поиск по ФИО по всей БД при вводе) -->
             <input 
                 type="text"
                 x-model="searchQuery"
-                @input="filterEmployees()"
+                @input="onSearchInput()"
                 placeholder="{% trans 'Поиск сотрудников...' %}"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
@@ -271,6 +275,7 @@ function chatApp() {
         messageText: '',
         selectedFiles: [],
         searchQuery: '',
+        searchDebounceTimer: null, // Таймер для debounce поиска по ФИО (серверный поиск)
         currentUser: null,
         ws: null,
         isTyping: false,
@@ -334,21 +339,29 @@ function chatApp() {
             }
         },
 
-        async loadEmployees() {
+        /**
+         * Загружает сотрудников с сервера.
+         * @param {Object} opts - { search?: string, pageSize?: number }
+         *   - search: поиск по ФИО по всей БД (API /api/users/?search=)
+         *   - pageSize: при отсутствии search — сколько записей запросить (по умолчанию 500, чтобы не лимитироваться 20)
+         */
+        async loadEmployees(opts = {}) {
             try {
-                // Загружаем всех сотрудников (пользователей с Contact)
-                const response = await fetch('/api/users/', {
-                    credentials: 'include'
-                });
+                const params = new URLSearchParams();
+                if (opts.search && String(opts.search).trim()) {
+                    params.set('search', String(opts.search).trim());
+                    params.set('page_size', '200'); // при поиске — до 200 совпадений
+                } else {
+                    params.set('page_size', String(opts.pageSize || 500)); // иначе до 500 для списка (больше чем 20 по умолчанию)
+                }
+                const url = '/api/users/?' + params.toString();
+                const response = await fetch(url, { credentials: 'include' });
                 if (response.ok) {
                     const data = await response.json();
-                    // Обрабатываем пагинацию и фильтруем null значения
                     const allEmployees = Array.isArray(data) ? data : (data.results || []);
-                    // Фильтруем текущего пользователя из списка и null значения
                     this.employees = allEmployees.filter(emp => emp != null && emp.id !== this.currentUser?.id);
                     this.filteredEmployees = this.employees;
-                    console.log('👥 Загружено сотрудников:', this.employees.length, 'Текущий пользователь:', this.currentUser?.id);
-                    console.log('👥 ID всех сотрудников:', this.employees.map(e => e.id));
+                    console.log('👥 Загружено сотрудников:', this.employees.length, opts.search ? `(поиск: "${opts.search}")` : '(полный список)');
                 } else {
                     this.employees = [];
                     this.filteredEmployees = [];
@@ -359,6 +372,21 @@ function chatApp() {
                 this.employees = [];
                 this.filteredEmployees = [];
             }
+        },
+
+        /** Debounce: при вводе в поиск — серверный поиск по ФИО по всей БД; при очистке — перезагрузка списка. */
+        onSearchInput() {
+            if (this.searchDebounceTimer) clearTimeout(this.searchDebounceTimer);
+            this.searchDebounceTimer = setTimeout(async () => {
+                this.searchDebounceTimer = null;
+                const q = (this.searchQuery || '').trim();
+                if (q) {
+                    await this.loadEmployees({ search: q });
+                } else {
+                    await this.loadEmployees({ pageSize: 500 });
+                }
+                this.filterEmployees();
+            }, 300);
         },
 
         async loadChats() {
@@ -394,43 +422,33 @@ function chatApp() {
             // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Добавляем сотрудников из чатов, которых нет в списке employees
             // Это нужно для случаев, когда сотрудник не загружается через API, но есть чат с ним
             const employeesFromChats = [];
+            const searchQ = (this.searchQuery || '').trim().toLowerCase();
             this.chats.forEach(chat => {
                 if (chat.other_participant) {
                     const participantId = chat.other_participant.id;
-                    // Проверяем, есть ли уже этот сотрудник в списке
                     const existsInEmployees = employees.find(e => e.id === participantId);
                     if (!existsInEmployees) {
-                        // Создаем объект сотрудника из данных чата
-                        employeesFromChats.push({
+                        const empObj = {
                             id: participantId,
                             username: chat.other_participant.username,
                             contact_info: chat.other_participant.contact_info || {}
-                        });
+                        };
+                        // При активном поиске добавляем из чатов только совпадающих по ФИО/должности
+                        if (searchQ) {
+                            const fullName = (empObj.contact_info?.full_name || empObj.username || '').toLowerCase();
+                            const position = (empObj.contact_info?.position || '').toLowerCase();
+                            if (!fullName.includes(searchQ) && !position.includes(searchQ)) return;
+                        }
+                        employeesFromChats.push(empObj);
                     }
                 }
             });
-            
-            // Объединяем списки
             employees = [...employees, ...employeesFromChats];
-            
             if (employeesFromChats.length > 0) {
-                console.log('➕ Добавлено сотрудников из чатов:', employeesFromChats.length, employeesFromChats.map(e => ({
-                    id: e.id,
-                    name: e.contact_info?.full_name || e.username
-                })));
+                console.log('➕ Добавлено сотрудников из чатов:', employeesFromChats.length);
             }
-            
-            // Применяем поиск, если есть запрос
-            if (this.searchQuery.trim()) {
-                const query = this.searchQuery.toLowerCase();
-                employees = employees.filter(emp => {
-                    if (!emp) return false;
-                    const fullName = (emp.contact_info?.full_name || emp.username || '').toLowerCase();
-                    const position = (emp.contact_info?.position || '').toLowerCase();
-                    return fullName.includes(query) || position.includes(query);
-                });
-            }
-            
+            // Поиск по ФИО выполняется на сервере (loadEmployees с ?search=). Локальная фильтрация не нужна.
+
             // Сортируем сотрудников: сначала с непрочитанными сообщениями, затем по дате последнего сообщения
             this.filteredEmployees = employees.map(emp => {
                 const chat = this.chatsByEmployeeId[emp.id];
