@@ -519,6 +519,10 @@ msgstr "Жіберілген күні"
 msgid "Прочитано"
 msgstr "Оқылды"
 
+#: templates/messaging/chat.html
+msgid "Отправлено"
+msgstr "Жіберілді"
+
 #: messaging/models.py:127
 msgid "Дата прочтения"
 msgstr "Оқылған күні"

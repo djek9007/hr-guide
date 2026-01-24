@@ -96,18 +96,47 @@ class ChatViewSet(viewsets.ModelViewSet):
         """
         Отмечает все сообщения в чате как прочитанные.
         POST /api/chats/{id}/mark_read/
+        Уведомляет отправителя (другого участника) через WebSocket,
+        чтобы он видел статус «прочитано» в реальном времени.
         """
         chat = self.get_object()
-        # Отмечаем все непрочитанные сообщения от другого участника как прочитанные
-        Message.objects.filter(
+        # Выбираем непрочитанные сообщения от другого участника (не от текущего пользователя)
+        to_mark = Message.objects.filter(
             chat=chat,
             is_read=False
         ).exclude(
             sender=request.user
-        ).update(
-            is_read=True,
-            read_at=timezone.now()
         )
+        # Сохраняем ID до обновления для WebSocket-уведомления
+        message_ids = list(to_mark.values_list('id', flat=True))
+        read_at = timezone.now()
+
+        to_mark.update(is_read=True, read_at=read_at)
+
+        # Уведомляем отправителя прочитанных сообщений через WebSocket,
+        # чтобы у него в UI обновились галочки «прочитано»
+        if message_ids:
+            try:
+                channel_layer = get_channel_layer()
+                if channel_layer:
+                    # Другой участник = тот, кто отправил прочитанные сообщения
+                    other = chat.get_other_participant(request.user)
+                    other_group = f"user_{other.id}"
+                    async_to_sync(channel_layer.group_send)(
+                        other_group,
+                        {
+                            'type': 'messages_read',
+                            'chat_id': chat.id,
+                            'message_ids': message_ids,
+                            'read_at': read_at.isoformat(),
+                        }
+                    )
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).warning(
+                    f'Не удалось отправить уведомление messages_read: {e}'
+                )
+
         return Response({'status': 'ok'})
 
 

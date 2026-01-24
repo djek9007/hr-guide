@@ -162,6 +162,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'user_id': event['user_id'],
             'is_typing': event['is_typing']
         }))
+
+    async def messages_read(self, event):
+        """
+        Уведомление отправителя о том, что его сообщения прочитаны.
+        Клиент обновит is_read/read_at для указанных message_ids в открытом чате.
+        """
+        await self.send(text_data=json.dumps({
+            'type': 'messages_read',
+            'chat_id': event['chat_id'],
+            'message_ids': event['message_ids'],
+            'read_at': event.get('read_at'),
+        }))
     
     @database_sync_to_async
     def create_message(self, chat_id, text):

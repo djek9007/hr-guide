@@ -205,8 +205,12 @@
                                                 class="text-xs"
                                                 x-text="formatTime(message.created_at)"
                                             ></span>
+                                            {% comment %}Исходящие: 1 галочка — отправлено, 2 — прочитано{% endcomment %}
+                                            <template x-if="message.sender?.id === currentUser?.id && !message.is_read">
+                                                <i class="fas fa-check text-blue-100 text-xs" title="{% trans 'Отправлено' %}"></i>
+                                            </template>
                                             <template x-if="message.sender?.id === currentUser?.id && message.is_read">
-                                                <i class="fas fa-check-double text-blue-100 text-xs"></i>
+                                                <i class="fas fa-check-double text-blue-100 text-xs" title="{% trans 'Прочитано' %}"></i>
                                             </template>
                                         </div>
                                     </div>
@@ -1580,6 +1584,25 @@ function chatApp() {
                                 this.typingTimeout = setTimeout(() => {
                                     this.isTyping = false;
                                 }, 3000);
+                            }
+                        }
+                    } else if (data.type === 'messages_read') {
+                        // Отправитель получает уведомление: сообщения прочитаны — обновляем is_read в UI
+                        if (data.chat_id && data.message_ids && Array.isArray(data.message_ids) && data.message_ids.length > 0) {
+                            const idsSet = new Set(data.message_ids.map(id => parseInt(id, 10)));
+                            const chatIdNum = parseInt(data.chat_id, 10);
+                            if (this.currentChatId === chatIdNum && Array.isArray(this.messages)) {
+                                let changed = false;
+                                this.messages.forEach(m => {
+                                    if (m && m.sender?.id === this.currentUser?.id && idsSet.has(parseInt(m.id, 10))) {
+                                        m.is_read = true;
+                                        m.read_at = data.read_at || null;
+                                        changed = true;
+                                    }
+                                });
+                                if (changed) {
+                                    this.messages = this.messages.slice();
+                                }
                             }
                         }
                     }
