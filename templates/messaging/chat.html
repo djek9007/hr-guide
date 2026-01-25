@@ -1813,13 +1813,25 @@ function chatApp() {
             }
             this.avatarFile = file;
             this.avatarObjectUrl = URL.createObjectURL(file);
+            // Инициализируем Cropper только после полной загрузки img, чтобы getData() возвращал
+            // корректные координаты в пикселях natural size. Иначе кроп может не применяться.
             this.$nextTick(() => {
-                const img = this.$refs.avatarCropperImg;
-                if (!img || !window.Cropper) return;
-                this.avatarCropper = new Cropper(img, {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                    dragMode: 'move'
+                this.$nextTick(() => {
+                    const img = this.$refs.avatarCropperImg;
+                    if (!img || !window.Cropper) return;
+                    const initCropper = () => {
+                        if (this.avatarCropper) { this.avatarCropper.destroy(); this.avatarCropper = null; }
+                        this.avatarCropper = new Cropper(img, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            dragMode: 'move'
+                        });
+                    };
+                    if (img.complete && img.naturalWidth) {
+                        initCropper();
+                    } else {
+                        img.onload = initCropper;
+                    }
                 });
             });
         },

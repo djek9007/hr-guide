@@ -395,11 +395,19 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        crop = (request.POST.get('crop') or '').strip()
+        # crop — строка "x1,y1,x2,y2" от Cropper.js (crop_corners в easy-thumbnails ожидает этот формат)
+        # Берём из POST; для DRF при multipart fallback на request.data
+        crop = (request.POST.get('crop') or getattr(request, 'data', {}).get('crop') or '').strip()
 
         try:
-            # Удаляем старый файл аватарки с диска (если был)
+            # Очищаем кэш easy-thumbnails для старого аватара до удаления файла,
+            # чтобы старые thumbnail-URL не отдавали устаревшее при повторных запросах
             if contact.avatar:
+                try:
+                    from easy_thumbnails.files import get_thumbnailer
+                    get_thumbnailer(contact.avatar).delete_thumbnails()
+                except Exception:
+                    pass
                 contact.avatar.delete(save=False)
             # Сохраняем новое изображение
             contact.avatar = avatar_file

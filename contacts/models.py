@@ -448,12 +448,8 @@ class Contact(models.Model):
         
         try:
             from easy_thumbnails.files import get_thumbnailer
-            from image_cropping import get_backend
-            
-            # Получаем бэкенд для обрезки
-            backend = get_backend()
-            
-            # Если есть координаты обрезки, используем их
+
+            # Если есть координаты обрезки, используем их (box в формате x1,y1,x2,y2 для crop_corners)
             if self.avatar_cropping:
                 # Получаем обрезанное изображение через бэкенд
                 thumbnailer = get_thumbnailer(self.avatar)
@@ -471,7 +467,12 @@ class Contact(models.Model):
                     'crop': True,
                 })
                 return thumbnail.url
-        except Exception:
+        except Exception as e:
+            # Логируем, чтобы при проблемах с кропом (формат box, PIL и т.п.) можно было искать в логах
+            import logging
+            logging.getLogger(__name__).warning(
+                'get_cropped_avatar_url для contact id=%s: %s', getattr(self, 'pk', None), e
+            )
             # В случае ошибки возвращаем оригинальное изображение
             return self.avatar.url
 
