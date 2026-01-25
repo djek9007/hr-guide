@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Chat, Message, FileAttachment
@@ -45,13 +46,19 @@ class FileAttachmentSerializer(serializers.ModelSerializer):
         read_only_fields = ['uploaded_at']
     
     def get_file_url(self, obj):
-        """Возвращает URL файла"""
-        if obj.file:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.file.url)
-            return obj.file.url
-        return None
+        """Возвращает URL файла. None, если файла нет (удалён задачей или вручную)."""
+        if not obj.file:
+            return None
+        # Защита: если файл уже удалён с диска — не отдаём URL, чтобы чат не вёл на 404
+        try:
+            if hasattr(obj.file, 'path') and not os.path.isfile(obj.file.path):
+                return None
+        except (OSError, ValueError):
+            return None
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(obj.file.url)
+        return obj.file.url
     
     def get_file_size_mb(self, obj):
         """Возвращает размер файла в МБ"""

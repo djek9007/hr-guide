@@ -121,7 +121,7 @@ ALLOWED_HOSTS=*
 REDIS_HOST=redis
 REDIS_PORT=6379
 CELERY_BROKER_URL=redis://redis:6379/0
-CELERY_RESULT_BACKEND=redis://redis:6379/0
+# Результаты задач по умолчанию в БД (django-celery-results), просмотр в админке. Переопределение не нужно.
 ```
 
 ## Решение проблем

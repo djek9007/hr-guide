@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from celery import shared_task
 from django.utils import timezone
-from datetime import timedelta
 import os
 from .models import FileAttachment
 
@@ -9,13 +8,11 @@ from .models import FileAttachment
 @shared_task
 def delete_old_files():
     """
-    Удаляет файлы, которые были загружены более 30 дней назад.
-    Запускается периодически через Celery Beat.
+    Удаляет вложения, у которых delete_after <= сейчас (обычно 30 дней после загрузки).
+    Сначала удаляется файл с диска, затем запись в БД. Сообщение (Message) не удаляется,
+    у него просто станет attachments=[], чат не падает.
+    Запускается ежедневно в 2:00 через Celery Beat.
     """
-    # Дата 30 дней назад
-    cutoff_date = timezone.now() - timedelta(days=30)
-    
-    # Находим все файлы, которые нужно удалить
     old_files = FileAttachment.objects.filter(delete_after__lte=timezone.now())
     
     deleted_count = 0
