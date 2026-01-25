@@ -182,7 +182,15 @@
     <!-- Подвал -->
     <footer class="bg-gray-800 text-white mt-auto">
         <div class="container mx-auto px-4 py-4 text-sm">
-            <p class="text-left">&copy; 2026 {% trans "Справочник Министерства культуры и информации Республики Казахстан" %}. {% trans "Все права защищены" %}.</p>
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <p class="text-left">&copy; 2026 {% trans "Справочник Министерства культуры и информации Республики Казахстан" %}. {% trans "Все права защищены" %}.</p>
+                {% if has_developer_contact %}
+                <a href="{% url 'contacts:developer_contact' %}" class="text-blue-300 hover:text-white transition-colors flex items-center gap-1.5" title="{% trans 'Связь с разработчиком' %}">
+                    <i class="fas fa-code"></i>
+                    <span>{% trans "Связь с разработчиком" %}</span>
+                </a>
+                {% endif %}
+            </div>
         </div>
     </footer>
 

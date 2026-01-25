@@ -917,10 +917,6 @@ msgstr "Қажетті контактілерді іздеу үшін сүзгі
 msgid "Введите ФИО"
 msgstr "ТАӘ енгізіңіз"
 
-#: .\templates\contacts\search.html:224
-msgid "Департамент/Комитет"
-msgstr "Департамент/Комитет"
-
 #: .\templates\contacts\search.html:271
 msgid "Независимые управления"
 msgstr "Тәуелсіз басқармалар"
@@ -2368,6 +2364,22 @@ msgstr ""
 #, python-brace-format
 msgid "Can't retrieve the image backend '{}'. Message: '{}'."
 msgstr ""
+
+#: .\templates\base.html .\templates\contacts\developer_contact.html
+msgid "Связь с разработчиком"
+msgstr "Әзірлеушімен байланыс"
+
+#: .\templates\contacts\developer_contact.html
+msgid "По вопросам работы сайта, предложений и сообщений об ошибках вы можете связаться с разработчиком:"
+msgstr "Сайттың жұмысы, ұсыныстар және қателер туралы хабарламалар бойынша әзірлеушімен байланысуға болады:"
+
+#: .\templates\contacts\developer_contact.html
+msgid "Контакты разработчика пока не настроены. Обратитесь к администратору сайта."
+msgstr "Әзірлеушінің байланыстары әзірше бапталмаған. Сайт әкімшісіне хабарласыңыз."
+
+#: .\templates\contacts\developer_contact.html
+msgid "Разработчик:"
+msgstr "Әзірлеуші:"
 
 #~ msgid "Введите ваши учетные данные для доступа к справочнику"
 #~ msgstr "Анықтамалыққа кіру үшін есептік деректеріңізді енгізіңіз"

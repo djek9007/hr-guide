@@ -79,6 +79,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',  # Для локализации
                 'contacts.context_processors.user_display_name',  # ФИО пользователя в шапке
+                'contacts.context_processors.developer_contacts',  # Контакты разработчика для футера и страницы связи
             ],
         },
     },
@@ -407,6 +408,12 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+
+# Контакты разработчика для страницы «Связь с разработчиком»
+# Задаются через переменные окружения: DEVELOPER_EMAIL, DEVELOPER_TELEGRAM (username без @), DEVELOPER_NAME (опционально)
+DEVELOPER_EMAIL = os.environ.get('DEVELOPER_EMAIL', '')
+DEVELOPER_TELEGRAM = (os.environ.get('DEVELOPER_TELEGRAM', '') or '').lstrip('@').strip()
+DEVELOPER_NAME = os.environ.get('DEVELOPER_NAME', '')
 
 # Расписание для Celery Beat (периодические задачи)
 from celery.schedules import crontab

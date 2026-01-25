@@ -413,6 +413,15 @@ def change_password_view(request):
     return render(request, 'accounts/change_password.html')
 
 
+def developer_contact(request):
+    """
+    Страница «Связь с разработчиком»: контакты (email, Telegram) из настроек.
+    Контекст developer_* передаётся через context_processors.
+    Доступна всем пользователям без авторизации.
+    """
+    return render(request, 'contacts/developer_contact.html')
+
+
 def chat_view(request):
     """
     Представление для страницы чата.
