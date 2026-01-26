@@ -446,8 +446,8 @@ msgid "Герб Республики Казахстан"
 msgstr ""
 
 #: .\templates\base.html:34
-msgid "Справочник МКИ РК"
-msgstr ""
+msgid "МКИ РК"
+msgstr "МКИ РК"
 
 #: .\templates\base.html:45
 msgid "Список"
