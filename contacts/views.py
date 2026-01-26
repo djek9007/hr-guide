@@ -337,7 +337,7 @@ def login_view(request):
     Представление для входа в систему.
     """
     if request.user.is_authenticated:
-        return redirect('contacts:search')
+        return redirect('messaging:chat')
 
     if request.method == 'POST':
         # Поле может содержать username или email
@@ -360,7 +360,7 @@ def login_view(request):
                 next_url = request.GET.get('next', None)
                 if next_url:
                     return redirect(next_url)
-                return redirect('contacts:search')
+                return redirect('messaging:chat')
             else:
                 messages.error(request, _('Неверное имя пользователя, email или пароль.'))
         else:

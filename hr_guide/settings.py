@@ -225,7 +225,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Настройки авторизации
 # Авторизация нужна только для админ-панели, основной функционал доступен всем
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/search/'
+LOGIN_REDIRECT_URL = '/chat/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Настройки для CKEditor
