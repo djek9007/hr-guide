@@ -37,75 +37,74 @@ def create_user_for_contact(sender, instance, created, **kwargs):
     Автоматически создает User для Contact, если у Contact есть email и нет связанного User.
     Email используется как username для входа в систему.
     """
-    logger.info(f"Сигнал create_user_for_contact вызван для контакта {instance.id} ({instance.full_name}), created={created}")
-    
     # Пропускаем, если пользователь уже связан
     if instance.user:
-        logger.debug(f"Пользователь уже связан с контактом {instance.full_name}, пропускаем")
         return
     
     # Если у контакта нет email, пропускаем
     if not instance.email or not instance.email.strip():
-        logger.debug(f"У контакта {instance.full_name} нет email, пропускаем")
         return
     
-    # Упрощенная логика: если есть email и нет пользователя - всегда создаем
-    # Это работает и для новых контактов, и для обновлений (включая случай, когда пользователь был удален)
-    logger.info(f"Создаем пользователя для контакта {instance.full_name} (email: {instance.email})")
+    email = instance.email.strip().lower()
     
-    # Если у контакта есть email и нет связанного пользователя - создаем
-    if instance.email and not instance.user:
-        email = instance.email.strip().lower()
-        
-        if not email:
-            return
-        
-        try:
-            with transaction.atomic():
-                # Проверяем, существует ли уже пользователь с таким email
+    logger.info(f"Обработка пользователя для контакта {instance.full_name} (email: {email})")
+    
+    # Используем атомарную транзакцию для гарантии целостности
+    try:
+        with transaction.atomic():
+            # 1. Проверяем, существует ли пользователь с таким email
+            user = User.objects.filter(email=email).first()
+            
+            if user:
+                # Проверяем, не связан ли пользователь с ДРУГИМ контактом
+                # Reverse relation for OneToOneField is 'contact' (raises DoesNotExist if missing)
                 try:
-                    existing_user = User.objects.get(email=email)
-                    # Если пользователь существует, связываем его с контактом
-                    Contact.objects.filter(pk=instance.pk).update(user=existing_user)
-                    # Обновляем instance
-                    instance.user = existing_user
-                    instance.refresh_from_db()
-                    logger.info(f"Связан существующий пользователь {existing_user.username} с контактом {instance.full_name}")
-                    return
-                except User.DoesNotExist:
+                    existing_contact = user.contact
+                    if existing_contact and existing_contact.pk != instance.pk:
+                        logger.warning(f"Пользователь {email} уже связан с контактом {existing_contact} (id={existing_contact.id}). Нельзя привязать к {instance}.")
+                        # Здесь можно выбросить ошибку, чтобы уведомить админа
+                        # raise ValueError(f"Email {email} уже используется пользователем, связанным с другим сотрудником.")
+                        return 
+                except Contact.DoesNotExist:
+                    # Пользователь есть, но контакта у него нет -> можно связывать
                     pass
+                    
+                logger.info(f"Найден существующий свободный пользователь {user.username}")
                 
-                # Генерируем username из email (убираем @ и домен)
+            else:
+                # 2. Создаем нового пользователя
                 username_base = email.split('@')[0]
+                # Очистка username от недопустимых символов, если нужно, но Django допускает многое
                 username = username_base
                 
-                # Проверяем, не занят ли username
+                # Обеспечиваем уникальность username
                 counter = 1
                 while User.objects.filter(username=username).exists():
                     username = f"{username_base}{counter}"
                     counter += 1
                 
-                # Создаем пользователя со стандартным паролем
-                # Стандартный пароль: Chat2026 - пользователи должны будут сменить его при первом входе
+                # Создаем
                 user = User.objects.create_user(
                     username=username,
                     email=email,
-                    password='Chat2026',  # Стандартный пароль для всех сотрудников
+                    password='Chat2026',  # Стандартный пароль
                     is_active=True,
                     first_name=instance.full_name.split()[0] if instance.full_name else '',
                     last_name=' '.join(instance.full_name.split()[1:]) if len(instance.full_name.split()) > 1 else '',
                 )
-                
-                # Связываем пользователя с контактом (используем update для избежания рекурсии)
-                Contact.objects.filter(pk=instance.pk).update(user=user)
-                # Обновляем instance, чтобы он знал о новом пользователе
-                instance.user = user
-                instance.refresh_from_db()
-                logger.info(f"Создан пользователь {username} для контакта {instance.full_name} (email: {email})")
-                
-        except Exception as e:
-            # Логируем ошибку, но не прерываем сохранение контакта
-            logger.error(f"Ошибка при создании пользователя для контакта {instance.id} ({instance.full_name}): {str(e)}", exc_info=True)
+                logger.info(f"Создан новый пользователь {username}")
+
+            # 3. Связываем пользователя с контактом
+            # Используем update для обновления в БД без вызова сигналов (рекурсии)
+            Contact.objects.filter(pk=instance.pk).update(user=user)
+            
+            # Обновляем текущий инстанс модели, чтобы последующий код (например, в admin) видел изменения
+            instance.user = user
+            
+    except Exception as e:
+        logger.error(f"Критическая ошибка при создании пользователя для {instance}: {e}", exc_info=True)
+        # ВАЖНО: пробрасываем ошибку дальше, чтобы она отобразилась в админке
+        raise e
 
 
 @receiver(pre_delete, sender=Contact)

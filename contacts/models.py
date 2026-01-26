@@ -2,6 +2,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 from image_cropping import ImageRatioField
 
 
@@ -438,6 +439,29 @@ class Contact(models.Model):
         """Свойство для обратной совместимости - возвращает номер кабинета"""
         return self.room.number if self.room else ""
     
+    def clean(self):
+        """Проверка данных перед сохранением"""
+        if self.email:
+            email = self.email.strip().lower()
+            
+            # Проверяем, не занят ли email пользователем, который уже привязан к другому сотруднику.
+            # Это предотвращает ситуации, когда админ вводит email, а пользователь не создается/не привязывается молча.
+            users_with_email = User.objects.filter(email=email)
+            for user in users_with_email:
+                # Проверяем обратную связь contact (OneToOne)
+                try:
+                    contact = user.contact
+                    if contact and contact.pk != self.pk:
+                         raise ValidationError({
+                            'email': _('Этот email уже используется пользователем "%(username)s", который привязан к сотруднику "%(employee)s".') % {
+                                'username': user.username,
+                                'employee': contact.full_name
+                            }
+                        })
+                except Contact.DoesNotExist:
+                    # Пользователь есть, но не привязан к сотруднику - это ок, мы его заберем
+                    pass
+
     def get_cropped_avatar_url(self, size=(48, 48)):
         """
         Возвращает URL обрезанного аватара с использованием easy-thumbnails.
