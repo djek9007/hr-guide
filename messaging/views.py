@@ -61,6 +61,10 @@ class ChatViewSet(viewsets.ModelViewSet):
         # Проверяем, что текущий пользователь является сотрудником
         if not hasattr(request.user, 'contact') or request.user.contact is None:
             return Response({'error': 'Только сотрудники могут создавать чаты'}, status=status.HTTP_403_FORBIDDEN)
+            
+        # Проверяем, что у текущего пользователя есть доступ к чату
+        if not request.user.contact.chat_access:
+            return Response({'error': 'У вас нет доступа к чату'}, status=status.HTTP_403_FORBIDDEN)
         
         try:
             # Получаем пользователя и проверяем, что он является сотрудником (имеет Contact)
@@ -71,6 +75,10 @@ class ChatViewSet(viewsets.ModelViewSet):
         # Проверяем, что другой пользователь является сотрудником
         if not hasattr(other_user, 'contact') or other_user.contact is None:
             return Response({'error': 'Можно создавать чаты только с сотрудниками'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Проверяем, что у другого пользователя есть доступ к чату
+        if not other_user.contact.chat_access:
+            return Response({'error': 'У выбранного сотрудника нет доступа к чату'}, status=status.HTTP_403_FORBIDDEN)
         
         if other_user == request.user:
             return Response({'error': 'Нельзя создать чат с самим собой'}, status=status.HTTP_400_BAD_REQUEST)
@@ -331,11 +339,13 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         """
         Возвращает всех активных пользователей, у которых есть Contact.
         Только сотрудники могут быть в списке для чата.
+        Сотрудники должны иметь chat_access=True.
         """
         # Фильтруем только активных пользователей с связанным Contact (сотрудников)
         queryset = User.objects.filter(
-            contact__isnull=False,  # Только пользователи с Contact (сотрудники)
-            is_active=True          # Только активные пользователи
+            contact__isnull=False,      # Только пользователи с Contact (сотрудники)
+            contact__chat_access=True,  # Только сотрудники с доступом к чату
+            is_active=True              # Только активные пользователи
         ).select_related('contact').order_by('username')
         
         # Поиск по имени, username или email
@@ -435,6 +445,18 @@ def chat_view(request):
     """
     Представление для страницы чата.
     """
+    # Проверяем доступ к чату
+    if hasattr(request.user, 'contact') and request.user.contact:
+        if not request.user.contact.chat_access:
+             return render(request, 'messaging/no_access.html')
+    else:
+        # Если не сотрудник (нет контакта), тоже нет доступа
+        # Но по ТЗ "когда пользователь переходить в чат", скорее всего он уже сотрудник
+        # Если админ без контакта - пускаем? Наверное нет, чат для сотрудников
+        # Если это суперюзер без контакта, можно пустить посмотреть, но он не сможет участвовать
+        if not request.user.is_superuser:
+            return render(request, 'messaging/no_access.html')
+
     context = {
         'current_user': json.dumps({
             'id': request.user.id,

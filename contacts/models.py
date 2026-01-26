@@ -405,6 +405,13 @@ class Contact(models.Model):
         null=True
     )
     
+    # Доступ к чату
+    chat_access = models.BooleanField(
+        default=True,
+        verbose_name=_('Доступ к чату'),
+        help_text=_('Если выключено, сотрудник не будет отображаться в списке чатов, и сам не сможет пользоваться чатом.')
+    )
+    
     # Дата создания записи
     created_at = models.DateTimeField(
         auto_now_add=True,

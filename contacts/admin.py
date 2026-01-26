@@ -1,4 +1,4 @@
-from django.contrib import admin, messages
+﻿from django.contrib import admin, messages
 from django import forms
 from django.db.models import Count
 from django.utils.translation import gettext_lazy as _
@@ -289,14 +289,15 @@ class ContactAdmin(ImageCroppingMixin, ImportExportModelAdmin):
     """
     Административный интерфейс для управления сотрудниками.
     """
-    list_display = ('id', 'avatar_thumbnail', 'full_name', 'room', 'position', 'division', 'department',  'display_order', 'work_phone')
-    list_editable = ('display_order', 'division', 'department')  # Позволяет редактировать порядок прямо в списке
+    list_display = ('id', 'avatar_thumbnail', 'full_name', 'room', 'position', 'division', 'department',  'display_order', 'work_phone', 'chat_access')
+    list_editable = ('display_order', 'division', 'department', 'chat_access')  # Позволяет редактировать порядок прямо в списке
     list_filter = (
         ('employment_type', ChoiceDropdownFilter),
         ('division', RelatedDropdownFilter),
         ('department', RelatedDropdownFilter),
         ('position', RelatedDropdownFilter),
         ('room', RelatedDropdownFilter),
+        'chat_access',
         ('created_at', DateRangeFilter)
     )
     list_select_related = ('room', 'position', 'division', 'department')
@@ -327,7 +328,7 @@ class ContactAdmin(ImageCroppingMixin, ImportExportModelAdmin):
             'fields': ('work_phone', 'mobile_phone', 'email')
         }),
         (_('Учетная запись пользователя'), {
-            'fields': ('user', 'user_info'),
+            'fields': ('user', 'user_info', 'chat_access'),
             'description': _('Информация о пользователе для доступа к чату. Пользователь создается автоматически при указании email.')
         }),
         (_('Дополнительно'), {

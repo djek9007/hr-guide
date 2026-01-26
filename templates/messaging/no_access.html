@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Нет доступа" %}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="alert alert-warning" role="alert">
+                <i class="fas fa-lock fa-3x mb-3"></i>
+                <h4 class="alert-heading">{% trans "У вас нет доступа к чату" %}</h4>
+                <p>{% trans "Вам необходимо обратиться к администраторам для получения доступа." %}</p>
+                <hr>
+                <a href="{% url 'contacts:list' %}" class="btn btn-primary">{% trans "Вернуться к списку сотрудников" %}</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

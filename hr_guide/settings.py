@@ -297,8 +297,18 @@ try:
             },
         },
     }
-except (ImportError, redis.ConnectionError, redis.TimeoutError, Exception) as e:
-    # Redis недоступен - используем InMemoryChannelLayer
+except ImportError:
+    # Redis библиотека не установлена
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning("Библиотека redis не установлена, используется InMemoryChannelLayer")
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        },
+    }
+except Exception as e:
+    # Redis недоступен или другая ошибка
     import logging
     logger = logging.getLogger(__name__)
     logger.warning(f"Redis недоступен ({REDIS_HOST}:{REDIS_PORT}), используется InMemoryChannelLayer: {e}")
