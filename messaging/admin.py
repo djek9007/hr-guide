@@ -1,15 +1,27 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from .models import Chat, Message, FileAttachment
+from .models import Chat, ChatParticipant, Message, FileAttachment
+
+
+class ChatParticipantInline(admin.TabularInline):
+    model = ChatParticipant
+    extra = 1
+    autocomplete_fields = ['user']
 
 
 @admin.register(Chat)
 class ChatAdmin(admin.ModelAdmin):
-    list_display = ['id', 'participant1', 'participant2', 'created_at', 'last_message_at', 'is_active']
-    list_filter = ['is_active', 'created_at']
-    search_fields = ['participant1__username', 'participant2__username']
+    list_display = ['id', 'type', 'title_display', 'owner', 'created_at', 'last_message_at', 'is_active']
+    list_filter = ['type', 'is_active', 'created_at']
+    search_fields = ['title', 'owner__username']
     readonly_fields = ['created_at', 'last_message_at']
     date_hierarchy = 'created_at'
+    inlines = [ChatParticipantInline]
+    autocomplete_fields = ['owner']
+    
+    def title_display(self, obj):
+        return str(obj)
+    title_display.short_description = 'Название / Участники'
 
 
 @admin.register(Message)

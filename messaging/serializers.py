@@ -2,7 +2,7 @@
 import os
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Chat, Message, FileAttachment
+from .models import Chat, ChatParticipant, Message, FileAttachment
 from contacts.models import Contact
 
 
@@ -78,24 +78,47 @@ class MessageSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'is_read', 'read_at']
 
 
+class ChatParticipantSerializer(serializers.ModelSerializer):
+    """Сериализатор для участника чата"""
+    user = UserSerializer(read_only=True)
+    
+    class Meta:
+        model = ChatParticipant
+        fields = ['id', 'user', 'role', 'joined_at']
+
+
 class ChatSerializer(serializers.ModelSerializer):
     """Сериализатор для чата"""
-    participant1 = UserSerializer(read_only=True)
-    participant2 = UserSerializer(read_only=True)
+    participants = ChatParticipantSerializer(many=True, read_only=True)
     last_message = serializers.SerializerMethodField()
     unread_count = serializers.SerializerMethodField()
     other_participant = serializers.SerializerMethodField()
+    avatar_url = serializers.SerializerMethodField()
     
     class Meta:
         model = Chat
-        fields = ['id', 'participant1', 'participant2', 'other_participant', 'created_at', 'last_message_at', 'is_active', 'last_message', 'unread_count']
-        read_only_fields = ['created_at', 'last_message_at']
+        fields = [
+            'id', 'type', 'title', 'owner', 'avatar', 'avatar_url',
+            'participants', 'other_participant', 
+            'created_at', 'last_message_at', 'is_active', 
+            'last_message', 'unread_count'
+        ]
+        read_only_fields = ['created_at', 'last_message_at', 'owner']
     
+    def get_avatar_url(self, obj):
+        """Возвращает URL аватара группы"""
+        if obj.avatar:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.avatar.url)
+            return obj.avatar.url
+        return None
+
     def get_last_message(self, obj):
         """Возвращает последнее сообщение в чате"""
         last_msg = obj.messages.order_by('-created_at').first()
         if last_msg:
-            return MessageSerializer(last_msg).data
+            return MessageSerializer(last_msg, context=self.context).data
         return None
     
     def get_unread_count(self, obj):
@@ -106,11 +129,25 @@ class ChatSerializer(serializers.ModelSerializer):
         return 0
     
     def get_other_participant(self, obj):
-        """Возвращает другого участника чата (не текущего пользователя)"""
+        """
+        Возвращает другого участника чата (не текущего пользователя) для личных чатов.
+        Для групповых чатов возвращает None.
+        """
+        if obj.type == Chat.TYPE_GROUP:
+            return None
+            
         request = self.context.get('request')
         if request and request.user.is_authenticated:
+            # Для личных чатов используем старую логику или ищем через участников
             other = obj.get_other_participant(request.user)
-            return UserSerializer(other).data
+            if not other:
+                # Попытка найти через ChatParticipant
+                participants = obj.participants.exclude(user=request.user)
+                if participants.exists():
+                    other = participants.first().user
+            
+            if other:
+                return UserSerializer(other, context=self.context).data
         return None
 
 
@@ -124,21 +161,21 @@ class MessageCreateSerializer(serializers.ModelSerializer):
     
     def validate_chat(self, value):
         """
-        Проверяет, что пользователь является участником чата.
-        Оба участника должны быть сотрудниками (иметь Contact).
+        Проверяет, что пользователя является участником чата.
         """
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            # Проверяем, что пользователь является участником чата
-            if value.participant1 != request.user and value.participant2 != request.user:
-                raise serializers.ValidationError("Вы не являетесь участником этого чата")
+            # Проверяем участие через ChatParticipant
+            is_participant = ChatParticipant.objects.filter(chat=value, user=request.user).exists()
             
-            # Проверяем, что оба участника являются сотрудниками (имеют Contact)
-            # Чат работает только между сотрудниками
-            if not hasattr(value.participant1, 'contact') or value.participant1.contact is None:
-                raise serializers.ValidationError("Участник 1 не является сотрудником")
-            if not hasattr(value.participant2, 'contact') or value.participant2.contact is None:
-                raise serializers.ValidationError("Участник 2 не является сотрудником")
+            # Если не найден в ChatParticipant, проверяем старые поля (для совместимости/миграции)
+            if not is_participant:
+                if value.participant1 == request.user or value.participant2 == request.user:
+                    is_participant = True
+            
+            if not is_participant:
+                raise serializers.ValidationError("Вы не являетесь участником этого чата")
+                
         return value
     
     def validate(self, attrs):
