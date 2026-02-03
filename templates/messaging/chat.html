@@ -493,15 +493,24 @@
                     </div>
                 </div>
             </div>
-            <div class="p-4 border-t border-gray-200 flex justify-end gap-2">
-                <button @click="showGroupSettingsModal = false" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">{% trans "Закрыть" %}</button>
+            <div class="p-4 border-t border-gray-200 flex justify-between gap-2">
                 <button 
-                    @click="addParticipants()" 
-                    :disabled="usersToAdd.length === 0"
-                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                    @click="leaveGroup()" 
+                    class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg border border-transparent hover:border-red-200 transition-colors flex items-center"
+                    title="{% trans 'Выйти из группы' %}"
                 >
-                    {% trans "Добавить выбранных" %}
+                    <i class="fas fa-sign-out-alt mr-2"></i> <span class="hidden sm:inline">{% trans "Выйти" %}</span>
                 </button>
+                <div class="flex gap-2">
+                    <button @click="showGroupSettingsModal = false" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">{% trans "Закрыть" %}</button>
+                    <button 
+                        @click="addParticipants()" 
+                        :disabled="usersToAdd.length === 0"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                    >
+                        {% trans "Добавить выбранных" %}
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -882,6 +891,35 @@ function chatApp() {
                     }
                 }
             } catch(e) { console.error(e); }
+        },
+
+        async leaveGroup() {
+            if (!this.currentChatId || !this.currentUser?.id) return;
+            if (!confirm('{% trans "Вы действительно хотите выйти из группы?" %}')) return;
+            
+            try {
+                const response = await fetch(`/api/chats/${this.currentChatId}/remove_participant/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': this.getCsrfToken() },
+                    credentials: 'include',
+                    body: JSON.stringify({ user_id: this.currentUser.id })
+                });
+                
+                if (response.ok) {
+                    this.showGroupSettingsModal = false;
+                    this.currentChatId = null;
+                    this.selectedItem = null;
+                    this.selectedEmployeeId = null;
+                    this.messages = [];
+                    await this.loadChats();
+                } else {
+                    const data = await response.json();
+                    alert(data.error || '{% trans "Ошибка при выходе из группы" %}');
+                }
+            } catch(e) {
+                console.error(e);
+                alert('{% trans "Ошибка соединения" %}');
+            }
         },
 
         // ... existing methods ...

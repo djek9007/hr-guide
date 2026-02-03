@@ -71,6 +71,23 @@ class GroupChatTests(TestCase):
         
         self.assertFalse(ChatParticipant.objects.filter(chat=chat, user=self.user2).exists())
 
+    def test_leave_group(self):
+        # Create group with user1 (admin) and user2 (member)
+        chat = Chat.objects.create(type=Chat.TYPE_GROUP, title='Group', owner=self.user1)
+        ChatParticipant.objects.create(chat=chat, user=self.user1, role=ChatParticipant.ROLE_ADMIN)
+        ChatParticipant.objects.create(chat=chat, user=self.user2, role=ChatParticipant.ROLE_MEMBER)
+        
+        # User 2 leaves
+        self.client.force_authenticate(user=self.user2)
+        url = reverse('chat-remove-participant', args=[chat.id])
+        data = {'user_id': self.user2.id}
+        
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        self.assertFalse(ChatParticipant.objects.filter(chat=chat, user=self.user2).exists())
+        self.assertTrue(ChatParticipant.objects.filter(chat=chat, user=self.user1).exists())
+
     def test_only_participants_see_messages(self):
         # Create group with user1 and user2
         chat = Chat.objects.create(type=Chat.TYPE_GROUP, title='Group', owner=self.user1)
