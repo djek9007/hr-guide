@@ -115,6 +115,14 @@ if DATABASE_HOST and DATABASE_NAME and DATABASE_USER:
             },
         }
     }
+else:
+    # Используем SQLite по умолчанию
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 

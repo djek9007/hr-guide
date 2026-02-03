@@ -317,7 +317,7 @@ class ContactAdmin(ImageCroppingMixin, ImportExportModelAdmin):
     
     fieldsets = (
         (_('Основная информация'), {
-            'fields': ('full_name', 'avatar', 'avatar_cropping', 'employment_type', 'division', 'department', 'position', 'room')
+            'fields': ('full_name', 'birth_date', 'avatar', 'avatar_cropping', 'employment_type', 'division', 'department', 'position', 'room')
         }),
         (_('Порядок отображения'), {
             'fields': ('display_order',),

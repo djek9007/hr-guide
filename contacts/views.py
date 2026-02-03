@@ -146,12 +146,55 @@ def list_contacts(request):
     # Подсчитываем общее количество управлений
     total_divisions = Division.objects.count()
 
+    # --- Logic for Birthdays ---
+    from datetime import date
+    from django.db.models.functions import ExtractMonth, ExtractDay
+    from django.utils.dates import MONTHS
+
+    today = date.today()
+    current_month = today.month
+
+    contacts_with_birthdays = Contact.objects.filter(
+        birth_date__isnull=False
+    ).annotate(
+        birth_month=ExtractMonth('birth_date'),
+        birth_day=ExtractDay('birth_date')
+    ).order_by('birth_month', 'birth_day')
+
+    birthdays_by_month = defaultdict(list)
+    upcoming_birthdays = []
+
+    for contact in contacts_with_birthdays:
+        birthdays_by_month[contact.birth_month].append(contact)
+        
+        # Upcoming birthdays (current month)
+        if contact.birth_month == current_month:
+            upcoming_birthdays.append(contact)
+    
+    # Sort upcoming by day
+    upcoming_birthdays.sort(key=lambda x: x.birth_day)
+
+    # Prepare list for all months (1-12) with localized names
+    all_birthdays = []
+    for m in range(1, 13):
+        if m in birthdays_by_month:
+            # MONTHS is a dict {1: 'January', ...} - lazy translated
+            all_birthdays.append({
+                'month_num': m,
+                'month_name': MONTHS[m],
+                'contacts': birthdays_by_month[m]
+            })
+
     context = {
         'departments': departments,
         'contacts_without_department': contacts_page,
         'paginator': paginator,
         'total_contacts': Contact.objects.count(),
         'total_divisions': total_divisions,
+        'upcoming_birthdays': upcoming_birthdays,
+        'all_birthdays': all_birthdays,
+        'current_month': current_month,
+        'current_month_name': MONTHS[current_month],
     }
 
     return render(request, 'contacts/list.html', context)

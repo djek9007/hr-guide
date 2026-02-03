@@ -54,6 +54,97 @@
             </div>
         </div>
     </div>
+
+    <!-- Дни рождения -->
+    {% if upcoming_birthdays or all_birthdays %}
+        <div class="mb-8 space-y-6">
+            <!-- Ближайшие дни рождения -->
+            {% if upcoming_birthdays %}
+                <div class="bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl shadow-lg text-white overflow-hidden">
+                    <div class="px-6 py-4 border-b border-white/20 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-birthday-cake text-2xl"></i>
+                            <h3 class="text-xl font-bold">{% trans "Именинники в" %} {{ current_month_name }}</h3>
+                        </div>
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
+                            {{ upcoming_birthdays|length }} {% trans "сотрудников" %}
+                        </span>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {% for contact in upcoming_birthdays %}
+                                <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 flex items-center gap-3 hover:bg-white/20 transition-all border border-white/10">
+                                    {% if contact.avatar %}
+                                        <img src="{% if contact.avatar_cropping %}{% cropped_thumbnail contact 'avatar_cropping' %}{% else %}{{ contact.avatar.url }}{% endif %}" 
+                                             class="w-10 h-10 rounded-full object-cover border-2 border-white/50">
+                                    {% else %}
+                                        <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold border-2 border-white/50">
+                                            {{ contact.full_name|first|upper }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="min-w-0">
+                                        <div class="font-semibold truncate">{{ contact.full_name }}</div>
+                                        <div class="text-xs text-white/80 truncate">{{ contact.birth_day }} {{ current_month_name }}</div>
+                                        <div class="text-xs text-white/60 truncate">{{ contact.position.name_ru|default:"—" }}</div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Календарь дней рождения (аккордеон) -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" x-data="{ activeMonth: null }">
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between cursor-pointer" @click="activeMonth = activeMonth === 'calendar' ? null : 'calendar'">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-calendar-alt text-blue-600 text-xl"></i>
+                        <h3 class="text-lg font-bold text-gray-800">{% trans "Календарь дней рождения" %}</h3>
+                    </div>
+                    <i class="fas fa-chevron-down text-gray-400 transition-transform" :class="{ 'rotate-180': activeMonth === 'calendar' }"></i>
+                </div>
+                
+                <div x-show="activeMonth === 'calendar'" class="divide-y divide-gray-100" style="display: none;">
+                    {% for month_data in all_birthdays %}
+                        <div class="group" x-data="{ open: false }">
+                            <button @click="open = !open" class="w-full px-6 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors text-left">
+                                <span class="font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">
+                                    {{ month_data.month_name|capfirst }}
+                                </span>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full group-hover:bg-blue-100 group-hover:text-blue-700 transition-colors">
+                                        {{ month_data.contacts|length }}
+                                    </span>
+                                    <i class="fas fa-chevron-down text-xs text-gray-400 transition-transform" :class="{ 'rotate-180': open }"></i>
+                                </div>
+                            </button>
+                            <div x-show="open" class="px-6 pb-4 pt-2 bg-gray-50/50" style="display: none;">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    {% for contact in month_data.contacts %}
+                                        <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-white hover:shadow-sm transition-all border border-transparent hover:border-gray-200">
+                                            {% if contact.avatar %}
+                                                <img src="{% if contact.avatar_cropping %}{% cropped_thumbnail contact 'avatar_cropping' %}{% else %}{{ contact.avatar.url }}{% endif %}" 
+                                                     class="w-8 h-8 rounded-full object-cover">
+                                            {% else %}
+                                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold text-xs">
+                                                    {{ contact.full_name|first|upper }}
+                                                </div>
+                                            {% endif %}
+                                            <div class="min-w-0">
+                                                <div class="text-sm font-medium text-gray-900 truncate">{{ contact.full_name }}</div>
+                                                <div class="text-xs text-gray-500">{{ contact.birth_day }} {{ month_data.month_name }}</div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     <!-- Список департаментов и управлений с иерархией -->
     <div class="space-y-8">
         {% for department in departments %}

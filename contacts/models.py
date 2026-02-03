@@ -396,6 +396,14 @@ class Contact(models.Model):
         blank=True,
         null=True
     )
+
+    # Дата рождения
+    birth_date = models.DateField(
+        verbose_name=_('Дата рождения'),
+        blank=True,
+        null=True,
+        help_text=_('Дата рождения сотрудника (для отображения в календаре дней рождения)')
+    )
     
     # Примечания
     notes = models.TextField(
