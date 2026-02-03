@@ -359,8 +359,20 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">{% trans "Участники" %}</label>
+                    
+                    <!-- Search Input -->
+                    <div class="mb-2">
+                        <input 
+                            type="text" 
+                            x-ref="createGroupSearchInput"
+                            x-model="createGroupSearch" 
+                            placeholder="{% trans 'Поиск участников...' %}" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                    </div>
+
                     <div class="border border-gray-200 rounded-lg max-h-60 overflow-y-auto">
-                        <template x-for="emp in employees" :key="emp.id">
+                        <template x-for="emp in employees.filter(e => !createGroupSearch || (e.contact_info?.full_name || e.username || '').toLowerCase().includes(createGroupSearch.toLowerCase()))" :key="emp.id">
                             <label class="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0">
                                 <input type="checkbox" :value="emp.id" x-model="newGroupParticipants" class="mr-3 rounded text-blue-600 focus:ring-blue-500">
                                 <div class="flex items-center gap-2">
@@ -443,8 +455,20 @@
 
                 <div>
                     <h4 class="text-sm font-medium text-gray-700 mb-2">{% trans "Добавить участников" %}</h4>
+                    
+                    <!-- Search Input -->
+                    <div class="mb-2">
+                        <input 
+                            type="text" 
+                            x-ref="addParticipantSearchInput"
+                            x-model="addParticipantSearch" 
+                            placeholder="{% trans 'Поиск участников...' %}" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                    </div>
+
                     <div class="border border-gray-200 rounded-lg max-h-48 overflow-y-auto">
-                        <template x-for="emp in employees" :key="'add-'+emp.id">
+                        <template x-for="emp in employees.filter(e => !addParticipantSearch || (e.contact_info?.full_name || e.username || '').toLowerCase().includes(addParticipantSearch.toLowerCase()))" :key="'add-'+emp.id">
                             <!-- Показываем только тех, кого нет в чате -->
                             <template x-if="!selectedItem?.chat?.participants?.find(p => p.user?.id === emp.id)">
                                 <label class="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0">
@@ -521,10 +545,12 @@ function chatApp() {
         newGroupTitle: '',
         newGroupParticipants: [],
         creatingGroup: false,
+        createGroupSearch: '', // Поиск при создании группы
 
         // Group Settings Modal
         showGroupSettingsModal: false,
         usersToAdd: [],
+        addParticipantSearch: '', // Поиск при добавлении участников
 
         async init() {
             await this.loadCurrentUser();
@@ -763,7 +789,9 @@ function chatApp() {
             this.showCreateGroupModal = true;
             this.newGroupTitle = '';
             this.newGroupParticipants = [];
+            this.createGroupSearch = ''; // Reset search
             if (this.$refs.groupAvatarInput) this.$refs.groupAvatarInput.value = '';
+            this.$nextTick(() => { this.$refs.createGroupSearchInput?.focus(); });
         },
 
         // Create Group Action
@@ -810,6 +838,8 @@ function chatApp() {
             if (!this.selectedItem?.isGroup) return;
             this.showGroupSettingsModal = true;
             this.usersToAdd = [];
+            this.addParticipantSearch = ''; // Reset search
+            this.$nextTick(() => { this.$refs.addParticipantSearchInput?.focus(); });
         },
 
         async addParticipants() {
