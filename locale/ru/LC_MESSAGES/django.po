@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-16 21:13+0500\n"
+"POT-Creation-Date: 2026-01-26 12:42+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,1973 +20,1060 @@ msgstr ""
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\contacts\admin.py:73 .\contacts\admin.py:121 .\contacts\admin.py:168
-#: .\contacts\admin.py:205 .\contacts\admin.py:279 .\contacts\admin.py:415
+#: contacts/admin.py:79 contacts/admin.py:137 contacts/admin.py:194
+#: contacts/admin.py:236 contacts/admin.py:320 contacts/admin.py:560
 msgid "Основная информация"
 msgstr ""
 
-#: .\contacts\admin.py:75
+#: contacts/admin.py:81
 msgid ""
 "Департамент - основное подразделение организации. Руководство - верхний "
 "уровень управления."
 msgstr ""
 
-#: .\contacts\admin.py:77 .\contacts\admin.py:125 .\contacts\admin.py:282
-#: .\contacts\admin.py:427 .\contacts\models.py:48 .\contacts\models.py:119
-#: .\contacts\models.py:336 .\contacts\models.py:554
+#: contacts/admin.py:83 contacts/admin.py:141 contacts/admin.py:323
+#: contacts/admin.py:572 contacts/models.py:50 contacts/models.py:121
+#: contacts/models.py:350 contacts/models.py:599
 msgid "Порядок отображения"
 msgstr ""
 
-#: .\contacts\admin.py:79
+#: contacts/admin.py:85
 msgid ""
 "Укажите порядок отображения департамента в списке. Меньшее число = выше в "
 "списке."
 msgstr ""
 
-#: .\contacts\admin.py:81 .\contacts\admin.py:129 .\contacts\admin.py:171
-#: .\contacts\admin.py:418 .\contacts\models.py:41 .\contacts\models.py:112
-#: .\contacts\models.py:171 .\contacts\models.py:216
+#: contacts/admin.py:87 contacts/admin.py:145 contacts/admin.py:197
+#: contacts/admin.py:563 contacts/models.py:43 contacts/models.py:114
+#: contacts/models.py:173 contacts/models.py:218
 msgid "Описание"
 msgstr ""
 
-#: .\contacts\admin.py:84 .\contacts\admin.py:132 .\contacts\admin.py:174
-#: .\contacts\admin.py:211 .\contacts\admin.py:292 .\contacts\admin.py:431
+#: contacts/admin.py:90 contacts/admin.py:148 contacts/admin.py:200
+#: contacts/admin.py:242 contacts/admin.py:337 contacts/admin.py:576
 msgid "Системная информация"
 msgstr ""
 
-#: .\contacts\admin.py:96
+#: contacts/admin.py:109
 msgid "Количество управлений"
 msgstr ""
 
-#: .\contacts\admin.py:123
+#: contacts/admin.py:139
 msgid "Управление может принадлежать департаменту или быть независимым."
 msgstr ""
 
-#: .\contacts\admin.py:127
+#: contacts/admin.py:143
 msgid ""
 "Укажите порядок отображения управления в списке. Меньшее число = выше в "
 "списке."
 msgstr ""
 
-#: .\contacts\admin.py:145
+#: contacts/admin.py:169
 msgid "Количество сотрудников"
 msgstr ""
 
-#: .\contacts\admin.py:208
+#: contacts/admin.py:239
 msgid "Расположение"
 msgstr ""
 
-#: .\contacts\admin.py:284
+#: contacts/admin.py:325
 msgid ""
 "Укажите порядок отображения сотрудника в списке. Меньшее число = выше в "
 "списке. Если не указано, сортировка по алфавиту."
 msgstr ""
 
-#: .\contacts\admin.py:286
+#: contacts/admin.py:327
 msgid "Контакты"
 msgstr ""
 
-#: .\contacts\admin.py:289
+#: contacts/admin.py:330
+msgid "Учетная запись пользователя"
+msgstr ""
+
+#: contacts/admin.py:332
+msgid ""
+"Информация о пользователе для доступа к чату. Пользователь создается "
+"автоматически при указании email."
+msgstr ""
+
+#: contacts/admin.py:334
 msgid "Дополнительно"
 msgstr ""
 
-#: .\contacts\admin.py:315 .\contacts\models.py:345
+#: contacts/admin.py:387
+msgid "Информация о пользователе"
+msgstr ""
+
+#: contacts/admin.py:388
+msgid "Информация о связанной учетной записи пользователя для доступа к чату"
+msgstr ""
+
+#: contacts/admin.py:453 contacts/models.py:359
 msgid "Аватарка"
 msgstr ""
 
-#: .\contacts\admin.py:421 .\templates\contacts\vacancy_detail.html:53
+#: contacts/admin.py:566 templates/contacts/vacancy_detail.html:53
 msgid "Требования и условия"
 msgstr ""
 
-#: .\contacts\admin.py:424 .\contacts\models.py:539
-#: .\templates\contacts\vacancy_detail.html:64
+#: contacts/admin.py:569 contacts/models.py:584
+#: templates/contacts/vacancy_detail.html:64
 msgid "Контактная информация"
 msgstr ""
 
-#: .\contacts\admin.py:429
+#: contacts/admin.py:574
 msgid ""
 "Укажите порядок отображения вакансии в списке. Меньшее число = выше в "
 "списке. Если не указано, сортировка по дате создания."
 msgstr ""
 
-#: .\contacts\models.py:14
-msgid "Название отдела (русский)"
+#: contacts/models.py:16
+msgid "Название департамента/комитета (русский)"
 msgstr ""
 
-#: .\contacts\models.py:21
-msgid "Название департамента (казахский)"
+#: contacts/models.py:23
+msgid "Название департамента/комитета (казахский)"
 msgstr ""
 
-#: .\contacts\models.py:34
+#: contacts/models.py:36
 msgid "Тип департамента"
 msgstr ""
 
-#: .\contacts\models.py:35
+#: contacts/models.py:37
 msgid ""
 "Департамент - обычное подразделение, Руководство - верхний уровень управления"
 msgstr ""
 
-#: .\contacts\models.py:51
+#: contacts/models.py:53
 msgid ""
 "Число для указания порядка отображения департамента в списке. Меньшее число "
 "= выше в списке."
 msgstr ""
 
-#: .\contacts\models.py:57 .\contacts\models.py:128 .\contacts\models.py:179
-#: .\contacts\models.py:240 .\contacts\models.py:397 .\contacts\models.py:563
+#: contacts/models.py:59 contacts/models.py:130 contacts/models.py:181
+#: contacts/models.py:242 contacts/models.py:418 contacts/models.py:608
+#: messaging/models.py:32
 msgid "Дата создания"
 msgstr ""
 
-#: .\contacts\models.py:63 .\contacts\models.py:134 .\contacts\models.py:185
-#: .\contacts\models.py:246 .\contacts\models.py:403 .\contacts\models.py:569
+#: contacts/models.py:65 contacts/models.py:136 contacts/models.py:187
+#: contacts/models.py:248 contacts/models.py:424 contacts/models.py:614
 msgid "Дата обновления"
 msgstr ""
 
-#: .\contacts\models.py:67 .\contacts\models.py:105 .\contacts\models.py:273
-#: .\contacts\models.py:489 .\templates\contacts\search.html:224
-msgid "Департамент"
+#: contacts/models.py:69 contacts/models.py:107 contacts/models.py:275
+#: contacts/models.py:534 templates/contacts/search.html:224
+msgid "Департамент/Комитет"
 msgstr ""
 
-#: .\contacts\models.py:68
-msgid "Департаменты"
+#: contacts/models.py:70
+msgid "Департаменты/Комитеты"
 msgstr ""
 
-#: .\contacts\models.py:86
+#: contacts/models.py:88
 msgid "Название управления (русский)"
 msgstr ""
 
-#: .\contacts\models.py:93
+#: contacts/models.py:95
 msgid "Название управления (казахский)"
 msgstr ""
 
-#: .\contacts\models.py:106
+#: contacts/models.py:108
 msgid ""
-"Департамент, к которому относится управление. Может быть пустым для "
+"Департамент/комитет, к которому относится управление. Может быть пустым для "
 "независимых управлений."
 msgstr ""
 
-#: .\contacts\models.py:122
+#: contacts/models.py:124
 msgid ""
 "Число для указания порядка отображения управления в списке. Меньшее число = "
 "выше в списке."
 msgstr ""
 
-#: .\contacts\models.py:138 .\contacts\models.py:285 .\contacts\models.py:501
-#: .\templates\contacts\partials\search_results.html:37
-#: .\templates\contacts\search.html:248
+#: contacts/models.py:140 contacts/models.py:287 contacts/models.py:546
+#: templates/contacts/partials/search_results.html:37
+#: templates/contacts/search.html:248
 msgid "Управление"
 msgstr ""
 
-#: .\contacts\models.py:139
+#: contacts/models.py:141
 msgid "Управления"
 msgstr ""
 
-#: .\contacts\models.py:157
+#: contacts/models.py:159
 msgid "Название должности (русский)"
 msgstr ""
 
-#: .\contacts\models.py:164
+#: contacts/models.py:166
 msgid "Название должности (казахский)"
 msgstr ""
 
-#: .\contacts\models.py:189 .\contacts\models.py:297 .\contacts\models.py:477
-#: .\templates\contacts\list.html:109 .\templates\contacts\list.html:242
-#: .\templates\contacts\list.html:352
-#: .\templates\contacts\partials\search_results.html:32
-#: .\templates\contacts\search.html:291
+#: contacts/models.py:191 contacts/models.py:299 contacts/models.py:522
+#: templates/contacts/list.html:109 templates/contacts/list.html:242
+#: templates/contacts/list.html:352 templates/contacts/list2.html:118
+#: templates/contacts/list2.html:281 templates/contacts/list2.html:423
+#: templates/contacts/partials/search_results.html:32
+#: templates/contacts/search.html:291
 msgid "Должность"
 msgstr ""
 
-#: .\contacts\models.py:190
+#: contacts/models.py:192
 msgid "Должности"
 msgstr ""
 
-#: .\contacts\models.py:207 .\templates\contacts\search.html:334
+#: contacts/models.py:209 templates/contacts/search.html:334
 msgid "Номер кабинета"
 msgstr ""
 
-#: .\contacts\models.py:210
+#: contacts/models.py:212
 msgid "Номер кабинета (например: 751, 1023)"
 msgstr ""
 
-#: .\contacts\models.py:219
+#: contacts/models.py:221
 msgid "Дополнительная информация о кабинете"
 msgstr ""
 
-#: .\contacts\models.py:224
+#: contacts/models.py:226
 msgid "Этаж"
 msgstr ""
 
-#: .\contacts\models.py:232
+#: contacts/models.py:234
 msgid "Корпус/Здание"
 msgstr ""
 
-#: .\contacts\models.py:250 .\contacts\models.py:308
-#: .\templates\contacts\list.html:121 .\templates\contacts\list.html:245
-#: .\templates\contacts\list.html:364
-#: .\templates\contacts\partials\search_results.html:50
+#: contacts/models.py:252 contacts/models.py:310
+#: templates/contacts/list.html:121 templates/contacts/list.html:245
+#: templates/contacts/list.html:364 templates/contacts/list2.html:133
+#: templates/contacts/list2.html:293 templates/contacts/list2.html:438
+#: templates/contacts/partials/search_results.html:50
 msgid "Кабинет"
 msgstr ""
 
-#: .\contacts\models.py:251
+#: contacts/models.py:253
 msgid "Кабинеты"
 msgstr ""
 
-#: .\contacts\models.py:274
+#: contacts/models.py:276
 msgid ""
-"Департамент (если сотрудник привязан напрямую к департаменту, а не к "
+"Департамент/комитет (если сотрудник привязан напрямую к департаменту, а не к "
 "управлению)"
 msgstr ""
 
-#: .\contacts\models.py:286
+#: contacts/models.py:288
 msgid "Управление, к которому относится сотрудник"
 msgstr ""
 
-#: .\contacts\models.py:315 .\templates\contacts\list.html:105
-#: .\templates\contacts\list.html:241 .\templates\contacts\list.html:348
-#: .\templates\contacts\partials\search_results.html:28
-#: .\templates\contacts\search.html:204
+#: contacts/models.py:321
+msgid "Пользователь"
+msgstr ""
+
+#: contacts/models.py:322
+msgid "Связь с учетной записью пользователя для доступа к чату"
+msgstr ""
+
+#: contacts/models.py:329 templates/contacts/list.html:105
+#: templates/contacts/list.html:241 templates/contacts/list.html:348
+#: templates/contacts/list2.html:113 templates/contacts/list2.html:277
+#: templates/contacts/list2.html:418
+#: templates/contacts/partials/search_results.html:28
+#: templates/contacts/search.html:204
 msgid "ФИО"
 msgstr ""
 
-#: .\contacts\models.py:323 .\templates\contacts\search.html:323
+#: contacts/models.py:337 templates/contacts/search.html:323
 msgid "Штатный сотрудник"
 msgstr ""
 
-#: .\contacts\models.py:324 .\templates\contacts\search.html:324
+#: contacts/models.py:338 templates/contacts/search.html:324
 msgid "Совместитель"
 msgstr ""
 
-#: .\contacts\models.py:325 .\templates\contacts\search.html:325
+#: contacts/models.py:339 templates/contacts/search.html:325
 msgid "Внештатный сотрудник"
 msgstr ""
 
-#: .\contacts\models.py:326 .\templates\contacts\search.html:326
+#: contacts/models.py:340 templates/contacts/search.html:326
 msgid "По договору"
 msgstr ""
 
-#: .\contacts\models.py:329 .\templates\contacts\search.html:315
+#: contacts/models.py:343 templates/contacts/search.html:315
 msgid "Тип трудоустройства"
 msgstr ""
 
-#: .\contacts\models.py:330
+#: contacts/models.py:344
 msgid "Тип трудоустройства сотрудника (штатный, внештатный и т.д.)"
 msgstr ""
 
-#: .\contacts\models.py:339
+#: contacts/models.py:353
 msgid ""
 "Число для указания порядка отображения сотрудника в списке. Меньшее число = "
 "выше в списке. Если не указано, сортировка по алфавиту."
 msgstr ""
 
-#: .\contacts\models.py:348
+#: contacts/models.py:362
 msgid "Фото сотрудника (необязательно)"
 msgstr ""
 
-#: .\contacts\models.py:356
+#: contacts/models.py:370
 msgid "Обрезка аватарки"
 msgstr ""
 
-#: .\contacts\models.py:357
+#: contacts/models.py:371
 msgid ""
 "Выберите область для обрезки изображения. Рекомендуемый размер: 400x400 "
 "пикселей"
 msgstr ""
 
-#: .\contacts\models.py:366
+#: contacts/models.py:380
 msgid "Рабочий телефон"
 msgstr ""
 
-#: .\contacts\models.py:375
+#: contacts/models.py:389
 msgid "Мобильный телефон"
 msgstr ""
 
-#: .\contacts\models.py:382 .\templates\contacts\list.html:117
-#: .\templates\contacts\list.html:244 .\templates\contacts\list.html:360
-#: .\templates\contacts\partials\search_results.html:46
+#: contacts/models.py:396 templates/contacts/developer_contact.html:25
+#: templates/contacts/list.html:117 templates/contacts/list.html:244
+#: templates/contacts/list.html:360 templates/contacts/list2.html:128
+#: templates/contacts/list2.html:289 templates/contacts/list2.html:433
+#: templates/contacts/partials/search_results.html:46
 msgid "Email"
 msgstr ""
 
-#: .\contacts\models.py:389
+#: contacts/models.py:403
 msgid "Примечания"
 msgstr ""
 
-#: .\contacts\models.py:407
+#: contacts/models.py:411
+msgid "Доступ к чату"
+msgstr ""
+
+#: contacts/models.py:412
+msgid ""
+"Если выключено, сотрудник не будет отображаться в списке чатов, и сам не "
+"сможет пользоваться чатом."
+msgstr ""
+
+#: contacts/models.py:428
 msgid "Сотрудник"
 msgstr ""
 
-#: .\contacts\models.py:408
+#: contacts/models.py:429
 msgid "Сотрудники"
 msgstr ""
 
-#: .\contacts\models.py:479
+#: contacts/models.py:463
+#, python-format
+msgid ""
+"Этот email уже используется пользователем \"%(username)s\", который привязан "
+"к сотруднику \"%(employee)s\"."
+msgstr ""
+
+#: contacts/models.py:524
 msgid "Должность для вакансии. Позволяет фильтровать вакансии по должностям."
 msgstr ""
 
-#: .\contacts\models.py:490
-msgid "Департамент (если вакансия на уровне департамента)"
+#: contacts/models.py:535
+msgid "Департамент/комитет (если вакансия на уровне департамента)"
 msgstr ""
 
-#: .\contacts\models.py:502
+#: contacts/models.py:547
 msgid "Управление, в котором открыта вакансия"
 msgstr ""
 
-#: .\contacts\models.py:508
+#: contacts/models.py:553
 msgid "Описание вакансии (русский)"
 msgstr ""
 
-#: .\contacts\models.py:515
+#: contacts/models.py:560
 msgid "Описание вакансии (казахский)"
 msgstr ""
 
-#: .\contacts\models.py:522
+#: contacts/models.py:567
 msgid "Требования и условия (русский)"
 msgstr ""
 
-#: .\contacts\models.py:525 .\contacts\models.py:533
+#: contacts/models.py:570 contacts/models.py:578
 msgid "Требования к кандидату и условия работы"
 msgstr ""
 
-#: .\contacts\models.py:530
+#: contacts/models.py:575
 msgid "Требования и условия (казахский)"
 msgstr ""
 
-#: .\contacts\models.py:542
+#: contacts/models.py:587
 msgid "Email, телефон или другая контактная информация для отклика"
 msgstr ""
 
-#: .\contacts\models.py:548
+#: contacts/models.py:593
 msgid "Активна"
 msgstr ""
 
-#: .\contacts\models.py:549
+#: contacts/models.py:594
 msgid "Показывать ли вакансию в списке и на сайте"
 msgstr ""
 
-#: .\contacts\models.py:557
+#: contacts/models.py:602
 msgid ""
 "Число для сортировки вакансий в списке. Меньшее число = выше в списке. Если "
 "не указано, сортировка по дате создания."
 msgstr ""
 
-#: .\contacts\models.py:573 .\templates\contacts\vacancies.html:56
+#: contacts/models.py:618 templates/contacts/vacancies.html:56
 msgid "Вакансия"
 msgstr ""
 
-#: .\contacts\models.py:574 .\templates\base.html:59
-#: .\templates\contacts\vacancies.html:4 .\templates\contacts\vacancies.html:23
-#: .\templates\contacts\vacancy_detail.html:4
+#: contacts/models.py:619 templates/base.html:57 templates/base.html:146
+#: templates/contacts/vacancies.html:4 templates/contacts/vacancies.html:23
+#: templates/contacts/vacancy_detail.html:4
 msgid "Вакансии"
 msgstr ""
 
-#: .\contacts\models.py:585
+#: contacts/models.py:630
 msgid "Вакансия без должности"
 msgstr ""
 
-#: .\contacts\views.py:300
+#: contacts/views.py:356
+msgid "Для безопасности необходимо сменить стандартный пароль."
+msgstr ""
+
+#: contacts/views.py:359
 msgid "Вы успешно вошли в систему."
 msgstr ""
 
-#: .\contacts\views.py:306
-msgid "Неверное имя пользователя или пароль."
+#: contacts/views.py:365
+msgid "Неверное имя пользователя, email или пароль."
 msgstr ""
 
-#: .\contacts\views.py:308
+#: contacts/views.py:367
 msgid "Пожалуйста, заполните все поля."
 msgstr ""
 
-#: .\templates\accounts\login.html:4 .\templates\accounts\login.html:12
-msgid "Вход в систему"
+#: contacts/views.py:386
+msgid "Неверный текущий пароль."
 msgstr ""
 
-#: .\templates\accounts\login.html:4 .\templates\base.html:9
-#: .\templates\base.html:126 .\templates\contacts\list.html:6
-#: .\templates\contacts\search.html:5 .\templates\contacts\vacancies.html:4
+#: contacts/views.py:391
+msgid "Новый пароль не может совпадать со стандартным паролем."
+msgstr ""
+
+#: contacts/views.py:396
+msgid "Новые пароли не совпадают."
+msgstr ""
+
+#: contacts/views.py:401
+msgid "Пароль должен содержать минимум 8 символов."
+msgstr ""
+
+#: contacts/views.py:408
+msgid "Пароль успешно изменен. Пожалуйста, войдите снова с новым паролем."
+msgstr ""
+
+#: messaging/models.py:17
+msgid "Участник 1"
+msgstr ""
+
+#: messaging/models.py:25
+msgid "Участник 2"
+msgstr ""
+
+#: messaging/models.py:40
+msgid "Дата последнего сообщения"
+msgstr ""
+
+#: messaging/models.py:47
+msgid "Активен"
+msgstr ""
+
+#: messaging/models.py:48
+msgid "Активен ли чат"
+msgstr ""
+
+#: messaging/models.py:52 messaging/models.py:89 templates/base.html:65
+#: templates/base.html:149 templates/contacts/chat.html:4
+#: templates/contacts/chat.html:14 templates/messaging/chat.html:5
+msgid "Чат"
+msgstr "Чат"
+
+#: messaging/models.py:53
+msgid "Чаты"
+msgstr ""
+
+#: messaging/models.py:98
+msgid "Отправитель"
+msgstr ""
+
+#: messaging/models.py:104
+msgid "Текст сообщения"
+msgstr ""
+
+#: messaging/models.py:112
+msgid "Дата отправки"
+msgstr ""
+
+#: messaging/models.py:119 templates/messaging/chat.html:220
+msgid "Прочитано"
+msgstr ""
+
+#: messaging/models.py:127
+msgid "Дата прочтения"
+msgstr ""
+
+#: messaging/models.py:131 messaging/models.py:154
+msgid "Сообщение"
+msgstr ""
+
+#: messaging/models.py:132
+msgid "Сообщения"
+msgstr ""
+
+#: messaging/models.py:161
+msgid "Файл"
+msgstr ""
+
+#: messaging/models.py:162
+msgid "Файл будет автоматически удален через 30 дней"
+msgstr ""
+
+#: messaging/models.py:168
+msgid "Оригинальное имя файла"
+msgstr ""
+
+#: messaging/models.py:173
+msgid "Размер файла (байты)"
+msgstr ""
+
+#: messaging/models.py:179
+msgid "MIME-тип"
+msgstr ""
+
+#: messaging/models.py:187
+msgid "Дата загрузки"
+msgstr ""
+
+#: messaging/models.py:193
+msgid "Удалить после"
+msgstr ""
+
+#: messaging/models.py:194
+msgid "Дата, после которой файл будет удален (30 дней после загрузки)"
+msgstr ""
+
+#: messaging/models.py:199
+msgid "Вложение"
+msgstr ""
+
+#: messaging/models.py:200
+msgid "Вложения"
+msgstr ""
+
+#: templates/accounts/change_password.html:4
+#: templates/accounts/change_password.html:12
+msgid "Смена пароля"
+msgstr ""
+
+#: templates/accounts/change_password.html:4 templates/accounts/login.html:4
+#: templates/base.html:9 templates/base.html:187 templates/contacts/chat.html:4
+#: templates/contacts/developer_contact.html:4 templates/contacts/list.html:6
+#: templates/contacts/search.html:5 templates/contacts/vacancies.html:4
+#: templates/messaging/chat.html:5
 msgid "Справочник Министерства культуры и информации Республики Казахстан"
 msgstr ""
 
-#: .\templates\accounts\login.html:15
-msgid "Введите ваши учетные данные для доступа к справочнику"
+#: templates/accounts/change_password.html:15
+msgid "Для безопасности необходимо сменить стандартный пароль"
 msgstr ""
 
-#: .\templates\accounts\login.html:26
-msgid "Имя пользователя"
+#: templates/accounts/change_password.html:26
+msgid "Текущий пароль"
 msgstr ""
 
-#: .\templates\accounts\login.html:35
-msgid "Введите имя пользователя"
+#: templates/accounts/change_password.html:35
+msgid "Введите текущий пароль"
 msgstr ""
 
-#: .\templates\accounts\login.html:43
+#: templates/accounts/change_password.html:38
+msgid "Стандартный пароль: Chat2026"
+msgstr ""
+
+#: templates/accounts/change_password.html:46
+msgid "Новый пароль"
+msgstr ""
+
+#: templates/accounts/change_password.html:55
+msgid "Введите новый пароль (минимум 8 символов)"
+msgstr ""
+
+#: templates/accounts/change_password.html:63
+msgid "Подтвердите новый пароль"
+msgstr ""
+
+#: templates/accounts/change_password.html:72
+msgid "Повторите новый пароль"
+msgstr ""
+
+#: templates/accounts/change_password.html:82
+msgid "Изменить пароль"
+msgstr ""
+
+#: templates/accounts/login.html:4 templates/accounts/login.html:12
+msgid "Вход в систему"
+msgstr ""
+
+#: templates/accounts/login.html:23
+msgid "Имя пользователя или Email"
+msgstr ""
+
+#: templates/accounts/login.html:32
+msgid "Введите имя пользователя или email"
+msgstr ""
+
+#: templates/accounts/login.html:40
 msgid "Пароль"
 msgstr ""
 
-#: .\templates\accounts\login.html:51
+#: templates/accounts/login.html:48
 msgid "Введите пароль"
 msgstr ""
 
-#: .\templates\accounts\login.html:61
+#: templates/accounts/login.html:58
 msgid "Войти"
 msgstr ""
 
-#: .\templates\accounts\login.html:72
+#: templates/accounts/login.html:69
 msgid "Админ-панель"
 msgstr ""
 
-#: .\templates\accounts\login.html:81
+#: templates/accounts/login.html:78
 msgid "Для разработки:"
 msgstr ""
 
-#: .\templates\accounts\login.html:82
+#: templates/accounts/login.html:79
 msgid "Создайте суперпользователя командой:"
 msgstr ""
 
-#: .\templates\base.html:31
+#: templates/base.html:29
 msgid "Герб Республики Казахстан"
 msgstr ""
 
-#: .\templates\base.html:34
-msgid "Справочник МКИ РК"
+#: templates/base.html:32
+msgid "МКИ РК"
+msgstr "МКИ РК"
+
+#: templates/base.html:37
+msgid "Основное меню"
 msgstr ""
 
-#: .\templates\base.html:45
+#: templates/base.html:43 templates/base.html:140
 msgid "Список"
 msgstr ""
 
-#: .\templates\base.html:52 .\templates\contacts\list.html:32
+#: templates/base.html:50 templates/base.html:143
+#: templates/contacts/list.html:32 templates/contacts/list2.html:32
 msgid "Поиск"
 msgstr ""
 
-#: .\templates\base.html:126
+#: templates/base.html:76 templates/base.html:212
+msgid "Открыть меню"
+msgstr ""
+
+#: templates/base.html:85
+msgid "Авторизован"
+msgstr ""
+
+#: templates/base.html:94 templates/base.html:97
+msgid "Выход"
+msgstr ""
+
+#: templates/base.html:106
+msgid "Вход"
+msgstr ""
+
+#: templates/base.html:138
+msgid "Меню"
+msgstr ""
+
+#: templates/base.html:187
 msgid "Все права защищены"
 msgstr ""
 
-#: .\templates\contacts\list.html:6 .\templates\contacts\list.html:23
+#: templates/base.html:189 templates/base.html:191
+#: templates/contacts/developer_contact.html:4
+#: templates/contacts/developer_contact.html:10
+#, fuzzy
+#| msgid "Чат в разработке"
+msgid "Связь с разработчиком"
+msgstr "Чат в разработке"
+
+#: templates/base.html:212
+msgid "Закрыть меню"
+msgstr ""
+
+#: templates/contacts/chat.html:17
+msgid "Система общения между сотрудниками"
+msgstr "Система общения между сотрудниками"
+
+#: templates/contacts/chat.html:28
+msgid "Чат в разработке"
+msgstr "Чат в разработке"
+
+#: templates/contacts/chat.html:31
+msgid ""
+"Функционал чата будет доступен в ближайшее время. Здесь будет возможность "
+"общаться с коллегами, отправлять сообщения и файлы."
+msgstr ""
+"Функционал чата будет доступен в ближайшее время. Здесь будет возможность "
+"общаться с коллегами, отправлять сообщения и файлы."
+
+#: templates/contacts/chat.html:36
+msgid "Скоро здесь появится полноценный интерфейс для общения!"
+msgstr "Скоро здесь появится полноценный интерфейс для общения!"
+
+#: templates/contacts/developer_contact.html:14
+msgid ""
+"По вопросам работы сайта, предложений и сообщений об ошибках вы можете "
+"связаться с разработчиком:"
+msgstr ""
+
+#: templates/contacts/developer_contact.html:49
+msgid ""
+"Контакты разработчика пока не настроены. Обратитесь к администратору сайта."
+msgstr ""
+
+#: templates/contacts/developer_contact.html:57
+#, fuzzy
+#| msgid "Чат в разработке"
+msgid "Разработчик:"
+msgstr "Чат в разработке"
+
+#: templates/contacts/list.html:6 templates/contacts/list.html:23
+#: templates/contacts/list2.html:6 templates/contacts/list2.html:25
 msgid "Список сотрудников"
 msgstr ""
 
-#: .\templates\contacts\list.html:14
+#: templates/contacts/list.html:14 templates/contacts/list2.html:15
 msgid ""
 "Официальный справочник Министерства культуры и информации Республики "
 "Казахстан"
 msgstr ""
 
-#: .\templates\contacts\list.html:43
+#: templates/contacts/list.html:43 templates/contacts/list2.html:43
 msgid "Всего сотрудников"
 msgstr ""
 
-#: .\templates\contacts\list.html:48
-msgid "Департаментов"
+#: templates/contacts/list.html:48
+msgid "Департаментов/Комитетов"
 msgstr ""
 
-#: .\templates\contacts\list.html:53
+#: templates/contacts/list.html:53 templates/contacts/list2.html:53
 msgid "Управлении"
 msgstr ""
 
-#: .\templates\contacts\list.html:81
+#: templates/contacts/list.html:81 templates/contacts/list2.html:87
 msgid "управлений"
 msgstr ""
 
-#: .\templates\contacts\list.html:87 .\templates\contacts\list.html:228
-#: .\templates\contacts\list.html:334
+#: templates/contacts/list.html:87 templates/contacts/list.html:228
+#: templates/contacts/list.html:334 templates/contacts/list2.html:93
+#: templates/contacts/list2.html:260 templates/contacts/list2.html:402
 msgid "сотрудников"
 msgstr ""
 
-#: .\templates\contacts\list.html:101 .\templates\contacts\list.html:240
-#: .\templates\contacts\list.html:344
-#: .\templates\contacts\partials\search_results.html:24
+#: templates/contacts/list.html:101 templates/contacts/list.html:240
+#: templates/contacts/list.html:344 templates/contacts/list2.html:108
+#: templates/contacts/list2.html:274 templates/contacts/list2.html:413
+#: templates/contacts/partials/search_results.html:24
 msgid "Фото"
 msgstr ""
 
-#: .\templates\contacts\list.html:113 .\templates\contacts\list.html:243
-#: .\templates\contacts\list.html:356
-#: .\templates\contacts\partials\search_results.html:41
+#: templates/contacts/list.html:113 templates/contacts/list.html:243
+#: templates/contacts/list.html:356 templates/contacts/list2.html:123
+#: templates/contacts/list2.html:285 templates/contacts/list2.html:428
+#: templates/contacts/partials/search_results.html:41
 msgid "Телефоны"
 msgstr ""
 
-#: .\templates\contacts\list.html:180 .\templates\contacts\list.html:288
-#: .\templates\contacts\list.html:422
-#: .\templates\contacts\partials\search_results.html:117
+#: templates/contacts/list.html:180 templates/contacts/list.html:288
+#: templates/contacts/list.html:422
+#: templates/contacts/partials/search_results.html:123
 msgid "раб."
 msgstr ""
 
-#: .\templates\contacts\list.html:183 .\templates\contacts\list.html:291
-#: .\templates\contacts\list.html:429
-#: .\templates\contacts\partials\search_results.html:124
+#: templates/contacts/list.html:183 templates/contacts/list.html:291
+#: templates/contacts/list.html:429
+#: templates/contacts/partials/search_results.html:130
 msgid "моб."
 msgstr ""
 
-#: .\templates\contacts\list.html:202 .\templates\contacts\list.html:306
-#: .\templates\contacts\list.html:457
-#: .\templates\contacts\partials\search_results.html:152
+#: templates/contacts/list.html:202 templates/contacts/list.html:306
+#: templates/contacts/list.html:457 templates/contacts/list2.html:231
+#: templates/contacts/list2.html:538
+#: templates/contacts/partials/search_results.html:158
 msgid "Не указан"
 msgstr ""
 
-#: .\templates\contacts\list.html:329
+#: templates/contacts/list.html:329 templates/contacts/list2.html:397
 msgid "Сотрудники без отдела"
 msgstr ""
 
-#: .\templates\contacts\list.html:475
-#: .\templates\contacts\partials\search_results.html:180
-#: .\templates\contacts\partials\search_results.html:185
-#: .\templates\contacts\vacancies.html:86
+#: templates/contacts/list.html:475 templates/contacts/list2.html:557
+#: templates/contacts/partials/search_results.html:186
+#: templates/contacts/partials/search_results.html:191
+#: templates/contacts/vacancies.html:86
 msgid "Предыдущая"
 msgstr ""
 
-#: .\templates\contacts\list.html:480 .\templates\contacts\vacancies.html:90
+#: templates/contacts/list.html:480 templates/contacts/list2.html:562
+#: templates/contacts/vacancies.html:90
 msgid "Страница"
 msgstr ""
 
-#: .\templates\contacts\list.html:480
-#: .\templates\contacts\partials\search_results.html:168
-#: .\templates\contacts\vacancies.html:90
+#: templates/contacts/list.html:480 templates/contacts/list2.html:562
+#: templates/contacts/partials/search_results.html:174
+#: templates/contacts/vacancies.html:90
 msgid "из"
 msgstr ""
 
-#: .\templates\contacts\list.html:485
-#: .\templates\contacts\partials\search_results.html:229
-#: .\templates\contacts\partials\search_results.html:234
-#: .\templates\contacts\vacancies.html:94
+#: templates/contacts/list.html:485 templates/contacts/list2.html:569
+#: templates/contacts/partials/search_results.html:235
+#: templates/contacts/partials/search_results.html:240
+#: templates/contacts/vacancies.html:94
 msgid "Следующая"
 msgstr ""
 
-#: .\templates\contacts\partials\search_results.html:11
+#: templates/contacts/list2.html:48
+msgid "Структурных подразделений"
+msgstr ""
+
+#: templates/contacts/partials/search_results.html:11
 msgid "Найдено результатов"
 msgstr ""
 
-#: .\templates\contacts\partials\search_results.html:13
+#: templates/contacts/partials/search_results.html:13
 msgid "Всего контактов"
 msgstr ""
 
-#: .\templates\contacts\partials\search_results.html:33
+#: templates/contacts/partials/search_results.html:33
 msgid "Должн."
 msgstr ""
 
-#: .\templates\contacts\partials\search_results.html:42
+#: templates/contacts/partials/search_results.html:42
 msgid "Тел."
 msgstr ""
 
-#: .\templates\contacts\partials\search_results.html:51
+#: templates/contacts/partials/search_results.html:51
 msgid "Каб."
 msgstr ""
 
-#: .\templates\contacts\partials\search_results.html:168
+#: templates/contacts/partials/search_results.html:174
 msgid "Показано"
 msgstr ""
 
-#: .\templates\contacts\partials\search_results.html:168
+#: templates/contacts/partials/search_results.html:174
 msgid "записей"
 msgstr ""
 
-#: .\templates\contacts\partials\search_results.html:252
+#: templates/contacts/partials/search_results.html:258
 msgid "Результаты не найдены"
 msgstr ""
 
-#: .\templates\contacts\partials\search_results.html:255
+#: templates/contacts/partials/search_results.html:261
 msgid "По заданным фильтрам ничего не найдено."
 msgstr ""
 
-#: .\templates\contacts\partials\search_results.html:263
-#: .\templates\contacts\search.html:387
+#: templates/contacts/partials/search_results.html:269
+#: templates/contacts/search.html:387
 msgid "Сбросить фильтры"
 msgstr ""
 
-#: .\templates\contacts\partials\search_results.html:272
+#: templates/contacts/partials/search_results.html:278
 msgid "База данных пуста"
 msgstr ""
 
-#: .\templates\contacts\partials\search_results.html:275
+#: templates/contacts/partials/search_results.html:281
 msgid "В базе данных пока нет контактов."
 msgstr ""
 
-#: .\templates\contacts\partials\search_results.html:278
+#: templates/contacts/partials/search_results.html:284
 msgid "Для импорта данных выполните команду"
 msgstr ""
 
-#: .\templates\contacts\search.html:5 .\templates\contacts\search.html:182
+#: templates/contacts/search.html:5 templates/contacts/search.html:182
 msgid "Поиск контактов"
 msgstr ""
 
-#: .\templates\contacts\search.html:26 .\templates\contacts\search.html:298
+#: templates/contacts/search.html:26 templates/contacts/search.html:298
 msgid "Все должности"
 msgstr ""
 
-#: .\templates\contacts\search.html:31 .\templates\contacts\search.html:48
-#: .\templates\contacts\search.html:65
+#: templates/contacts/search.html:31 templates/contacts/search.html:48
+#: templates/contacts/search.html:65
 msgid "Ничего не найдено"
 msgstr ""
 
-#: .\templates\contacts\search.html:34 .\templates\contacts\search.html:51
-#: .\templates\contacts\search.html:68 .\templates\contacts\search.html:396
+#: templates/contacts/search.html:34 templates/contacts/search.html:51
+#: templates/contacts/search.html:68 templates/contacts/search.html:396
 msgid "Поиск..."
 msgstr ""
 
-#: .\templates\contacts\search.html:43 .\templates\contacts\search.html:231
+#: templates/contacts/search.html:43 templates/contacts/search.html:231
 msgid "Все департаменты/комитеты"
 msgstr ""
 
-#: .\templates\contacts\search.html:60 .\templates\contacts\search.html:255
+#: templates/contacts/search.html:60 templates/contacts/search.html:255
 msgid "Все управления"
 msgstr ""
 
-#: .\templates\contacts\search.html:184
+#: templates/contacts/search.html:184
 msgid "Используйте фильтры для поиска нужных контактов"
 msgstr ""
 
-#: .\templates\contacts\search.html:212
+#: templates/contacts/search.html:212
 msgid "Введите ФИО"
 msgstr ""
 
-#: .\templates\contacts\search.html:224
-msgid "Департамент/Комитет"
-msgstr ""
-
-#: .\templates\contacts\search.html:271
+#: templates/contacts/search.html:271
 msgid "Независимые управления"
 msgstr ""
 
-#: .\templates\contacts\search.html:322
+#: templates/contacts/search.html:322
 msgid "Все типы"
 msgstr ""
 
-#: .\templates\contacts\search.html:342
+#: templates/contacts/search.html:342
 msgid "Например: 751"
 msgstr ""
 
-#: .\templates\contacts\search.html:354
+#: templates/contacts/search.html:354
 msgid "Телефон"
 msgstr ""
 
-#: .\templates\contacts\search.html:362
+#: templates/contacts/search.html:362
 msgid "Рабочий или мобильный"
 msgstr ""
 
-#: .\templates\contacts\search.html:378
+#: templates/contacts/search.html:378
 msgid "Найти"
 msgstr ""
 
-#: .\templates\contacts\vacancies.html:26
+#: templates/contacts/vacancies.html:26
 msgid "Всего активных вакансий"
 msgstr ""
 
-#: .\templates\contacts\vacancies.html:45
-#: .\templates\contacts\vacancy_detail.html:34
+#: templates/contacts/vacancies.html:45
+#: templates/contacts/vacancy_detail.html:34
 msgid "Опубликовано"
 msgstr ""
 
-#: .\templates\contacts\vacancies.html:74
+#: templates/contacts/vacancies.html:74
 msgid "Подробнее"
 msgstr ""
 
-#: .\templates\contacts\vacancies.html:102
+#: templates/contacts/vacancies.html:102
 msgid "Активных вакансий пока нет"
 msgstr ""
 
-#: .\templates\contacts\vacancy_detail.html:40
+#: templates/contacts/vacancy_detail.html:40
 msgid "Назад к списку вакансий"
 msgstr ""
 
-#: .\templates\base.html:54
-msgid "Чат"
-msgstr "Чат"
-
-#: .\templates\contacts\chat.html:10
-msgid "Система общения между сотрудниками"
-msgstr "Система общения между сотрудниками"
-
-#: .\templates\contacts\chat.html:18
-msgid "Чат в разработке"
-msgstr "Чат в разработке"
-
-#: .\templates\contacts\chat.html:21
-msgid "Функционал чата будет доступен в ближайшее время. Здесь будет возможность общаться с коллегами, отправлять сообщения и файлы."
-msgstr "Функционал чата будет доступен в ближайшее время. Здесь будет возможность общаться с коллегами, отправлять сообщения и файлы."
-
-#: .\templates\contacts\chat.html:26
-msgid "Скоро здесь появится полноценный интерфейс для общения!"
-msgstr "Скоро здесь появится полноценный интерфейс для общения!"
-
-#: .\venv\Lib\site-packages\ckeditor_uploader\forms.py:6
-msgid "Search files"
-msgstr ""
-
-#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:5
-msgid "Select an image to embed"
-msgstr ""
-
-#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:27
-msgid "Browse for the image you want, then click 'Embed Image' to continue..."
-msgstr ""
-
-#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:29
-msgid ""
-"No images found. Upload images using the 'Image Button' dialog's 'Upload' "
-"tab."
-msgstr ""
-
-#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:50
-msgid "Images in: "
-msgstr ""
-
-#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:62
-#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:80
-msgid "Embed Image"
-msgstr ""
-
-#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:146
-msgid "Play Slideshow"
-msgstr ""
-
-#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:147
-msgid "Pause Slideshow"
-msgstr ""
-
-#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:148
-msgid "&lsaquo; Previous Photo"
-msgstr ""
-
-#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:149
-msgid "Next Photo &rsaquo;"
-msgstr ""
-
-#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:150
-msgid "Next &rsaquo;"
-msgstr ""
-
-#: .\venv\Lib\site-packages\ckeditor_uploader\templates\ckeditor\browse.html:151
-msgid "&lsaquo; Prev"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\contrib\messages\apps.py:16
-msgid "Messages"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\contrib\sitemaps\apps.py:8
-msgid "Site Maps"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\contrib\staticfiles\apps.py:9
-msgid "Static Files"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\contrib\syndication\apps.py:7
-msgid "Syndication"
-msgstr ""
-
-#. Translators: String used to replace omitted page numbers in elided page
-#. range generated by paginators, e.g. [1, 2, '…', 5, 6, 7, '…', 9, 10].
-#: .\venv\Lib\site-packages\django\core\paginator.py:30
-msgid "…"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\paginator.py:32
-msgid "That page number is not an integer"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\paginator.py:33
-msgid "That page number is less than 1"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\paginator.py:34
-msgid "That page contains no results"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:22
-msgid "Enter a valid value."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:70
-msgid "Enter a valid domain name."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:153
-#: .\venv\Lib\site-packages\django\forms\fields.py:775
-msgid "Enter a valid URL."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:200
-msgid "Enter a valid integer."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:211
-msgid "Enter a valid email address."
-msgstr ""
-
-#. Translators: "letters" means latin letters: a-z and A-Z.
-#: .\venv\Lib\site-packages\django\core\validators.py:289
-msgid ""
-"Enter a valid “slug” consisting of letters, numbers, underscores or hyphens."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:297
-msgid ""
-"Enter a valid “slug” consisting of Unicode letters, numbers, underscores, or "
-"hyphens."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:309
-#: .\venv\Lib\site-packages\django\core\validators.py:318
-#: .\venv\Lib\site-packages\django\core\validators.py:332
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2220
-#, python-format
-msgid "Enter a valid %(protocol)s address."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:311
-msgid "IPv4"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:320
-#: .\venv\Lib\site-packages\django\utils\ipv6.py:43
-msgid "IPv6"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:334
-msgid "IPv4 or IPv6"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:375
-msgid "Enter only digits separated by commas."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:381
-#, python-format
-msgid "Ensure this value is %(limit_value)s (it is %(show_value)s)."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:416
-#, python-format
-msgid "Ensure this value is less than or equal to %(limit_value)s."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:425
-#, python-format
-msgid "Ensure this value is greater than or equal to %(limit_value)s."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:434
-#, python-format
-msgid "Ensure this value is a multiple of step size %(limit_value)s."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:441
-#, python-format
-msgid ""
-"Ensure this value is a multiple of step size %(limit_value)s, starting from "
-"%(offset)s, e.g. %(offset)s, %(valid_value1)s, %(valid_value2)s, and so on."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:473
-#, python-format
-msgid ""
-"Ensure this value has at least %(limit_value)d character (it has "
-"%(show_value)d)."
-msgid_plural ""
-"Ensure this value has at least %(limit_value)d characters (it has "
-"%(show_value)d)."
-msgstr[0] ""
-msgstr[1] ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:491
-#, python-format
-msgid ""
-"Ensure this value has at most %(limit_value)d character (it has "
-"%(show_value)d)."
-msgid_plural ""
-"Ensure this value has at most %(limit_value)d characters (it has "
-"%(show_value)d)."
-msgstr[0] ""
-msgstr[1] ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:514
-#: .\venv\Lib\site-packages\django\forms\fields.py:366
-#: .\venv\Lib\site-packages\django\forms\fields.py:405
-msgid "Enter a number."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:516
-#, python-format
-msgid "Ensure that there are no more than %(max)s digit in total."
-msgid_plural "Ensure that there are no more than %(max)s digits in total."
-msgstr[0] ""
-msgstr[1] ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:521
-#, python-format
-msgid "Ensure that there are no more than %(max)s decimal place."
-msgid_plural "Ensure that there are no more than %(max)s decimal places."
-msgstr[0] ""
-msgstr[1] ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:526
-#, python-format
-msgid ""
-"Ensure that there are no more than %(max)s digit before the decimal point."
-msgid_plural ""
-"Ensure that there are no more than %(max)s digits before the decimal point."
-msgstr[0] ""
-msgstr[1] ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:597
-#, python-format
-msgid ""
-"File extension “%(extension)s” is not allowed. Allowed extensions are: "
-"%(allowed_extensions)s."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\core\validators.py:659
-msgid "Null characters are not allowed."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\base.py:1600
-#: .\venv\Lib\site-packages\django\forms\models.py:908
-msgid "and"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\base.py:1602
-#, python-format
-msgid "%(model_name)s with this %(field_labels)s already exists."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\constraints.py:22
-#, python-format
-msgid "Constraint “%(name)s” is violated."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:134
-#, python-format
-msgid "Value %(value)r is not a valid choice."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:135
-msgid "This field cannot be null."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:136
-msgid "This field cannot be blank."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:137
-#, python-format
-msgid "%(model_name)s with this %(field_label)s already exists."
-msgstr ""
-
-#. Translators: The 'lookup_type' is one of 'date', 'year' or
-#. 'month'. Eg: "Title must be unique for pub_date year"
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:141
-#, python-format
-msgid ""
-"%(field_label)s must be unique for %(date_field_label)s %(lookup_type)s."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:180
-#, python-format
-msgid "Field of type: %(field_type)s"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1162
-#, python-format
-msgid "“%(value)s” value must be either True or False."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1163
-#, python-format
-msgid "“%(value)s” value must be either True, False, or None."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1165
-msgid "Boolean (Either True or False)"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1215
-#, python-format
-msgid "String (up to %(max_length)s)"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1217
-msgid "String (unlimited)"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1326
-msgid "Comma-separated integers"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1427
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid date format. It must be in YYYY-MM-DD "
-"format."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1431
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1566
-#, python-format
-msgid ""
-"“%(value)s” value has the correct format (YYYY-MM-DD) but it is an invalid "
-"date."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1435
-msgid "Date (without time)"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1562
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid format. It must be in YYYY-MM-DD "
-"HH:MM[:ss[.uuuuuu]][TZ] format."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1570
-#, python-format
-msgid ""
-"“%(value)s” value has the correct format (YYYY-MM-DD HH:MM[:ss[.uuuuuu]]"
-"[TZ]) but it is an invalid date/time."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1575
-msgid "Date (with time)"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1702
-#, python-format
-msgid "“%(value)s” value must be a decimal number."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1704
-msgid "Decimal number"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1864
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid format. It must be in [DD] "
-"[[HH:]MM:]ss[.uuuuuu] format."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1868
-msgid "Duration"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1920
-msgid "Email address"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:1945
-msgid "File path"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2023
-#, python-format
-msgid "“%(value)s” value must be a float."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2025
-msgid "Floating point number"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2065
-#, python-format
-msgid "“%(value)s” value must be an integer."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2067
-msgid "Integer"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2163
-msgid "Big (8 byte) integer"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2180
-msgid "Small integer"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2188
-msgid "IPv4 address"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2219
-msgid "IP address"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2310
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2311
-#, python-format
-msgid "“%(value)s” value must be either None, True or False."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2313
-msgid "Boolean (Either True, False or None)"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2364
-msgid "Positive big integer"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2379
-msgid "Positive integer"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2394
-msgid "Positive small integer"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2410
-#, python-format
-msgid "Slug (up to %(max_length)s)"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2446
-msgid "Text"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2526
-#, python-format
-msgid ""
-"“%(value)s” value has an invalid format. It must be in HH:MM[:ss[.uuuuuu]] "
-"format."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2530
-#, python-format
-msgid ""
-"“%(value)s” value has the correct format (HH:MM[:ss[.uuuuuu]]) but it is an "
-"invalid time."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2534
-msgid "Time"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2642
-msgid "URL"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2666
-msgid "Raw binary data"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2731
-#, python-format
-msgid "“%(value)s” is not a valid UUID."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\__init__.py:2733
-msgid "Universally unique identifier"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\files.py:244
-msgid "File"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\files.py:420
-msgid "Image"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\json.py:24
-msgid "A JSON object"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\json.py:26
-msgid "Value must be valid JSON."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\related.py:979
-#, python-format
-msgid "%(model)s instance with %(field)s %(value)r is not a valid choice."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\related.py:982
-msgid "Foreign Key (type determined by related field)"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\related.py:1276
-msgid "One-to-one relationship"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\related.py:1333
-#, python-format
-msgid "%(from)s-%(to)s relationship"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\related.py:1335
-#, python-format
-msgid "%(from)s-%(to)s relationships"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\db\models\fields\related.py:1383
-msgid "Many-to-many relationship"
-msgstr ""
-
-#. Translators: If found as last label character, these punctuation
-#. characters will prevent the default label_suffix to be appended to the label
-#: .\venv\Lib\site-packages\django\forms\boundfield.py:185
-msgid ":?.!"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:95
-msgid "This field is required."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:315
-msgid "Enter a whole number."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:486
-#: .\venv\Lib\site-packages\django\forms\fields.py:1267
-msgid "Enter a valid date."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:509
-#: .\venv\Lib\site-packages\django\forms\fields.py:1268
-msgid "Enter a valid time."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:536
-msgid "Enter a valid date/time."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:570
-msgid "Enter a valid duration."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:571
-#, python-brace-format
-msgid "The number of days must be between {min_days} and {max_days}."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:640
-msgid "No file was submitted. Check the encoding type on the form."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:641
-msgid "No file was submitted."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:642
-msgid "The submitted file is empty."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:644
-#, python-format
-msgid "Ensure this filename has at most %(max)d character (it has %(length)d)."
-msgid_plural ""
-"Ensure this filename has at most %(max)d characters (it has %(length)d)."
-msgstr[0] ""
-msgstr[1] ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:649
-msgid "Please either submit a file or check the clear checkbox, not both."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:717
-msgid ""
-"Upload a valid image. The file you uploaded was either not an image or a "
-"corrupted image."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:889
-#: .\venv\Lib\site-packages\django\forms\fields.py:975
-#: .\venv\Lib\site-packages\django\forms\models.py:1592
-#, python-format
-msgid "Select a valid choice. %(value)s is not one of the available choices."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:977
-#: .\venv\Lib\site-packages\django\forms\fields.py:1096
-#: .\venv\Lib\site-packages\django\forms\models.py:1590
-msgid "Enter a list of values."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:1097
-msgid "Enter a complete value."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:1339
-msgid "Enter a valid UUID."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\fields.py:1369
-msgid "Enter a valid JSON."
-msgstr ""
-
-#. Translators: This is the default suffix added to form field labels
-#: .\venv\Lib\site-packages\django\forms\forms.py:97
-msgid ":"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\forms.py:239
-#, python-format
-msgid "(Hidden field %(name)s) %(error)s"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\formsets.py:61
-#, python-format
-msgid ""
-"ManagementForm data is missing or has been tampered with. Missing fields: "
-"%(field_names)s. You may need to file a bug report if the issue persists."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\formsets.py:65
-#, python-format
-msgid "Please submit at most %(num)d form."
-msgid_plural "Please submit at most %(num)d forms."
-msgstr[0] ""
-msgstr[1] ""
-
-#: .\venv\Lib\site-packages\django\forms\formsets.py:70
-#, python-format
-msgid "Please submit at least %(num)d form."
-msgid_plural "Please submit at least %(num)d forms."
-msgstr[0] ""
-msgstr[1] ""
-
-#: .\venv\Lib\site-packages\django\forms\formsets.py:484
-#: .\venv\Lib\site-packages\django\forms\formsets.py:491
-msgid "Order"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\formsets.py:499
-msgid "Delete"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\models.py:901
-#, python-format
-msgid "Please correct the duplicate data for %(field)s."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\models.py:906
-#, python-format
-msgid "Please correct the duplicate data for %(field)s, which must be unique."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\models.py:913
-#, python-format
-msgid ""
-"Please correct the duplicate data for %(field_name)s which must be unique "
-"for the %(lookup)s in %(date_field)s."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\models.py:922
-msgid "Please correct the duplicate values below."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\models.py:1359
-msgid "The inline value did not match the parent instance."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\models.py:1450
-msgid "Select a valid choice. That choice is not one of the available choices."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\models.py:1594
-#, python-format
-msgid "“%(pk)s” is not a valid value."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\utils.py:229
-#, python-format
-msgid ""
-"%(datetime)s couldn’t be interpreted in time zone %(current_timezone)s; it "
-"may be ambiguous or it may not exist."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\widgets.py:527
-msgid "Clear"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\widgets.py:528
-msgid "Currently"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\widgets.py:529
-msgid "Change"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\widgets.py:866
-msgid "Unknown"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\widgets.py:867
-msgid "Yes"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\forms\widgets.py:868
-msgid "No"
-msgstr ""
-
-#. Translators: Please do not add spaces around commas.
-#: .\venv\Lib\site-packages\django\template\defaultfilters.py:873
-msgid "yes,no,maybe"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\template\defaultfilters.py:903
-#: .\venv\Lib\site-packages\django\template\defaultfilters.py:920
-#, python-format
-msgid "%(size)d byte"
-msgid_plural "%(size)d bytes"
-msgstr[0] ""
-msgstr[1] ""
-
-#: .\venv\Lib\site-packages\django\template\defaultfilters.py:922
-#, python-format
-msgid "%s KB"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\template\defaultfilters.py:924
-#, python-format
-msgid "%s MB"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\template\defaultfilters.py:926
-#, python-format
-msgid "%s GB"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\template\defaultfilters.py:928
-#, python-format
-msgid "%s TB"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\template\defaultfilters.py:930
-#, python-format
-msgid "%s PB"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dateformat.py:74
-msgid "p.m."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dateformat.py:75
-msgid "a.m."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dateformat.py:80
-msgid "PM"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dateformat.py:81
-msgid "AM"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dateformat.py:153
-msgid "midnight"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dateformat.py:155
-msgid "noon"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:7
-msgid "Monday"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:8
-msgid "Tuesday"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:9
-msgid "Wednesday"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:10
-msgid "Thursday"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:11
-msgid "Friday"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:12
-msgid "Saturday"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:13
-msgid "Sunday"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:16
-msgid "Mon"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:17
-msgid "Tue"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:18
-msgid "Wed"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:19
-msgid "Thu"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:20
-msgid "Fri"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:21
-msgid "Sat"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:22
-msgid "Sun"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:25
-msgid "January"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:26
-msgid "February"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:27
-msgid "March"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:28
-msgid "April"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:29
-msgid "May"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:30
-msgid "June"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:31
-msgid "July"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:32
-msgid "August"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:33
-msgid "September"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:34
-msgid "October"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:35
-msgid "November"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:36
-msgid "December"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:39
-msgid "jan"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:40
-msgid "feb"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:41
-msgid "mar"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:42
-msgid "apr"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:43
-msgid "may"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:44
-msgid "jun"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:45
-msgid "jul"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:46
-msgid "aug"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:47
-msgid "sep"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:48
-msgid "oct"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:49
-msgid "nov"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:50
-msgid "dec"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:53
-msgctxt "abbrev. month"
-msgid "Jan."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:54
-msgctxt "abbrev. month"
-msgid "Feb."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:55
-msgctxt "abbrev. month"
-msgid "March"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:56
-msgctxt "abbrev. month"
-msgid "April"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:57
-msgctxt "abbrev. month"
-msgid "May"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:58
-msgctxt "abbrev. month"
-msgid "June"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:59
-msgctxt "abbrev. month"
-msgid "July"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:60
-msgctxt "abbrev. month"
-msgid "Aug."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:61
-msgctxt "abbrev. month"
-msgid "Sept."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:62
-msgctxt "abbrev. month"
-msgid "Oct."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:63
-msgctxt "abbrev. month"
-msgid "Nov."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:64
-msgctxt "abbrev. month"
-msgid "Dec."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:67
-msgctxt "alt. month"
-msgid "January"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:68
-msgctxt "alt. month"
-msgid "February"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:69
-msgctxt "alt. month"
-msgid "March"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:70
-msgctxt "alt. month"
-msgid "April"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:71
-msgctxt "alt. month"
-msgid "May"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:72
-msgctxt "alt. month"
-msgid "June"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:73
-msgctxt "alt. month"
-msgid "July"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:74
-msgctxt "alt. month"
-msgid "August"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:75
-msgctxt "alt. month"
-msgid "September"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:76
-msgctxt "alt. month"
-msgid "October"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:77
-msgctxt "alt. month"
-msgid "November"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\dates.py:78
-msgctxt "alt. month"
-msgid "December"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\ipv6.py:20
-msgid "This is not a valid IPv6 address."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\text.py:76
-#, python-format
-msgctxt "String to return when truncating text"
-msgid "%(truncated_text)s…"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\text.py:287
-msgid "or"
-msgstr ""
-
-#. Translators: This string is used as a separator between list elements
-#: .\venv\Lib\site-packages\django\utils\text.py:306
-#: .\venv\Lib\site-packages\django\utils\timesince.py:135
-msgid ", "
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\utils\timesince.py:8
-#, python-format
-msgid "%(num)d year"
-msgid_plural "%(num)d years"
-msgstr[0] ""
-msgstr[1] ""
-
-#: .\venv\Lib\site-packages\django\utils\timesince.py:9
-#, python-format
-msgid "%(num)d month"
-msgid_plural "%(num)d months"
-msgstr[0] ""
-msgstr[1] ""
-
-#: .\venv\Lib\site-packages\django\utils\timesince.py:10
-#, python-format
-msgid "%(num)d week"
-msgid_plural "%(num)d weeks"
-msgstr[0] ""
-msgstr[1] ""
-
-#: .\venv\Lib\site-packages\django\utils\timesince.py:11
-#, python-format
-msgid "%(num)d day"
-msgid_plural "%(num)d days"
-msgstr[0] ""
-msgstr[1] ""
-
-#: .\venv\Lib\site-packages\django\utils\timesince.py:12
-#, python-format
-msgid "%(num)d hour"
-msgid_plural "%(num)d hours"
-msgstr[0] ""
-msgstr[1] ""
-
-#: .\venv\Lib\site-packages\django\utils\timesince.py:13
-#, python-format
-msgid "%(num)d minute"
-msgid_plural "%(num)d minutes"
-msgstr[0] ""
-msgstr[1] ""
-
-#: .\venv\Lib\site-packages\django\views\csrf.py:29
-msgid "Forbidden"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\views\csrf.py:30
-msgid "CSRF verification failed. Request aborted."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\views\csrf.py:34
-msgid ""
-"You are seeing this message because this HTTPS site requires a “Referer "
-"header” to be sent by your web browser, but none was sent. This header is "
-"required for security reasons, to ensure that your browser is not being "
-"hijacked by third parties."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\views\csrf.py:40
-msgid ""
-"If you have configured your browser to disable “Referer” headers, please re-"
-"enable them, at least for this site, or for HTTPS connections, or for “same-"
-"origin” requests."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\views\csrf.py:45
-msgid ""
-"If you are using the <meta name=\"referrer\" content=\"no-referrer\"> tag or "
-"including the “Referrer-Policy: no-referrer” header, please remove them. The "
-"CSRF protection requires the “Referer” header to do strict referer checking. "
-"If you’re concerned about privacy, use alternatives like <a "
-"rel=\"noreferrer\" …> for links to third-party sites."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\views\csrf.py:54
-msgid ""
-"You are seeing this message because this site requires a CSRF cookie when "
-"submitting forms. This cookie is required for security reasons, to ensure "
-"that your browser is not being hijacked by third parties."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\views\csrf.py:60
-msgid ""
-"If you have configured your browser to disable cookies, please re-enable "
-"them, at least for this site, or for “same-origin” requests."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\views\csrf.py:66
-msgid "More information is available with DEBUG=True."
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\views\generic\dates.py:44
-msgid "No year specified"
-msgstr ""
-
-#: .\venv\Lib\site-packages\django\views\generic\dates.py:64
-#: .\venv\Lib\site-packages\django\views\generic\dates.py:115
-#: .\venv\Lib\site-packages\django\views\generic\dates.py:214
-msgid "Date out of range"
+#: templates/messaging/chat.html:31 templates/messaging/chat.html:40
+#: templates/messaging/chat.html:47 templates/messaging/chat.html:333
+msgid "Изменить фото"
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\generic\dates.py:94
-msgid "No month specified"
+#: templates/messaging/chat.html:55
+msgid "Поиск сотрудников..."
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\generic\dates.py:147
-msgid "No day specified"
+#: templates/messaging/chat.html:65
+msgid "Сотрудники не найдены"
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\generic\dates.py:194
-msgid "No week specified"
+#: templates/messaging/chat.html:122
+msgid "Выберите сотрудника для начала общения"
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\generic\dates.py:353
-#: .\venv\Lib\site-packages\django\views\generic\dates.py:384
-#, python-format
-msgid "No %(verbose_name_plural)s available"
+#: templates/messaging/chat.html:149
+msgid "Печатает..."
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\generic\dates.py:680
-#, python-format
-msgid ""
-"Future %(verbose_name_plural)s not available because "
-"%(class_name)s.allow_future is False."
+#: templates/messaging/chat.html:164
+msgid "Загрузка старых сообщений..."
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\generic\dates.py:720
-#, python-format
-msgid "Invalid date string “%(datestr)s” given format “%(format)s”"
+#: templates/messaging/chat.html:171
+msgid "Нет сообщений"
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\generic\detail.py:56
-#, python-format
-msgid "No %(verbose_name)s found matching the query"
+#: templates/messaging/chat.html:217
+msgid "Отправлено"
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\generic\list.py:70
-msgid "Page is not “last”, nor can it be converted to an int."
+#: templates/messaging/chat.html:270
+msgid "Прикрепить файл"
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\generic\list.py:77
-#, python-format
-msgid "Invalid page (%(page_number)s): %(message)s"
+#: templates/messaging/chat.html:279
+msgid "Введите сообщение..."
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\generic\list.py:173
-#, python-format
-msgid "Empty list and “%(class_name)s.allow_empty” is False."
+#: templates/messaging/chat.html:286
+msgid "Отправить сообщение"
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\static.py:49
-msgid "Directory indexes are not allowed here."
+#: templates/messaging/chat.html:353
+msgid "Выберите изображение"
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\static.py:51
-#, python-format
-msgid "“%(path)s” does not exist"
+#: templates/messaging/chat.html:367
+msgid "Перетащите рамку для выбора области. Рекомендуется квадратное фото."
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\static.py:68
-#: .\venv\Lib\site-packages\django\views\templates\directory_index.html:8
-#: .\venv\Lib\site-packages\django\views\templates\directory_index.html:11
-#, python-format
-msgid "Index of %(directory)s"
+#: templates/messaging/chat.html:378
+msgid "Отмена"
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\templates\default_urlconf.html:7
-#: .\venv\Lib\site-packages\django\views\templates\default_urlconf.html:204
-msgid "The install worked successfully! Congratulations!"
+#: templates/messaging/chat.html:389
+msgid "Сохранить"
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\templates\default_urlconf.html:206
-#, python-format
-msgid ""
-"View <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/\" "
-"target=\"_blank\" rel=\"noopener\">release notes</a> for Django %(version)s"
+#: templates/messaging/chat.html:1754
+msgid "Только что"
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\templates\default_urlconf.html:208
-#, python-format
-msgid ""
-"You are seeing this page because <a href=\"https://docs.djangoproject.com/en/"
-"%(version)s/ref/settings/#debug\" target=\"_blank\" "
-"rel=\"noopener\">DEBUG=True</a> is in your settings file and you have not "
-"configured any URLs."
+#: templates/messaging/chat.html:1755
+msgid "мин назад"
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\templates\default_urlconf.html:217
-msgid "Django Documentation"
+#: templates/messaging/chat.html:1756
+msgid "ч назад"
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\templates\default_urlconf.html:218
-msgid "Topics, references, &amp; how-to’s"
+#: templates/messaging/chat.html:1808
+msgid "Выберите файл изображения (JPG, PNG, GIF или WebP)."
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\templates\default_urlconf.html:226
-msgid "Tutorial: A Polling App"
+#: templates/messaging/chat.html:1812
+msgid "Размер файла не должен превышать 5 МБ."
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\templates\default_urlconf.html:227
-msgid "Get started with Django"
+#: templates/messaging/chat.html:1850
+msgid "Дождитесь загрузки изображения."
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\templates\default_urlconf.html:235
-msgid "Django Community"
+#: templates/messaging/chat.html:1872 templates/messaging/chat.html:1875
+msgid "Ошибка загрузки. Попробуйте снова."
 msgstr ""
 
-#: .\venv\Lib\site-packages\django\views\templates\default_urlconf.html:236
-msgid "Connect, get help, or contribute"
+#: templates/messaging/no_access.html:4
+msgid "Нет доступа"
 msgstr ""
 
-#: .\venv\Lib\site-packages\image_cropping\backends\base.py:53
-#, python-brace-format
-msgid "There's no widget registered to the class {class_name}"
+#: templates/messaging/no_access.html:12
+msgid "У вас нет доступа к чату"
 msgstr ""
 
-#: .\venv\Lib\site-packages\image_cropping\utils.py:28
-#, python-brace-format
-msgid "Can't retrieve the image backend '{}'. Message: '{}'."
+#: templates/messaging/no_access.html:13
+msgid "Вам необходимо обратиться к администраторам для получения доступа."
 msgstr ""
