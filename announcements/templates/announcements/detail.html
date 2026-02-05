@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+    {% if current_language == 'kk' %}
+        {{ announcement.title_kk }}
+    {% else %}
+        {{ announcement.title_ru }}
+    {% endif %}
+    - {% trans "Объявления" %} - {{ block.super }}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Кнопка "Назад" -->
+    <div class="mb-4">
+        <a href="{% url 'announcements:list' %}" class="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            {% trans "Назад к списку" %}
+        </a>
+    </div>
+
+    <!-- Карточка объявления -->
+    <article class="bg-white rounded-lg shadow-md p-8">
+        <!-- Заголовок -->
+        <header class="mb-6">
+            <div class="flex items-start justify-between mb-3">
+                <h1 class="text-3xl font-bold text-gray-800">
+                    {% if current_language == 'kk' %}
+                        {{ announcement.title_kk }}
+                    {% else %}
+                        {{ announcement.title_ru }}
+                    {% endif %}
+                </h1>
+                {% if announcement.is_new %}
+                    <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                        {% trans "Новое" %}
+                    </span>
+                {% endif %}
+            </div>
+            
+            <div class="text-sm text-gray-500">
+                <i class="far fa-calendar-alt mr-1"></i>
+                {{ announcement.published_date|date:"d.m.Y H:i" }}
+            </div>
+        </header>
+
+        <!-- Содержимое -->
+        <div class="prose max-w-none text-gray-700">
+            {% if current_language == 'kk' %}
+                {{ announcement.content_kk|safe }}
+            {% else %}
+                {{ announcement.content_ru|safe }}
+            {% endif %}
+        </div>
+    </article>
+</div>
+{% endblock %}

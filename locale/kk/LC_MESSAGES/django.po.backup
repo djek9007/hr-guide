@@ -1,0 +1,1079 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-26 12:42+0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
+"(n%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: contacts/admin.py:79 contacts/admin.py:137 contacts/admin.py:194
+#: contacts/admin.py:236 contacts/admin.py:320 contacts/admin.py:560
+msgid "Основная информация"
+msgstr ""
+
+#: contacts/admin.py:81
+msgid ""
+"Департамент - основное подразделение организации. Руководство - верхний "
+"уровень управления."
+msgstr ""
+
+#: contacts/admin.py:83 contacts/admin.py:141 contacts/admin.py:323
+#: contacts/admin.py:572 contacts/models.py:50 contacts/models.py:121
+#: contacts/models.py:350 contacts/models.py:599
+msgid "Порядок отображения"
+msgstr ""
+
+#: contacts/admin.py:85
+msgid ""
+"Укажите порядок отображения департамента в списке. Меньшее число = выше в "
+"списке."
+msgstr ""
+
+#: contacts/admin.py:87 contacts/admin.py:145 contacts/admin.py:197
+#: contacts/admin.py:563 contacts/models.py:43 contacts/models.py:114
+#: contacts/models.py:173 contacts/models.py:218
+msgid "Описание"
+msgstr ""
+
+#: contacts/admin.py:90 contacts/admin.py:148 contacts/admin.py:200
+#: contacts/admin.py:242 contacts/admin.py:337 contacts/admin.py:576
+msgid "Системная информация"
+msgstr ""
+
+#: contacts/admin.py:109
+msgid "Количество управлений"
+msgstr ""
+
+#: contacts/admin.py:139
+msgid "Управление может принадлежать департаменту или быть независимым."
+msgstr ""
+
+#: contacts/admin.py:143
+msgid ""
+"Укажите порядок отображения управления в списке. Меньшее число = выше в "
+"списке."
+msgstr ""
+
+#: contacts/admin.py:169
+msgid "Количество сотрудников"
+msgstr ""
+
+#: contacts/admin.py:239
+msgid "Расположение"
+msgstr ""
+
+#: contacts/admin.py:325
+msgid ""
+"Укажите порядок отображения сотрудника в списке. Меньшее число = выше в "
+"списке. Если не указано, сортировка по алфавиту."
+msgstr ""
+
+#: contacts/admin.py:327
+msgid "Контакты"
+msgstr ""
+
+#: contacts/admin.py:330
+msgid "Учетная запись пользователя"
+msgstr ""
+
+#: contacts/admin.py:332
+msgid ""
+"Информация о пользователе для доступа к чату. Пользователь создается "
+"автоматически при указании email."
+msgstr ""
+
+#: contacts/admin.py:334
+msgid "Дополнительно"
+msgstr ""
+
+#: contacts/admin.py:387
+msgid "Информация о пользователе"
+msgstr ""
+
+#: contacts/admin.py:388
+msgid "Информация о связанной учетной записи пользователя для доступа к чату"
+msgstr ""
+
+#: contacts/admin.py:453 contacts/models.py:359
+msgid "Аватарка"
+msgstr ""
+
+#: contacts/admin.py:566 templates/contacts/vacancy_detail.html:53
+msgid "Требования и условия"
+msgstr ""
+
+#: contacts/admin.py:569 contacts/models.py:584
+#: templates/contacts/vacancy_detail.html:64
+msgid "Контактная информация"
+msgstr ""
+
+#: contacts/admin.py:574
+msgid ""
+"Укажите порядок отображения вакансии в списке. Меньшее число = выше в "
+"списке. Если не указано, сортировка по дате создания."
+msgstr ""
+
+#: contacts/models.py:16
+msgid "Название департамента/комитета (русский)"
+msgstr ""
+
+#: contacts/models.py:23
+msgid "Название департамента/комитета (казахский)"
+msgstr ""
+
+#: contacts/models.py:36
+msgid "Тип департамента"
+msgstr ""
+
+#: contacts/models.py:37
+msgid ""
+"Департамент - обычное подразделение, Руководство - верхний уровень управления"
+msgstr ""
+
+#: contacts/models.py:53
+msgid ""
+"Число для указания порядка отображения департамента в списке. Меньшее число "
+"= выше в списке."
+msgstr ""
+
+#: contacts/models.py:59 contacts/models.py:130 contacts/models.py:181
+#: contacts/models.py:242 contacts/models.py:418 contacts/models.py:608
+#: messaging/models.py:32
+msgid "Дата создания"
+msgstr ""
+
+#: contacts/models.py:65 contacts/models.py:136 contacts/models.py:187
+#: contacts/models.py:248 contacts/models.py:424 contacts/models.py:614
+msgid "Дата обновления"
+msgstr ""
+
+#: contacts/models.py:69 contacts/models.py:107 contacts/models.py:275
+#: contacts/models.py:534 templates/contacts/search.html:224
+msgid "Департамент/Комитет"
+msgstr ""
+
+#: contacts/models.py:70
+msgid "Департаменты/Комитеты"
+msgstr ""
+
+#: contacts/models.py:88
+msgid "Название управления (русский)"
+msgstr ""
+
+#: contacts/models.py:95
+msgid "Название управления (казахский)"
+msgstr ""
+
+#: contacts/models.py:108
+msgid ""
+"Департамент/комитет, к которому относится управление. Может быть пустым для "
+"независимых управлений."
+msgstr ""
+
+#: contacts/models.py:124
+msgid ""
+"Число для указания порядка отображения управления в списке. Меньшее число = "
+"выше в списке."
+msgstr ""
+
+#: contacts/models.py:140 contacts/models.py:287 contacts/models.py:546
+#: templates/contacts/partials/search_results.html:37
+#: templates/contacts/search.html:248
+msgid "Управление"
+msgstr ""
+
+#: contacts/models.py:141
+msgid "Управления"
+msgstr ""
+
+#: contacts/models.py:159
+msgid "Название должности (русский)"
+msgstr ""
+
+#: contacts/models.py:166
+msgid "Название должности (казахский)"
+msgstr ""
+
+#: contacts/models.py:191 contacts/models.py:299 contacts/models.py:522
+#: templates/contacts/list.html:109 templates/contacts/list.html:242
+#: templates/contacts/list.html:352 templates/contacts/list2.html:118
+#: templates/contacts/list2.html:281 templates/contacts/list2.html:423
+#: templates/contacts/partials/search_results.html:32
+#: templates/contacts/search.html:291
+msgid "Должность"
+msgstr ""
+
+#: contacts/models.py:192
+msgid "Должности"
+msgstr ""
+
+#: contacts/models.py:209 templates/contacts/search.html:334
+msgid "Номер кабинета"
+msgstr ""
+
+#: contacts/models.py:212
+msgid "Номер кабинета (например: 751, 1023)"
+msgstr ""
+
+#: contacts/models.py:221
+msgid "Дополнительная информация о кабинете"
+msgstr ""
+
+#: contacts/models.py:226
+msgid "Этаж"
+msgstr ""
+
+#: contacts/models.py:234
+msgid "Корпус/Здание"
+msgstr ""
+
+#: contacts/models.py:252 contacts/models.py:310
+#: templates/contacts/list.html:121 templates/contacts/list.html:245
+#: templates/contacts/list.html:364 templates/contacts/list2.html:133
+#: templates/contacts/list2.html:293 templates/contacts/list2.html:438
+#: templates/contacts/partials/search_results.html:50
+msgid "Кабинет"
+msgstr ""
+
+#: contacts/models.py:253
+msgid "Кабинеты"
+msgstr ""
+
+#: contacts/models.py:276
+msgid ""
+"Департамент/комитет (если сотрудник привязан напрямую к департаменту, а не к "
+"управлению)"
+msgstr ""
+
+#: contacts/models.py:288
+msgid "Управление, к которому относится сотрудник"
+msgstr ""
+
+#: contacts/models.py:321
+msgid "Пользователь"
+msgstr ""
+
+#: contacts/models.py:322
+msgid "Связь с учетной записью пользователя для доступа к чату"
+msgstr ""
+
+#: contacts/models.py:329 templates/contacts/list.html:105
+#: templates/contacts/list.html:241 templates/contacts/list.html:348
+#: templates/contacts/list2.html:113 templates/contacts/list2.html:277
+#: templates/contacts/list2.html:418
+#: templates/contacts/partials/search_results.html:28
+#: templates/contacts/search.html:204
+msgid "ФИО"
+msgstr ""
+
+#: contacts/models.py:337 templates/contacts/search.html:323
+msgid "Штатный сотрудник"
+msgstr ""
+
+#: contacts/models.py:338 templates/contacts/search.html:324
+msgid "Совместитель"
+msgstr ""
+
+#: contacts/models.py:339 templates/contacts/search.html:325
+msgid "Внештатный сотрудник"
+msgstr ""
+
+#: contacts/models.py:340 templates/contacts/search.html:326
+msgid "По договору"
+msgstr ""
+
+#: contacts/models.py:343 templates/contacts/search.html:315
+msgid "Тип трудоустройства"
+msgstr ""
+
+#: contacts/models.py:344
+msgid "Тип трудоустройства сотрудника (штатный, внештатный и т.д.)"
+msgstr ""
+
+#: contacts/models.py:353
+msgid ""
+"Число для указания порядка отображения сотрудника в списке. Меньшее число = "
+"выше в списке. Если не указано, сортировка по алфавиту."
+msgstr ""
+
+#: contacts/models.py:362
+msgid "Фото сотрудника (необязательно)"
+msgstr ""
+
+#: contacts/models.py:370
+msgid "Обрезка аватарки"
+msgstr ""
+
+#: contacts/models.py:371
+msgid ""
+"Выберите область для обрезки изображения. Рекомендуемый размер: 400x400 "
+"пикселей"
+msgstr ""
+
+#: contacts/models.py:380
+msgid "Рабочий телефон"
+msgstr ""
+
+#: contacts/models.py:389
+msgid "Мобильный телефон"
+msgstr ""
+
+#: contacts/models.py:396 templates/contacts/developer_contact.html:25
+#: templates/contacts/list.html:117 templates/contacts/list.html:244
+#: templates/contacts/list.html:360 templates/contacts/list2.html:128
+#: templates/contacts/list2.html:289 templates/contacts/list2.html:433
+#: templates/contacts/partials/search_results.html:46
+msgid "Email"
+msgstr ""
+
+#: contacts/models.py:403
+msgid "Примечания"
+msgstr ""
+
+#: contacts/models.py:411
+msgid "Доступ к чату"
+msgstr ""
+
+#: contacts/models.py:412
+msgid ""
+"Если выключено, сотрудник не будет отображаться в списке чатов, и сам не "
+"сможет пользоваться чатом."
+msgstr ""
+
+#: contacts/models.py:428
+msgid "Сотрудник"
+msgstr ""
+
+#: contacts/models.py:429
+msgid "Сотрудники"
+msgstr ""
+
+#: contacts/models.py:463
+#, python-format
+msgid ""
+"Этот email уже используется пользователем \"%(username)s\", который привязан "
+"к сотруднику \"%(employee)s\"."
+msgstr ""
+
+#: contacts/models.py:524
+msgid "Должность для вакансии. Позволяет фильтровать вакансии по должностям."
+msgstr ""
+
+#: contacts/models.py:535
+msgid "Департамент/комитет (если вакансия на уровне департамента)"
+msgstr ""
+
+#: contacts/models.py:547
+msgid "Управление, в котором открыта вакансия"
+msgstr ""
+
+#: contacts/models.py:553
+msgid "Описание вакансии (русский)"
+msgstr ""
+
+#: contacts/models.py:560
+msgid "Описание вакансии (казахский)"
+msgstr ""
+
+#: contacts/models.py:567
+msgid "Требования и условия (русский)"
+msgstr ""
+
+#: contacts/models.py:570 contacts/models.py:578
+msgid "Требования к кандидату и условия работы"
+msgstr ""
+
+#: contacts/models.py:575
+msgid "Требования и условия (казахский)"
+msgstr ""
+
+#: contacts/models.py:587
+msgid "Email, телефон или другая контактная информация для отклика"
+msgstr ""
+
+#: contacts/models.py:593
+msgid "Активна"
+msgstr ""
+
+#: contacts/models.py:594
+msgid "Показывать ли вакансию в списке и на сайте"
+msgstr ""
+
+#: contacts/models.py:602
+msgid ""
+"Число для сортировки вакансий в списке. Меньшее число = выше в списке. Если "
+"не указано, сортировка по дате создания."
+msgstr ""
+
+#: contacts/models.py:618 templates/contacts/vacancies.html:56
+msgid "Вакансия"
+msgstr ""
+
+#: contacts/models.py:619 templates/base.html:57 templates/base.html:146
+#: templates/contacts/vacancies.html:4 templates/contacts/vacancies.html:23
+#: templates/contacts/vacancy_detail.html:4
+msgid "Вакансии"
+msgstr ""
+
+#: contacts/models.py:630
+msgid "Вакансия без должности"
+msgstr ""
+
+#: contacts/views.py:356
+msgid "Для безопасности необходимо сменить стандартный пароль."
+msgstr ""
+
+#: contacts/views.py:359
+msgid "Вы успешно вошли в систему."
+msgstr ""
+
+#: contacts/views.py:365
+msgid "Неверное имя пользователя, email или пароль."
+msgstr ""
+
+#: contacts/views.py:367
+msgid "Пожалуйста, заполните все поля."
+msgstr ""
+
+#: contacts/views.py:386
+msgid "Неверный текущий пароль."
+msgstr ""
+
+#: contacts/views.py:391
+msgid "Новый пароль не может совпадать со стандартным паролем."
+msgstr ""
+
+#: contacts/views.py:396
+msgid "Новые пароли не совпадают."
+msgstr ""
+
+#: contacts/views.py:401
+msgid "Пароль должен содержать минимум 8 символов."
+msgstr ""
+
+#: contacts/views.py:408
+msgid "Пароль успешно изменен. Пожалуйста, войдите снова с новым паролем."
+msgstr ""
+
+#: messaging/models.py:17
+msgid "Участник 1"
+msgstr ""
+
+#: messaging/models.py:25
+msgid "Участник 2"
+msgstr ""
+
+#: messaging/models.py:40
+msgid "Дата последнего сообщения"
+msgstr ""
+
+#: messaging/models.py:47
+msgid "Активен"
+msgstr ""
+
+#: messaging/models.py:48
+msgid "Активен ли чат"
+msgstr ""
+
+#: messaging/models.py:52 messaging/models.py:89 templates/base.html:65
+#: templates/base.html:149 templates/contacts/chat.html:4
+#: templates/contacts/chat.html:14 templates/messaging/chat.html:5
+msgid "Чат"
+msgstr "Чат"
+
+#: messaging/models.py:53
+msgid "Чаты"
+msgstr ""
+
+#: messaging/models.py:98
+msgid "Отправитель"
+msgstr ""
+
+#: messaging/models.py:104
+msgid "Текст сообщения"
+msgstr ""
+
+#: messaging/models.py:112
+msgid "Дата отправки"
+msgstr ""
+
+#: messaging/models.py:119 templates/messaging/chat.html:220
+msgid "Прочитано"
+msgstr ""
+
+#: messaging/models.py:127
+msgid "Дата прочтения"
+msgstr ""
+
+#: messaging/models.py:131 messaging/models.py:154
+msgid "Сообщение"
+msgstr ""
+
+#: messaging/models.py:132
+msgid "Сообщения"
+msgstr ""
+
+#: messaging/models.py:161
+msgid "Файл"
+msgstr ""
+
+#: messaging/models.py:162
+msgid "Файл будет автоматически удален через 30 дней"
+msgstr ""
+
+#: messaging/models.py:168
+msgid "Оригинальное имя файла"
+msgstr ""
+
+#: messaging/models.py:173
+msgid "Размер файла (байты)"
+msgstr ""
+
+#: messaging/models.py:179
+msgid "MIME-тип"
+msgstr ""
+
+#: messaging/models.py:187
+msgid "Дата загрузки"
+msgstr ""
+
+#: messaging/models.py:193
+msgid "Удалить после"
+msgstr ""
+
+#: messaging/models.py:194
+msgid "Дата, после которой файл будет удален (30 дней после загрузки)"
+msgstr ""
+
+#: messaging/models.py:199
+msgid "Вложение"
+msgstr ""
+
+#: messaging/models.py:200
+msgid "Вложения"
+msgstr ""
+
+#: templates/accounts/change_password.html:4
+#: templates/accounts/change_password.html:12
+msgid "Смена пароля"
+msgstr ""
+
+#: templates/accounts/change_password.html:4 templates/accounts/login.html:4
+#: templates/base.html:9 templates/base.html:187 templates/contacts/chat.html:4
+#: templates/contacts/developer_contact.html:4 templates/contacts/list.html:6
+#: templates/contacts/search.html:5 templates/contacts/vacancies.html:4
+#: templates/messaging/chat.html:5
+msgid "Справочник Министерства культуры и информации Республики Казахстан"
+msgstr ""
+
+#: templates/accounts/change_password.html:15
+msgid "Для безопасности необходимо сменить стандартный пароль"
+msgstr ""
+
+#: templates/accounts/change_password.html:26
+msgid "Текущий пароль"
+msgstr ""
+
+#: templates/accounts/change_password.html:35
+msgid "Введите текущий пароль"
+msgstr ""
+
+#: templates/accounts/change_password.html:38
+msgid "Стандартный пароль: Chat2026"
+msgstr ""
+
+#: templates/accounts/change_password.html:46
+msgid "Новый пароль"
+msgstr ""
+
+#: templates/accounts/change_password.html:55
+msgid "Введите новый пароль (минимум 8 символов)"
+msgstr ""
+
+#: templates/accounts/change_password.html:63
+msgid "Подтвердите новый пароль"
+msgstr ""
+
+#: templates/accounts/change_password.html:72
+msgid "Повторите новый пароль"
+msgstr ""
+
+#: templates/accounts/change_password.html:82
+msgid "Изменить пароль"
+msgstr ""
+
+#: templates/accounts/login.html:4 templates/accounts/login.html:12
+msgid "Вход в систему"
+msgstr ""
+
+#: templates/accounts/login.html:23
+msgid "Имя пользователя или Email"
+msgstr ""
+
+#: templates/accounts/login.html:32
+msgid "Введите имя пользователя или email"
+msgstr ""
+
+#: templates/accounts/login.html:40
+msgid "Пароль"
+msgstr ""
+
+#: templates/accounts/login.html:48
+msgid "Введите пароль"
+msgstr ""
+
+#: templates/accounts/login.html:58
+msgid "Войти"
+msgstr ""
+
+#: templates/accounts/login.html:69
+msgid "Админ-панель"
+msgstr ""
+
+#: templates/accounts/login.html:78
+msgid "Для разработки:"
+msgstr ""
+
+#: templates/accounts/login.html:79
+msgid "Создайте суперпользователя командой:"
+msgstr ""
+
+#: templates/base.html:29
+msgid "Герб Республики Казахстан"
+msgstr ""
+
+#: templates/base.html:32
+msgid "МКИ РК"
+msgstr "МКИ РК"
+
+#: templates/base.html:37
+msgid "Основное меню"
+msgstr ""
+
+#: templates/base.html:43 templates/base.html:140
+msgid "Список"
+msgstr ""
+
+#: templates/base.html:50 templates/base.html:143
+#: templates/contacts/list.html:32 templates/contacts/list2.html:32
+msgid "Поиск"
+msgstr ""
+
+#: templates/base.html:76 templates/base.html:212
+msgid "Открыть меню"
+msgstr ""
+
+#: templates/base.html:85
+msgid "Авторизован"
+msgstr ""
+
+#: templates/base.html:94 templates/base.html:97
+msgid "Выход"
+msgstr ""
+
+#: templates/base.html:106
+msgid "Вход"
+msgstr ""
+
+#: templates/base.html:138
+msgid "Меню"
+msgstr ""
+
+#: templates/base.html:187
+msgid "Все права защищены"
+msgstr ""
+
+#: templates/base.html:189 templates/base.html:191
+#: templates/contacts/developer_contact.html:4
+#: templates/contacts/developer_contact.html:10
+#, fuzzy
+#| msgid "Чат в разработке"
+msgid "Связь с разработчиком"
+msgstr "Чат в разработке"
+
+#: templates/base.html:212
+msgid "Закрыть меню"
+msgstr ""
+
+#: templates/contacts/chat.html:17
+msgid "Система общения между сотрудниками"
+msgstr "Система общения между сотрудниками"
+
+#: templates/contacts/chat.html:28
+msgid "Чат в разработке"
+msgstr "Чат в разработке"
+
+#: templates/contacts/chat.html:31
+msgid ""
+"Функционал чата будет доступен в ближайшее время. Здесь будет возможность "
+"общаться с коллегами, отправлять сообщения и файлы."
+msgstr ""
+"Функционал чата будет доступен в ближайшее время. Здесь будет возможность "
+"общаться с коллегами, отправлять сообщения и файлы."
+
+#: templates/contacts/chat.html:36
+msgid "Скоро здесь появится полноценный интерфейс для общения!"
+msgstr "Скоро здесь появится полноценный интерфейс для общения!"
+
+#: templates/contacts/developer_contact.html:14
+msgid ""
+"По вопросам работы сайта, предложений и сообщений об ошибках вы можете "
+"связаться с разработчиком:"
+msgstr ""
+
+#: templates/contacts/developer_contact.html:49
+msgid ""
+"Контакты разработчика пока не настроены. Обратитесь к администратору сайта."
+msgstr ""
+
+#: templates/contacts/developer_contact.html:57
+#, fuzzy
+#| msgid "Чат в разработке"
+msgid "Разработчик:"
+msgstr "Чат в разработке"
+
+#: templates/contacts/list.html:6 templates/contacts/list.html:23
+#: templates/contacts/list2.html:6 templates/contacts/list2.html:25
+msgid "Список сотрудников"
+msgstr ""
+
+#: templates/contacts/list.html:14 templates/contacts/list2.html:15
+msgid ""
+"Официальный справочник Министерства культуры и информации Республики "
+"Казахстан"
+msgstr ""
+
+#: templates/contacts/list.html:43 templates/contacts/list2.html:43
+msgid "Всего сотрудников"
+msgstr ""
+
+#: templates/contacts/list.html:48
+msgid "Департаментов/Комитетов"
+msgstr ""
+
+#: templates/contacts/list.html:53 templates/contacts/list2.html:53
+msgid "Управлении"
+msgstr ""
+
+#: templates/contacts/list.html:81 templates/contacts/list2.html:87
+msgid "управлений"
+msgstr ""
+
+#: templates/contacts/list.html:87 templates/contacts/list.html:228
+#: templates/contacts/list.html:334 templates/contacts/list2.html:93
+#: templates/contacts/list2.html:260 templates/contacts/list2.html:402
+msgid "сотрудников"
+msgstr ""
+
+#: templates/contacts/list.html:101 templates/contacts/list.html:240
+#: templates/contacts/list.html:344 templates/contacts/list2.html:108
+#: templates/contacts/list2.html:274 templates/contacts/list2.html:413
+#: templates/contacts/partials/search_results.html:24
+msgid "Фото"
+msgstr ""
+
+#: templates/contacts/list.html:113 templates/contacts/list.html:243
+#: templates/contacts/list.html:356 templates/contacts/list2.html:123
+#: templates/contacts/list2.html:285 templates/contacts/list2.html:428
+#: templates/contacts/partials/search_results.html:41
+msgid "Телефоны"
+msgstr ""
+
+#: templates/contacts/list.html:180 templates/contacts/list.html:288
+#: templates/contacts/list.html:422
+#: templates/contacts/partials/search_results.html:123
+msgid "раб."
+msgstr ""
+
+#: templates/contacts/list.html:183 templates/contacts/list.html:291
+#: templates/contacts/list.html:429
+#: templates/contacts/partials/search_results.html:130
+msgid "моб."
+msgstr ""
+
+#: templates/contacts/list.html:202 templates/contacts/list.html:306
+#: templates/contacts/list.html:457 templates/contacts/list2.html:231
+#: templates/contacts/list2.html:538
+#: templates/contacts/partials/search_results.html:158
+msgid "Не указан"
+msgstr ""
+
+#: templates/contacts/list.html:329 templates/contacts/list2.html:397
+msgid "Сотрудники без отдела"
+msgstr ""
+
+#: templates/contacts/list.html:475 templates/contacts/list2.html:557
+#: templates/contacts/partials/search_results.html:186
+#: templates/contacts/partials/search_results.html:191
+#: templates/contacts/vacancies.html:86
+msgid "Предыдущая"
+msgstr ""
+
+#: templates/contacts/list.html:480 templates/contacts/list2.html:562
+#: templates/contacts/vacancies.html:90
+msgid "Страница"
+msgstr ""
+
+#: templates/contacts/list.html:480 templates/contacts/list2.html:562
+#: templates/contacts/partials/search_results.html:174
+#: templates/contacts/vacancies.html:90
+msgid "из"
+msgstr ""
+
+#: templates/contacts/list.html:485 templates/contacts/list2.html:569
+#: templates/contacts/partials/search_results.html:235
+#: templates/contacts/partials/search_results.html:240
+#: templates/contacts/vacancies.html:94
+msgid "Следующая"
+msgstr ""
+
+#: templates/contacts/list2.html:48
+msgid "Структурных подразделений"
+msgstr ""
+
+#: templates/contacts/partials/search_results.html:11
+msgid "Найдено результатов"
+msgstr ""
+
+#: templates/contacts/partials/search_results.html:13
+msgid "Всего контактов"
+msgstr ""
+
+#: templates/contacts/partials/search_results.html:33
+msgid "Должн."
+msgstr ""
+
+#: templates/contacts/partials/search_results.html:42
+msgid "Тел."
+msgstr ""
+
+#: templates/contacts/partials/search_results.html:51
+msgid "Каб."
+msgstr ""
+
+#: templates/contacts/partials/search_results.html:174
+msgid "Показано"
+msgstr ""
+
+#: templates/contacts/partials/search_results.html:174
+msgid "записей"
+msgstr ""
+
+#: templates/contacts/partials/search_results.html:258
+msgid "Результаты не найдены"
+msgstr ""
+
+#: templates/contacts/partials/search_results.html:261
+msgid "По заданным фильтрам ничего не найдено."
+msgstr ""
+
+#: templates/contacts/partials/search_results.html:269
+#: templates/contacts/search.html:387
+msgid "Сбросить фильтры"
+msgstr ""
+
+#: templates/contacts/partials/search_results.html:278
+msgid "База данных пуста"
+msgstr ""
+
+#: templates/contacts/partials/search_results.html:281
+msgid "В базе данных пока нет контактов."
+msgstr ""
+
+#: templates/contacts/partials/search_results.html:284
+msgid "Для импорта данных выполните команду"
+msgstr ""
+
+#: templates/contacts/search.html:5 templates/contacts/search.html:182
+msgid "Поиск контактов"
+msgstr ""
+
+#: templates/contacts/search.html:26 templates/contacts/search.html:298
+msgid "Все должности"
+msgstr ""
+
+#: templates/contacts/search.html:31 templates/contacts/search.html:48
+#: templates/contacts/search.html:65
+msgid "Ничего не найдено"
+msgstr ""
+
+#: templates/contacts/search.html:34 templates/contacts/search.html:51
+#: templates/contacts/search.html:68 templates/contacts/search.html:396
+msgid "Поиск..."
+msgstr ""
+
+#: templates/contacts/search.html:43 templates/contacts/search.html:231
+msgid "Все департаменты/комитеты"
+msgstr ""
+
+#: templates/contacts/search.html:60 templates/contacts/search.html:255
+msgid "Все управления"
+msgstr ""
+
+#: templates/contacts/search.html:184
+msgid "Используйте фильтры для поиска нужных контактов"
+msgstr ""
+
+#: templates/contacts/search.html:212
+msgid "Введите ФИО"
+msgstr ""
+
+#: templates/contacts/search.html:271
+msgid "Независимые управления"
+msgstr ""
+
+#: templates/contacts/search.html:322
+msgid "Все типы"
+msgstr ""
+
+#: templates/contacts/search.html:342
+msgid "Например: 751"
+msgstr ""
+
+#: templates/contacts/search.html:354
+msgid "Телефон"
+msgstr ""
+
+#: templates/contacts/search.html:362
+msgid "Рабочий или мобильный"
+msgstr ""
+
+#: templates/contacts/search.html:378
+msgid "Найти"
+msgstr ""
+
+#: templates/contacts/vacancies.html:26
+msgid "Всего активных вакансий"
+msgstr ""
+
+#: templates/contacts/vacancies.html:45
+#: templates/contacts/vacancy_detail.html:34
+msgid "Опубликовано"
+msgstr ""
+
+#: templates/contacts/vacancies.html:74
+msgid "Подробнее"
+msgstr ""
+
+#: templates/contacts/vacancies.html:102
+msgid "Активных вакансий пока нет"
+msgstr ""
+
+#: templates/contacts/vacancy_detail.html:40
+msgid "Назад к списку вакансий"
+msgstr ""
+
+#: templates/messaging/chat.html:31 templates/messaging/chat.html:40
+#: templates/messaging/chat.html:47 templates/messaging/chat.html:333
+msgid "Изменить фото"
+msgstr ""
+
+#: templates/messaging/chat.html:55
+msgid "Поиск сотрудников..."
+msgstr ""
+
+#: templates/messaging/chat.html:65
+msgid "Сотрудники не найдены"
+msgstr ""
+
+#: templates/messaging/chat.html:122
+msgid "Выберите сотрудника для начала общения"
+msgstr ""
+
+#: templates/messaging/chat.html:149
+msgid "Печатает..."
+msgstr ""
+
+#: templates/messaging/chat.html:164
+msgid "Загрузка старых сообщений..."
+msgstr ""
+
+#: templates/messaging/chat.html:171
+msgid "Нет сообщений"
+msgstr ""
+
+#: templates/messaging/chat.html:217
+msgid "Отправлено"
+msgstr ""
+
+#: templates/messaging/chat.html:270
+msgid "Прикрепить файл"
+msgstr ""
+
+#: templates/messaging/chat.html:279
+msgid "Введите сообщение..."
+msgstr ""
+
+#: templates/messaging/chat.html:286
+msgid "Отправить сообщение"
+msgstr ""
+
+#: templates/messaging/chat.html:353
+msgid "Выберите изображение"
+msgstr ""
+
+#: templates/messaging/chat.html:367
+msgid "Перетащите рамку для выбора области. Рекомендуется квадратное фото."
+msgstr ""
+
+#: templates/messaging/chat.html:378
+msgid "Отмена"
+msgstr ""
+
+#: templates/messaging/chat.html:389
+msgid "Сохранить"
+msgstr ""
+
+#: templates/messaging/chat.html:1754
+msgid "Только что"
+msgstr ""
+
+#: templates/messaging/chat.html:1755
+msgid "мин назад"
+msgstr ""
+
+#: templates/messaging/chat.html:1756
+msgid "ч назад"
+msgstr ""
+
+#: templates/messaging/chat.html:1808
+msgid "Выберите файл изображения (JPG, PNG, GIF или WebP)."
+msgstr ""
+
+#: templates/messaging/chat.html:1812
+msgid "Размер файла не должен превышать 5 МБ."
+msgstr ""
+
+#: templates/messaging/chat.html:1850
+msgid "Дождитесь загрузки изображения."
+msgstr ""
+
+#: templates/messaging/chat.html:1872 templates/messaging/chat.html:1875
+msgid "Ошибка загрузки. Попробуйте снова."
+msgstr ""
+
+#: templates/messaging/no_access.html:4
+msgid "Нет доступа"
+msgstr ""
+
+#: templates/messaging/no_access.html:12
+msgid "У вас нет доступа к чату"
+msgstr ""
+
+#: templates/messaging/no_access.html:13
+msgid "Вам необходимо обратиться к администраторам для получения доступа."
+msgstr ""

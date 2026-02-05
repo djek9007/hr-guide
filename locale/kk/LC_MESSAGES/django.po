@@ -8,11 +8,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-<<<<<<< HEAD
+
 "POT-Creation-Date: 2026-02-04 01:58+0500\n"
 =======
 "POT-Creation-Date: 2026-01-26 12:42+0500\n"
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 "PO-Revision-Date: 2026-01-24 12:00+0500\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -34,15 +33,14 @@ msgid ""
 msgstr ""
 "Департамент - ұйымның негізгі бөлімшесі. Басшылық - жоғарғы басқару деңгейі."
 
-<<<<<<< HEAD
+
 #: .\contacts\admin.py:83 .\contacts\admin.py:141 .\contacts\admin.py:322
 #: .\contacts\admin.py:571 .\contacts\models.py:49 .\contacts\models.py:120
 #: .\contacts\models.py:349 .\contacts\models.py:576
-=======
+
 #: contacts/admin.py:83 contacts/admin.py:141 contacts/admin.py:323
 #: contacts/admin.py:572 contacts/models.py:50 contacts/models.py:121
 #: contacts/models.py:350 contacts/models.py:599
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid "Порядок отображения"
 msgstr "Көрсету реті"
 
@@ -134,13 +132,12 @@ msgstr "Аватар"
 msgid "Требования и условия"
 msgstr "Талаптар мен шарттар"
 
-<<<<<<< HEAD
+
 #: .\contacts\admin.py:568 .\contacts\models.py:561
 #: .\templates\contacts\vacancy_detail.html:64
-=======
+
 #: contacts/admin.py:569 contacts/models.py:584
 #: templates/contacts/vacancy_detail.html:64
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid "Контактная информация"
 msgstr "Байланыс ақпараты"
 
@@ -177,7 +174,7 @@ msgstr ""
 "Тізімдегі департамент көрсету ретін көрсететін сан. Кіші Сан = жоғары "
 "тізімде. Егер көрсетілмесе, Алфавит бойынша сұрыптау"
 
-<<<<<<< HEAD
+
 #: .\contacts\models.py:58 .\contacts\models.py:129 .\contacts\models.py:180
 #: .\contacts\models.py:241 .\contacts\models.py:418 .\contacts\models.py:585
 #: .\messaging\models.py:32
@@ -205,7 +202,6 @@ msgstr "Жаңарту күні"
 
 #: contacts/models.py:69 contacts/models.py:107 contacts/models.py:275
 #: contacts/models.py:534 templates/contacts/search.html:224
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid "Департамент/Комитет"
 msgstr "Департамент/Комитет"
 
@@ -237,15 +233,14 @@ msgstr ""
 "Тізімдегі басқарманы көрсету ретін көрсететін сан. Кіші Сан = жоғары "
 "тізімде. Егер көрсетілмесе, Алфавит бойынша сұрыптау"
 
-<<<<<<< HEAD
+
 #: .\contacts\models.py:139 .\contacts\models.py:286 .\contacts\models.py:523
 #: .\templates\contacts\partials\search_results.html:37
 #: .\templates\contacts\search.html:248
-=======
+
 #: contacts/models.py:140 contacts/models.py:287 contacts/models.py:546
 #: templates/contacts/partials/search_results.html:37
 #: templates/contacts/search.html:248
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid "Управление"
 msgstr "Басқарма"
 
@@ -261,21 +256,20 @@ msgstr "Лауазымның атауы (орысша)"
 msgid "Название должности (казахский)"
 msgstr "Лауазымның атауы (қазақша)"
 
-<<<<<<< HEAD
+
 #: .\contacts\models.py:190 .\contacts\models.py:298 .\contacts\models.py:499
 #: .\templates\contacts\list.html:200 .\templates\contacts\list.html:333
 #: .\templates\contacts\list.html:443 .\templates\contacts\list2.html:118
 #: .\templates\contacts\list2.html:281 .\templates\contacts\list2.html:423
 #: .\templates\contacts\partials\search_results.html:32
 #: .\templates\contacts\search.html:291
-=======
+
 #: contacts/models.py:191 contacts/models.py:299 contacts/models.py:522
 #: templates/contacts/list.html:109 templates/contacts/list.html:242
 #: templates/contacts/list.html:352 templates/contacts/list2.html:118
 #: templates/contacts/list2.html:281 templates/contacts/list2.html:423
 #: templates/contacts/partials/search_results.html:32
 #: templates/contacts/search.html:291
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid "Должность"
 msgstr "Лауазым"
 
@@ -303,19 +297,18 @@ msgstr "Қабат"
 msgid "Корпус/Здание"
 msgstr "Корпус/Ғимарат"
 
-<<<<<<< HEAD
+
 #: .\contacts\models.py:251 .\contacts\models.py:309
 #: .\templates\contacts\list.html:212 .\templates\contacts\list.html:336
 #: .\templates\contacts\list.html:455 .\templates\contacts\list2.html:133
 #: .\templates\contacts\list2.html:293 .\templates\contacts\list2.html:438
 #: .\templates\contacts\partials\search_results.html:50
-=======
+
 #: contacts/models.py:252 contacts/models.py:310
 #: templates/contacts/list.html:121 templates/contacts/list.html:245
 #: templates/contacts/list.html:364 templates/contacts/list2.html:133
 #: templates/contacts/list2.html:293 templates/contacts/list2.html:438
 #: templates/contacts/partials/search_results.html:50
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid "Кабинет"
 msgstr "Кабинет"
 
@@ -343,21 +336,19 @@ msgstr "Пайдаланушы"
 msgid "Связь с учетной записью пользователя для доступа к чату"
 msgstr "Чатқа кіру үшін пайдаланушы есептік жазбасымен байланыс"
 
-<<<<<<< HEAD
 #: .\contacts\models.py:328 .\templates\contacts\list.html:196
 #: .\templates\contacts\list.html:332 .\templates\contacts\list.html:439
 #: .\templates\contacts\list2.html:113 .\templates\contacts\list2.html:277
 #: .\templates\contacts\list2.html:418
 #: .\templates\contacts\partials\search_results.html:28
 #: .\templates\contacts\search.html:204
-=======
+
 #: contacts/models.py:329 templates/contacts/list.html:105
 #: templates/contacts/list.html:241 templates/contacts/list.html:348
 #: templates/contacts/list2.html:113 templates/contacts/list2.html:277
 #: templates/contacts/list2.html:418
 #: templates/contacts/partials/search_results.html:28
 #: templates/contacts/search.html:204
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid "ФИО"
 msgstr "ТАӘ"
 
@@ -415,7 +406,7 @@ msgstr "Жұмыс телефоны"
 msgid "Мобильный телефон"
 msgstr "Ұялы телефон"
 
-<<<<<<< HEAD
+
 #: .\contacts\models.py:395 .\templates\contacts\developer_contact.html:25
 #: .\templates\contacts\list.html:208 .\templates\contacts\list.html:335
 #: .\templates\contacts\list.html:451 .\templates\contacts\list2.html:128
@@ -484,13 +475,12 @@ msgid ""
 msgstr ""
 
 #: contacts/models.py:524
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid "Должность для вакансии. Позволяет фильтровать вакансии по должностям."
 msgstr ""
 "Вакансияға арналған лауазым. Вакансияларды лауазымдар бойынша сүзуге "
 "мүмкіндік береді."
 
-<<<<<<< HEAD
+
 #: .\contacts\models.py:512
 msgid "Департамент/комитет (если вакансия на уровне департамента)"
 msgstr "Департамент/комитет (егер вакансия департамент деңгейінде болса)"
@@ -574,7 +564,6 @@ msgid "Показывать ли вакансию в списке и на сай
 msgstr "Вакансияны тізімде және сайтта көрсету керек пе"
 
 #: contacts/models.py:602
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid ""
 "Число для сортировки вакансий в списке. Меньшее число = выше в списке. Если "
 "не указано, сортировка по дате создания."
@@ -582,7 +571,7 @@ msgstr ""
 "Тізімдегі вакансияларды сұрыптауға арналған сан. Төменгі сан = тізімде "
 "жоғары. Егер көрсетілмесе, жасалған күні бойынша сұрыптау."
 
-<<<<<<< HEAD
+
 #: .\contacts\models.py:595 .\templates\contacts\vacancies.html:56
 msgid "Вакансия"
 msgstr "Вакансия"
@@ -678,7 +667,6 @@ msgid "Пароль должен содержать минимум 8 симво�
 msgstr "Құпия сөз кемінде 8 таңбадан тұруы керек."
 
 #: contacts/views.py:408
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid "Пароль успешно изменен. Пожалуйста, войдите снова с новым паролем."
 msgstr "Құпия сөз сәтті өзгертілді. Жаңа құпия сөзбен қайта кіріңіз."
 
@@ -702,15 +690,14 @@ msgstr "Белсенді"
 msgid "Активен ли чат"
 msgstr "Чат белсенді ме"
 
-<<<<<<< HEAD
+
 #: .\messaging\models.py:52 .\messaging\models.py:89 .\templates\base.html:66
 #: .\templates\base.html:150 .\templates\contacts\chat.html:4
 #: .\templates\contacts\chat.html:14 .\templates\messaging\chat.html:5
-=======
+
 #: messaging/models.py:52 messaging/models.py:89 templates/base.html:65
 #: templates/base.html:149 templates/contacts/chat.html:4
 #: templates/contacts/chat.html:14 templates/messaging/chat.html:5
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid "Чат"
 msgstr "Чат"
 
@@ -730,11 +717,10 @@ msgstr "Хабарлама мәтіні"
 msgid "Дата отправки"
 msgstr "Жіберілген күні"
 
-<<<<<<< HEAD
+
 #: .\messaging\models.py:119 .\templates\messaging\chat.html:219
-=======
+
 #: messaging/models.py:119 templates/messaging/chat.html:220
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid "Прочитано"
 msgstr "Оқылды"
 
@@ -795,20 +781,19 @@ msgstr "Тіркемелер"
 msgid "Смена пароля"
 msgstr "Құпия сөзді ауыстыру"
 
-<<<<<<< HEAD
+
 #: .\templates\accounts\change_password.html:4
 #: .\templates\accounts\login.html:4 .\templates\base.html:9
 #: .\templates\base.html:188 .\templates\contacts\chat.html:4
 #: .\templates\contacts\developer_contact.html:4
 #: .\templates\contacts\list.html:6 .\templates\contacts\search.html:5
 #: .\templates\contacts\vacancies.html:4 .\templates\messaging\chat.html:5
-=======
+
 #: templates/accounts/change_password.html:4 templates/accounts/login.html:4
 #: templates/base.html:9 templates/base.html:187 templates/contacts/chat.html:4
 #: templates/contacts/developer_contact.html:4 templates/contacts/list.html:6
 #: templates/contacts/search.html:5 templates/contacts/vacancies.html:4
 #: templates/messaging/chat.html:5
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid "Справочник Министерства культуры и информации Республики Казахстан"
 msgstr ""
 "Қазақстан Республикасы Мәдениет және ақпарат министрлігінің анықтамалығы"
@@ -991,7 +976,6 @@ msgid "Связь с разработчиком"
 msgstr "Әзірлеушімен байланыс"
 
 #: templates/base.html:212
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid "Закрыть меню"
 msgstr "Мәзірді жабу"
 
@@ -1019,7 +1003,6 @@ msgstr "Жақында мұнда толыққанды байланыс инте
 #: .\templates\contacts\developer_contact.html:14
 =======
 #: templates/contacts/developer_contact.html:14
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid ""
 "По вопросам работы сайта, предложений и сообщений об ошибках вы можете "
 "связаться с разработчиком:"
@@ -1031,7 +1014,6 @@ msgstr ""
 #: .\templates\contacts\developer_contact.html:49
 =======
 #: templates/contacts/developer_contact.html:49
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid ""
 "Контакты разработчика пока не настроены. Обратитесь к администратору сайта."
 msgstr ""
@@ -1051,7 +1033,6 @@ msgstr "Әзірлеуші:"
 
 #: templates/contacts/list.html:6 templates/contacts/list.html:23
 #: templates/contacts/list2.html:6 templates/contacts/list2.html:25
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid "Список сотрудников"
 msgstr "Қызметкерлер тізімі"
 
@@ -1224,7 +1205,6 @@ msgstr "ішінен"
 #: templates/contacts/partials/search_results.html:235
 #: templates/contacts/partials/search_results.html:240
 #: templates/contacts/vacancies.html:94
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid "Следующая"
 msgstr "Келесі"
 
@@ -1494,7 +1474,6 @@ msgid "Выберите изображение"
 msgstr "Суретті таңдаңыз"
 
 #: templates/messaging/chat.html:367
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 msgid "Перетащите рамку для выбора области. Рекомендуется квадратное фото."
 msgstr ""
 "Аймақты таңдау үшін рамканы сүйреңіз. Шаршы форматтағы сурет ұсынылады."
@@ -1585,6 +1564,27 @@ msgstr "Сізде чатқа қолжетімділік жоқ"
 msgid "Вам необходимо обратиться к администраторам для получения доступа."
 msgstr "Қолжетімділік алу үшін әкімшілерге хабарласыңыз."
 
->>>>>>> 05f6407f6e452dec273ff74d887ec1f8e98b47ad
 #~ msgid "Введите ваши учетные данные для доступа к справочнику"
 #~ msgstr "Анықтамалыққа кіру үшін есептік деректеріңізді енгізіңіз"
+
+# Announcements translations
+msgid "Объявления"
+msgstr "Хабарландырулар"
+
+msgid "Новое"
+msgstr "Жаңа"
+
+msgid "Нет объявлений"
+msgstr "Хабарландырулар жоқ"
+
+msgid "Навигация по страницам"
+msgstr "Беттер бойынша навигация"
+
+msgid "Страница %(current)s из %(total)s"
+msgstr "%(current)s бет, барлығы %(total)s"
+
+msgid "Читать далее"
+msgstr "Толығырақ оқу"
+
+msgid "Назад к списку"
+msgstr "Тізімге оралу"

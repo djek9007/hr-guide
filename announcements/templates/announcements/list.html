@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Объявления" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">
+        <i class="fas fa-bullhorn text-blue-600 mr-2"></i>
+        {% trans "Объявления" %}
+    </h1>
+
+    {% if announcements %}
+        <div class="space-y-4">
+            {% for announcement in announcements %}
+                <a href="{% url 'announcements:detail' announcement.pk %}" class="block bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-start justify-between mb-2">
+                        <h2 class="text-xl font-semibold text-gray-800">
+                            {% if current_language == 'kk' %}
+                                {{ announcement.title_kk }}
+                            {% else %}
+                                {{ announcement.title_ru }}
+                            {% endif %}
+                        </h2>
+                        {% if announcement.is_new %}
+                            <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                                {% trans "Новое" %}
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="text-sm text-gray-500 mb-3">
+                        <i class="far fa-calendar-alt mr-1"></i>
+                        {{ announcement.published_date|date:"d.m.Y H:i" }}
+                    </div>
+                    
+                    <div class="text-gray-700 prose max-w-none">
+                        {% if current_language == 'kk' %}
+                            {{ announcement.content_kk|safe|truncatewords_html:50 }}
+                        {% else %}
+                            {{ announcement.content_ru|safe|truncatewords_html:50 }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-4 text-blue-600 text-sm font-medium">
+                        {% trans "Читать далее" %} <i class="fas fa-arrow-right ml-1"></i>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+
+        {% comment %}Пагинация{% endcomment %}
+        {% if is_paginated %}
+            <div class="mt-8 flex justify-center">
+                <nav class="inline-flex rounded-md shadow-sm" aria-label="{% trans 'Навигация по страницам' %}">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1" class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                        <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    {% else %}
+                        <span class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-not-allowed">
+                            <i class="fas fa-angle-double-left"></i>
+                        </span>
+                        <span class="relative inline-flex items-center px-3 py-2 border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-not-allowed">
+                            <i class="fas fa-angle-left"></i>
+                        </span>
+                    {% endif %}
+
+                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                        {% blocktrans with current=page_obj.number total=page_obj.paginator.num_pages %}
+                            Страница {{ current }} из {{ total }}
+                        {% endblocktrans %}
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}" class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    {% else %}
+                        <span class="relative inline-flex items-center px-3 py-2 border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-not-allowed">
+                            <i class="fas fa-angle-right"></i>
+                        </span>
+                        <span class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-not-allowed">
+                            <i class="fas fa-angle-double-right"></i>
+                        </span>
+                    {% endif %}
+                </nav>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+            <i class="fas fa-inbox text-gray-400 text-5xl mb-4"></i>
+            <p class="text-gray-600 text-lg">{% trans "Нет объявлений" %}</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

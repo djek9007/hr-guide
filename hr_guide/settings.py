@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',  # Django REST Framework для API
     'contacts.apps.ContactsConfig',  # Наше приложение для контактов
     'messaging',  # Приложение для чата
+    'announcements',  # Приложение для объявлений
     'image_cropping',  # Для обрезки изображений
     'easy_thumbnails',  # Для создания миниатюр
     'import_export',  # Для импорта и экспорта данных в админке
@@ -81,6 +82,7 @@ TEMPLATES = [
                 'django.template.context_processors.i18n',  # Для локализации
                 'contacts.context_processors.user_display_name',  # ФИО пользователя в шапке
                 'contacts.context_processors.developer_contacts',  # Контакты разработчика для футера и страницы связи
+                'announcements.context_processors.new_announcements_count',  # Счетчик новых объявлений
             ],
         },
     },
@@ -239,10 +241,45 @@ LOGOUT_REDIRECT_URL = '/'
 # Настройки для CKEditor
 CKEDITOR_CONFIGS = {
     'default': {
-        'toolbar': 'full',
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Bold', 'Italic', 'Underline', 'Strike'],
+            ['NumberedList', 'BulletedList'],
+            ['Link', 'Unlink'],
+            ['RemoveFormat'],
+            ['Source'],
+        ],
         'height': 300,
         'width': '100%',
         'language': 'ru',
+        # Безопасная санитизация HTML для предотвращения XSS-атак
+        'removePlugins': 'image,flash,iframe,forms,smiley,specialchar,pagebreak,save,newpage,preview,print,templates,about',
+        'removeButtons': 'Subscript,Superscript,Anchor,Styles,Format',
+        # Разрешенные HTML-теги и атрибуты
+        'allowedContent': {
+            'p': True,
+            'br': True,
+            'strong': True,
+            'em': True,
+            'u': True,
+            's': True,
+            'ol': True,
+            'ul': True,
+            'li': True,
+            'a': {
+                'attributes': ['href', 'title'],
+                'protocols': ['http', 'https', 'mailto'],
+            },
+        },
+        # Запрещаем опасные элементы
+        'disallowedContent': 'script; *[on*]; iframe; object; embed; applet; form; input; button; select; textarea',
+        # Дополнительная защита
+        'forcePasteAsPlainText': False,
+        'pasteFromWordRemoveFontStyles': True,
+        'pasteFromWordRemoveStyles': True,
+        # Автоматическое удаление пустых тегов
+        'autoParagraph': True,
+        'fillEmptyBlocks': False,
     },
 }
 

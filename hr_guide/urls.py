@@ -26,6 +26,9 @@ urlpatterns = [
     
     # Чат (заменяем старый URL из contacts)
     path('chat/', include('messaging.urls')),
+    
+    # Объявления
+    path('announcements/', include('announcements.urls')),
 ]
 
 # Обслуживание медиа файлов
